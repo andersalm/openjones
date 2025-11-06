@@ -5,6 +5,31 @@
 
 ---
 
+## ⚠️ CRITICAL - Before You Start
+
+🚨 **You MUST be on the correct branch!**
+
+**Development Branch:** `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ`
+**Project Location:** `/home/user/openjones/openjones-web/`
+**Project Status:** Phase 0 COMPLETE - All files already exist!
+
+**First steps:**
+```bash
+# Check you're on the right branch
+git branch  # Should show: claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+
+# If not, switch to it
+git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+
+# Verify project exists
+ls openjones-web/  # Should see: frontend/, shared/, docs/, package.json
+```
+
+❌ **DO NOT create new project from scratch!**
+✅ **DO use existing project structure!**
+
+---
+
 ## 🎯 How to Join as a Worker
 
 ### Step 1: Pick Your Worker Number
@@ -128,6 +153,19 @@ Look at the Track Availability below and pick one that needs work!
 ```markdown
 You are joining the OpenJones browser port project as a worker.
 
+⚠️ **CRITICAL - Check your branch first!**
+- Branch: `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ`
+- Location: `/home/user/openjones/openjones-web/`
+- Project Status: Phase 0 COMPLETE (DO NOT create from scratch!)
+
+**Step 0 - Verify branch & location:**
+```bash
+pwd  # Should be: /home/user/openjones
+git branch  # Should show: claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ  # If not on it
+ls openjones-web/  # Verify project exists
+```
+
 **Step 1 - Choose your identity:**
 1. Pick an available worker number (1-10) from WORKER_STATUS.md
 2. Claim it by updating the table (change status to 🔴 Occupied)
@@ -146,9 +184,10 @@ You are joining the OpenJones browser port project as a worker.
 
 **Step 4 - Set up:**
 1. Location: /home/user/openjones/openjones-web
-2. Create branch: git checkout -b worker-[N]/[task-name]
-3. Read shared/types/contracts.ts (understand interfaces)
-4. Read shared/mocks/index.ts (use mocks for dependencies)
+2. Ensure on main branch: git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+3. Create branch: git checkout -b worker-[N]/[task-name]
+4. Read shared/types/contracts.ts (understand interfaces)
+5. Read shared/mocks/index.ts (use mocks for dependencies)
 
 **Step 5 - Start coding:**
 1. Implement your task following the contracts

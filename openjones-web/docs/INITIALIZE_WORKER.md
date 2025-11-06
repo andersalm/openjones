@@ -15,9 +15,39 @@ You are joining the OpenJones browser port project.
 **Tech Stack:** React 19 + TypeScript + Vite
 **Location:** /home/user/openjones/openjones-web
 
+⚠️ **IMPORTANT - PROJECT ALREADY EXISTS!**
+- Phase 0 setup is COMPLETE
+- All files already created
+- DO NOT create new project from scratch
+- DO NOT initialize new project structure
+
 ---
 
 ## 🎯 Your Onboarding Process
+
+**Step 0: VERIFY BRANCH & LOCATION (CRITICAL!)**
+
+🚨 **You MUST be on the correct branch first!**
+
+```bash
+# Check current location and branch
+pwd  # Should show: /home/user/openjones
+git branch  # Check which branch you're on
+
+# If you're NOT on claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ, switch to it:
+git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+
+# Verify the project exists
+ls openjones-web/  # You should see: frontend/, shared/, docs/, package.json, etc.
+
+# If you don't see these directories, STOP and ask for help!
+```
+
+✅ **Pre-flight checklist:**
+- [ ] I'm in `/home/user/openjones` directory
+- [ ] I'm on branch `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ`
+- [ ] I can see `openjones-web/` directory with existing files
+- [ ] Phase 0 is already complete - I will NOT create files from scratch
 
 **Step 1: Choose Your Identity**
 
@@ -56,7 +86,11 @@ Open TASKS_POOL.md and:
 **Step 4: Set Up Your Environment**
 
 ```bash
+# Navigate to project (if not already there)
 cd /home/user/openjones/openjones-web
+
+# Create your worker branch FROM the main development branch
+git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
 git checkout -b worker-[N]/[task-name]
 # Example: git checkout -b worker-1/game-state
 ```
@@ -192,6 +226,7 @@ Edit TASKS_POOL.md Task A2:
 **Step 4: Create branch**
 ```bash
 cd /home/user/openjones/openjones-web
+git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
 git checkout -b worker-1/game-state
 ```
 

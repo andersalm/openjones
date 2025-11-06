@@ -12,15 +12,30 @@
 ```markdown
 You are joining the OpenJones browser port project.
 
-**Location:** /home/user/openjones/openjones-web
+⚠️ **CRITICAL - Project Already Exists!**
+- Branch: `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ`
+- Location: `/home/user/openjones/openjones-web`
+- Phase 0 is COMPLETE - DO NOT create from scratch!
 
-**Your onboarding (5 steps):**
+**Your onboarding (6 steps):**
 
-1. **Choose worker number:** Open WORKER_STATUS.md, pick any number 1-10, mark it 🔴 Occupied
-2. **Choose track:** Read tracks in WORKER_STATUS.md, pick one (A/B/C/D/E), update file
-3. **Pick task:** Open TASKS_POOL.md, find a task in your track, mark "In Progress [Worker N]"
-4. **Create branch:** `git checkout -b worker-[N]/[task-name]`
-5. **Start coding:** Read contracts.ts, implement your task, use mocks for dependencies
+1. **Verify branch & location (FIRST!):**
+   ```bash
+   pwd  # Should be: /home/user/openjones
+   git branch  # Check current branch
+   git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ  # Switch if needed
+   ls openjones-web/  # Verify project exists
+   ```
+
+2. **Choose worker number:** Open WORKER_STATUS.md, pick any number 1-10, mark it 🔴 Occupied
+3. **Choose track:** Read tracks in WORKER_STATUS.md, pick one (A/B/C/D/E), update file
+4. **Pick task:** Open TASKS_POOL.md, find a task in your track, mark "In Progress [Worker N]"
+5. **Create branch:**
+   ```bash
+   git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+   git checkout -b worker-[N]/[task-name]
+   ```
+6. **Start coding:** Read contracts.ts, implement your task, use mocks for dependencies
 
 **Essential files:**
 - WORKER_STATUS.md ← Pick number & track
@@ -138,6 +153,7 @@ Start by reading WORKER_STATUS.md!
 
 4. **Create branch:**
    ```bash
+   git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
    git checkout -b worker-3/game-state
    ```
 
