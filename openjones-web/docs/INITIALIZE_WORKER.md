@@ -9,45 +9,44 @@
 ### For AI Workers (Claude, GPT, etc.)
 
 ```markdown
-You are joining the OpenJones browser port project.
+🚨 STOP! Execute this command FIRST before doing ANYTHING else:
 
-**Project:** Browser-based port of "Jones in the Fast Lane" game
+git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+
+You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT initialize.
+
+---
+
+**Project:** OpenJones browser port (Jones in the Fast Lane)
 **Tech Stack:** React 19 + TypeScript + Vite
-**Location:** /home/user/openjones/openjones-web
-
-⚠️ **IMPORTANT - PROJECT ALREADY EXISTS!**
-- Phase 0 setup is COMPLETE
-- All files already created
-- DO NOT create new project from scratch
-- DO NOT initialize new project structure
+**Location:** /home/user/openjones/openjones-web (ALREADY EXISTS)
+**Branch:** claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ (SWITCH NOW!)
+**Status:** Phase 0 COMPLETE - All files already created
 
 ---
 
 ## 🎯 Your Onboarding Process
 
-**Step 0: VERIFY BRANCH & LOCATION (CRITICAL!)**
-
-🚨 **You MUST be on the correct branch first!**
+**Step 0: SWITCH BRANCH IMMEDIATELY (DO THIS FIRST!)**
 
 ```bash
-# Check current location and branch
-pwd  # Should show: /home/user/openjones
-git branch  # Check which branch you're on
+# Navigate to project root
+cd /home/user/openjones
 
-# If you're NOT on claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ, switch to it:
+# SWITCH TO THE CORRECT BRANCH NOW
 git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
 
 # Verify the project exists
-ls openjones-web/  # You should see: frontend/, shared/, docs/, package.json, etc.
+ls openjones-web/  # You MUST see: frontend/, shared/, docs/, package.json
 
 # If you don't see these directories, STOP and ask for help!
 ```
 
-✅ **Pre-flight checklist:**
+⛔ **DO NOT proceed until you verify:**
+- [ ] I executed: `git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ`
 - [ ] I'm in `/home/user/openjones` directory
-- [ ] I'm on branch `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ`
-- [ ] I can see `openjones-web/` directory with existing files
-- [ ] Phase 0 is already complete - I will NOT create files from scratch
+- [ ] I can see `openjones-web/` directory with frontend/, shared/, docs/
+- [ ] Phase 0 is complete - I will NOT create new project structure
 
 **Step 1: Choose Your Identity**
 

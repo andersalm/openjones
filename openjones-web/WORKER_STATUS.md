@@ -151,20 +151,26 @@ Look at the Track Availability below and pick one that needs work!
 ### For AI Workers (Copy/Paste This)
 
 ```markdown
+🚨 STOP! Execute this command FIRST before reading any files:
+
+git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+
+---
+
 You are joining the OpenJones browser port project as a worker.
 
-⚠️ **CRITICAL - Check your branch first!**
-- Branch: `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ`
-- Location: `/home/user/openjones/openjones-web/`
+**CRITICAL INFO:**
+- Branch: `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ` (SWITCH TO THIS IMMEDIATELY)
+- Location: `/home/user/openjones/openjones-web/` (ALREADY EXISTS)
 - Project Status: Phase 0 COMPLETE (DO NOT create from scratch!)
 
-**Step 0 - Verify branch & location:**
+**Step 0 - SWITCH BRANCH FIRST:**
 ```bash
-pwd  # Should be: /home/user/openjones
-git branch  # Should show: claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
-git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ  # If not on it
-ls openjones-web/  # Verify project exists
+cd /home/user/openjones
+git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+ls openjones-web/  # Verify you see: frontend/, shared/, docs/
 ```
+⛔ DO NOT proceed until you're on the correct branch and see these directories!
 
 **Step 1 - Choose your identity:**
 1. Pick an available worker number (1-10) from WORKER_STATUS.md
