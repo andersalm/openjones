@@ -10,9 +10,12 @@
 ### Copy/Paste This Prompt for AI Workers
 
 ```markdown
-🚨 STOP! Execute this command FIRST before doing ANYTHING else:
+🚨 STOP! Execute these commands FIRST before doing ANYTHING else:
 
+cd /home/user/openjones
+git fetch origin
 git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+git pull origin claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
 
 You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT initialize.
 
@@ -20,15 +23,13 @@ You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT i
 
 **Project:** OpenJones browser port (Jones in the Fast Lane)
 **Location:** /home/user/openjones/openjones-web (ALREADY EXISTS)
-**Branch:** claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ (SWITCH TO THIS NOW)
+**Branch:** claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ (MUST FETCH FROM REMOTE)
 **Status:** Phase 0 COMPLETE - All setup already done
 
 **Your onboarding (6 steps):**
 
-1. **SWITCH BRANCH IMMEDIATELY:**
+1. **VERIFY PROJECT EXISTS:**
    ```bash
-   cd /home/user/openjones
-   git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
    ls openjones-web/  # Verify you see: frontend/, shared/, docs/, package.json
    ```
    ⛔ DO NOT proceed until you see these directories!

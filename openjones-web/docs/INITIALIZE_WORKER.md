@@ -9,9 +9,12 @@
 ### For AI Workers (Claude, GPT, etc.)
 
 ```markdown
-🚨 STOP! Execute this command FIRST before doing ANYTHING else:
+🚨 STOP! Execute these commands FIRST before doing ANYTHING else:
 
+cd /home/user/openjones
+git fetch origin
 git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+git pull origin claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
 
 You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT initialize.
 
@@ -20,30 +23,24 @@ You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT i
 **Project:** OpenJones browser port (Jones in the Fast Lane)
 **Tech Stack:** React 19 + TypeScript + Vite
 **Location:** /home/user/openjones/openjones-web (ALREADY EXISTS)
-**Branch:** claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ (SWITCH NOW!)
+**Branch:** claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ (MUST FETCH FROM REMOTE)
 **Status:** Phase 0 COMPLETE - All files already created
 
 ---
 
 ## 🎯 Your Onboarding Process
 
-**Step 0: SWITCH BRANCH IMMEDIATELY (DO THIS FIRST!)**
+**Step 0: VERIFY PROJECT EXISTS (DO THIS FIRST!)**
 
 ```bash
-# Navigate to project root
-cd /home/user/openjones
-
-# SWITCH TO THE CORRECT BRANCH NOW
-git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
-
-# Verify the project exists
+# Verify the project exists (you already fetched it above)
 ls openjones-web/  # You MUST see: frontend/, shared/, docs/, package.json
 
 # If you don't see these directories, STOP and ask for help!
 ```
 
 ⛔ **DO NOT proceed until you verify:**
-- [ ] I executed: `git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ`
+- [ ] I executed the git commands at the top
 - [ ] I'm in `/home/user/openjones` directory
 - [ ] I can see `openjones-web/` directory with frontend/, shared/, docs/
 - [ ] Phase 0 is complete - I will NOT create new project structure
