@@ -1,4 +1,12 @@
-# OpenJones Browser Port - Session Handoff Document
+# ⚠️ ARCHIVED - SESSION_HANDOFF.md
+
+**This document is ARCHIVED and assumes session continuity.**
+
+**For NEW coordinator sessions, use:** `NEW_SESSION_START.md`
+
+---
+
+# OpenJones Browser Port - Session Handoff Document (Historical)
 **Date:** 2025-11-07
 **Branch:** `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ`
 **Role:** Worker Coordinator & Verifier

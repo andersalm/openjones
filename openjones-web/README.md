@@ -2,9 +2,9 @@
 
 Modern browser-based port of the classic 1990 life simulation game "Jones in the Fast Lane" by Sierra Entertainment.
 
-**Status:** 🏗️ Phase 0 Complete - Ready for Development
-**Team:** Parallel development with 3-5 workers
-**Timeline:** 10-14 weeks (team of 3) | 18-22 weeks (solo)
+**Status:** 🚀 Phase 1 In Progress - Core Engine & UI Foundation (16/18 tasks complete)
+**Team:** Parallel AI worker system with coordinator
+**Current Branch:** `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ`
 
 ---
 
@@ -127,16 +127,26 @@ npm run type-check   # TypeScript type checking
 
 ## 📖 Documentation
 
-### Essential Reading
-1. **`docs/WORKER_SETUP.md`** - Start here if you're new! ⭐
-2. **`shared/types/contracts.ts`** - All TypeScript interfaces
-3. **`TASK_PARALLEL.md`** - Complete parallel development plan
-4. **`COORDINATION.md`** - Daily team workflow
+### For Coordinators (New Sessions)
+**⭐ START HERE:** **`NEW_SESSION_START.md`** - Complete guide for starting a new coordinator session
 
-### Additional Docs
+This file includes:
+- How to verify current state (don't assume anything!)
+- How to review worker submissions
+- How to assign new tasks
+- Integration workflow and troubleshooting
+
+### For Understanding the Codebase
+1. **`TASKS_POOL.md`** - All 18 tasks with completion status
+2. **`WORKER_STATUS.md`** - Worker performance tracking
+3. **`shared/types/contracts.ts`** - All TypeScript interfaces
+4. **`frontend/src/engine/actions/README.md`** - Action system docs
+5. **`frontend/src/components/ui/README.md`** - UI component guidelines
+
+### Original Planning Docs (Reference Only)
+- `TASK_PARALLEL.md` - Initial parallel development plan
 - `TASK_MVP.md` - MVP scope and timeline
-- `TASK.md` - Full vision (includes optional features)
-- `PROJECT_STATUS.md` - Current project state
+- `COORDINATION.md` - Original workflow design
 
 ---
 
@@ -193,12 +203,14 @@ All tracks merge to `develop` and test together.
 - [x] Mock implementations
 - [x] Development environment
 
-### Phase 1: Core Port (Weeks 2-8)
-- [ ] Game engine (Track A)
-- [ ] Domain logic (Track B)
-- [ ] UI components (Track C)
-- [ ] Rendering system (Track D)
-- [ ] Integration & testing
+### Phase 1: Core Port 🏗️ (In Progress - 16/18 tasks complete)
+- [x] Game engine foundation (Track A) - 7/7 tasks
+- [x] Core buildings system (Track B) - 6/11 tasks
+- [x] UI components (Track C) - 3/4 tasks
+- [ ] Remaining: Employment Agency (B8), Housing Buildings (B11), Building Modal (C3)
+- [x] 700+ tests written with Vitest
+
+**Current Status:** Action system complete, basic buildings done, UI foundation ready
 
 **Deliverable:** Playable browser game
 
@@ -241,11 +253,14 @@ All tracks merge to `develop` and test together.
 
 ## 📊 Project Status
 
-**Current Phase:** Phase 0 Complete → Ready for Phase 1
-**Next Milestone:** Week 3 Integration (First compile)
-**Team Size:** TBD (1-5 workers)
+**Current Phase:** Phase 1 - Core Port (16/18 tasks complete)
+**Branch:** `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ`
+**Tests:** 700+ tests, ~70-80% pass rate
+**Next:** Complete remaining 2 tasks (B8, B11, C3) or start Phase 2
 
-See `PROJECT_STATUS.md` for detailed status.
+**Latest Integration:** Round 7 complete - Economic Actions & Action Menu
+
+See `TASKS_POOL.md` for detailed task status and `WORKER_STATUS.md` for worker performance.
 
 ---
 

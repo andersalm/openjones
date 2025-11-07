@@ -1,4 +1,12 @@
-# Worker Coordinator & Verifier - Session Instructions
+# ⚠️ ARCHIVED - COORDINATOR_INSTRUCTIONS.md
+
+**This document is ARCHIVED and assumes session continuity.**
+
+**For NEW coordinator sessions, use:** `NEW_SESSION_START.md`
+
+---
+
+# Worker Coordinator & Verifier - Session Instructions (Historical)
 
 **Role:** Worker Coordinator & Verifier
 **Session:** Round 8 and beyond
