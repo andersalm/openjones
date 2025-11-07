@@ -15,6 +15,7 @@ import {
   BuildingType,
   ActionType,
   IEconomyModel,
+  PossessionType,
 } from '../../../../shared/types/contracts';
 
 /**
@@ -304,13 +305,13 @@ describe('Bank Building', () => {
       expect(actions.length).toBeGreaterThan(0);
     });
 
-    it('should include stock trading submenu when inside', () => {
+    it('should include buy stock actions when inside', () => {
       const playerInside = createMockPlayer({ currentBuilding: 'bank-1' });
       const actions = bank.getAvailableActions(playerInside, game);
 
-      const stockAction = actions.find((a) => a.type === ActionType.SUBMENU);
-      expect(stockAction).toBeDefined();
-      expect(stockAction?.displayName).toContain('Stock');
+      const buyActions = actions.filter((a) => a.type === ActionType.PURCHASE);
+      expect(buyActions.length).toBeGreaterThan(0);
+      expect(buyActions[0]?.displayName).toContain('Buy');
     });
 
     it('should include exit action when inside', () => {
@@ -322,27 +323,141 @@ describe('Bank Building', () => {
     });
   });
 
-  describe('Stock Trading Submenu', () => {
-    it('should have correct properties', () => {
-      const playerInside = createMockPlayer({ currentBuilding: 'bank-1' });
+  describe('Buy Stock Actions', () => {
+    it('should create buy actions for all available stocks', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'bank-1', cash: 1000 });
       const actions = bank.getAvailableActions(playerInside, game);
-      const stockAction = actions.find((a) => a.type === ActionType.SUBMENU);
+      const buyActions = actions.filter((a) => a.type === ActionType.PURCHASE);
 
-      expect(stockAction?.displayName).toBe('Stock Trading');
-      expect(stockAction?.timeCost).toBe(0);
-      expect(stockAction?.canExecute(playerInside, game)).toBe(true);
+      const stocks = bank.getAvailableStocks();
+      expect(buyActions.length).toBe(stocks.length);
     });
 
-    it('should execute successfully as placeholder', () => {
-      const playerInside = createMockPlayer({ currentBuilding: 'bank-1' });
+    it('should have correct buy action properties', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'bank-1', cash: 1000 });
       const actions = bank.getAvailableActions(playerInside, game);
-      const stockAction = actions.find((a) => a.type === ActionType.SUBMENU);
+      const buyAction = actions.find((a) => a.type === ActionType.PURCHASE);
 
-      const result = stockAction!.execute(playerInside, game);
+      expect(buyAction?.displayName).toContain('Buy');
+      expect(buyAction?.timeCost).toBe(5);
+      expect(buyAction?.canExecute(playerInside, game)).toBe(true);
+    });
+
+    it('should execute buy action successfully', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'bank-1', cash: 1000 });
+      const actions = bank.getAvailableActions(playerInside, game);
+      const buyAction = actions.find((a) => a.type === ActionType.PURCHASE);
+
+      const result = buyAction!.execute(playerInside, game);
 
       expect(result.success).toBe(true);
-      expect(result.timeSpent).toBe(0);
-      expect(result.stateChanges).toHaveLength(0);
+      expect(result.timeSpent).toBe(5);
+      expect(result.stateChanges.length).toBeGreaterThan(0);
+
+      const cashChange = result.stateChanges.find((c) => c.type === 'cash');
+      const possessionAdd = result.stateChanges.find((c) => c.type === 'possession_add');
+      expect(cashChange).toBeDefined();
+      expect(possessionAdd).toBeDefined();
+    });
+
+    it('should fail buy action when insufficient cash', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'bank-1', cash: 1 });
+      const actions = bank.getAvailableActions(playerInside, game);
+      const buyAction = actions.find((a) => a.type === ActionType.PURCHASE);
+
+      const result = buyAction!.execute(playerInside, game);
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('Not enough cash');
+    });
+  });
+
+  describe('Sell Stock Actions', () => {
+    it('should create sell actions for owned stocks', () => {
+      const stockPossession = {
+        id: 'stock-test',
+        type: PossessionType.STOCK,
+        name: 'Test Stock',
+        value: 100,
+        purchasePrice: 100,
+        effects: [],
+        companyName: 'Test Company',
+        shares: 1,
+        pricePerShare: 100,
+        getCurrentValue: (price: number) => price,
+        getProfitLoss: (price: number) => price - 100,
+        getReturnPercentage: (price: number) => (price - 100) / 100,
+      } as any;
+
+      const playerInside = createMockPlayer({
+        currentBuilding: 'bank-1',
+        possessions: [stockPossession],
+      });
+      const actions = bank.getAvailableActions(playerInside, game);
+      const sellActions = actions.filter((a) => a.type === ActionType.SELL);
+
+      expect(sellActions.length).toBe(1);
+    });
+
+    it('should have correct sell action properties', () => {
+      const stockPossession = {
+        id: 'stock-test',
+        type: PossessionType.STOCK,
+        name: 'Test Stock',
+        value: 100,
+        purchasePrice: 100,
+        effects: [],
+        companyName: 'Test Company',
+        shares: 1,
+        pricePerShare: 100,
+        getCurrentValue: (price: number) => price,
+        getProfitLoss: (price: number) => price - 100,
+        getReturnPercentage: (price: number) => (price - 100) / 100,
+      } as any;
+
+      const playerInside = createMockPlayer({
+        currentBuilding: 'bank-1',
+        possessions: [stockPossession],
+      });
+      const actions = bank.getAvailableActions(playerInside, game);
+      const sellAction = actions.find((a) => a.type === ActionType.SELL);
+
+      expect(sellAction?.displayName).toContain('Sell');
+      expect(sellAction?.timeCost).toBe(5);
+    });
+
+    it('should execute sell action successfully', () => {
+      const stockPossession = {
+        id: 'stock-test',
+        type: PossessionType.STOCK,
+        name: 'Test Stock',
+        value: 100,
+        purchasePrice: 100,
+        effects: [],
+        companyName: 'Test Company',
+        shares: 1,
+        pricePerShare: 100,
+        getCurrentValue: (price: number) => price,
+        getProfitLoss: (price: number) => price - 100,
+        getReturnPercentage: (price: number) => (price - 100) / 100,
+      } as any;
+
+      const playerInside = createMockPlayer({
+        currentBuilding: 'bank-1',
+        possessions: [stockPossession],
+      });
+      const actions = bank.getAvailableActions(playerInside, game);
+      const sellAction = actions.find((a) => a.type === ActionType.SELL);
+
+      const result = sellAction!.execute(playerInside, game);
+
+      expect(result.success).toBe(true);
+      expect(result.timeSpent).toBe(5);
+
+      const cashChange = result.stateChanges.find((c) => c.type === 'cash');
+      const possessionRemove = result.stateChanges.find((c) => c.type === 'possession_remove');
+      expect(cashChange).toBeDefined();
+      expect(possessionRemove).toBeDefined();
     });
   });
 
@@ -483,9 +598,9 @@ describe('Bank Building', () => {
       const actions = myBank.getAvailableActions(gamePlayer, game);
       expect(actions.length).toBeGreaterThan(0);
 
-      // Check stock trading is available
-      const stockAction = actions.find((a) => a.type === ActionType.SUBMENU);
-      expect(stockAction).toBeDefined();
+      // Check buy stock actions are available
+      const buyActions = actions.filter((a) => a.type === ActionType.PURCHASE);
+      expect(buyActions.length).toBeGreaterThan(0);
     });
 
     it('should have Branch Manager as highest paid job', () => {
