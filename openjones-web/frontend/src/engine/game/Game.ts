@@ -412,13 +412,13 @@ export class Game implements IGame {
           break;
 
         case 'possession_add':
-          player.state.addPossession(change.value as IPossession);
+          player.state.possessions.push(change.value as IPossession);
           break;
 
         case 'possession_remove':
           {
             const possession = change.value as IPossession;
-            player.state.removePossession(possession.id);
+            player.state.possessions = player.state.possessions.filter(p => p.id !== possession.id);
           }
           break;
 

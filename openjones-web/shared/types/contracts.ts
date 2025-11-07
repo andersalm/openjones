@@ -216,14 +216,14 @@ export interface IPlayer {
 // ============================================
 
 export interface IActionRequirement {
-  type: 'cash' | 'measure' | 'job' | 'possession' | 'building';
+  type: 'cash' | 'measure' | 'job' | 'possession' | 'building' | 'location' | 'time';
   value: number | string;
   comparison?: 'gte' | 'lte' | 'eq';
   description: string;
 }
 
 export interface IStateChange {
-  type: 'cash' | 'measure' | 'possession_add' | 'possession_remove' | 'job' | 'position';
+  type: 'cash' | 'measure' | 'possession_add' | 'possession_remove' | 'job' | 'position' | 'location' | 'time';
   measure?: MeasureType;
   value: number | string | IPossession | IJob | IPosition;
   description: string;
@@ -299,6 +299,17 @@ export interface IVictoryResult {
     education: boolean;
   };
   isVictory: boolean;
+}
+
+export interface IVictoryCondition {
+  id: string;
+  name?: string;
+  type: 'measure' | 'cash' | 'education' | 'career' | 'happiness';
+  description: string;
+  targetValue: number;
+  currentValue: number;
+  measureType?: string;
+  isAchieved?: boolean;
 }
 
 // ============================================
