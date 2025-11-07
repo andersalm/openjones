@@ -37,16 +37,17 @@ Choose any available number (1-10):
 
 | Worker # | Status | Track | Started | Last Active |
 |----------|--------|-------|---------|-------------|
-| 1 | ✅ Complete | Track A | 2025-11-07 | Tasks A1, A2, A4, A5, A6, A7 done (Round 7) |
+| Session 1 Workers (Historical) ||||
+| 1 | ✅ Complete | Track A | 2025-11-07 | Tasks A1, A2, A4, A5, A6, A7 done |
 | 2 | ⚠️ Incomplete | Track B | 2025-11-07 | Tasks B1, B2, B4, B7 done (B8 wrong codebase) |
-| 3 | ✅ Complete | Track C | 2025-11-07 | Tasks A3, B3, B6, C1, C2, C4 done (Round 7) |
-| 4 | 🟢 Available | - | - | - |
-| 5 | 🟢 Available | - | - | - |
-| 6 | 🟢 Available | - | - | - |
-| 7 | 🟢 Available | - | - | - |
-| 8 | 🟢 Available | - | - | - |
-| 9 | 🟢 Available | - | - | - |
-| 10 | 🟢 Available | - | - | - |
+| 3 | ✅ Complete | Track C | 2025-11-07 | Tasks A3, B3, B6, C1, C2, C4 done |
+| 4 | ✅ Complete | Track A | 2025-11-07 | Task A8 (Zustand) done |
+| 5 | ✅ Complete | Track C | 2025-11-07 | Task C6 (Main Menu) done |
+| Session 2 Workers (Current) ||||
+| 1 | ✅ Complete | Track D | 2025-11-07 | Task D1 (Asset Prep) - 27 tests, 60 assets |
+| 2 | ✅ Complete | Track C | 2025-11-07 | Task C5 (GameBoard) - 31 tests |
+| 3 | ✅ Complete | Track B | 2025-11-07 | Task B9 (Shopping 1) - 120 tests, 3 buildings |
+| 4 | ✅ Complete | Track B | 2025-11-07 | Task B10 (Shopping 2) - 105 tests, 3 buildings |
 
 **Legend:**
 - 🟢 Available - Open slot
