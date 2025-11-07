@@ -34,5 +34,22 @@
     }
   },
   "include": ["frontend/src", "shared"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "frontend/src/engine/actions/ApplyForJobAction.ts",
+    "frontend/src/engine/actions/EnterBuildingAction.ts",
+    "frontend/src/engine/actions/ExitBuildingAction.ts",
+    "frontend/src/engine/actions/MovementAction.ts",
+    "frontend/src/engine/actions/PayRentAction.ts",
+    "frontend/src/engine/actions/PurchaseAction.ts",
+    "frontend/src/engine/actions/PurchaseClothesAction.ts",
+    "frontend/src/engine/actions/RelaxAction.ts",
+    "frontend/src/engine/actions/RentHouseAction.ts",
+    "frontend/src/engine/actions/StudyAction.ts",
+    "frontend/src/engine/actions/WorkAction.ts",
+    "frontend/src/engine/GameController.ts",
+    "frontend/src/input/InputHandler.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

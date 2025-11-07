@@ -1,5 +1,6 @@
 import { IPlayerState, IGame } from '@shared/types/contracts';
-import { Action, ActionResponse, StateChangeBuilder } from './Action';
+import { Action } from './Action';
+import { ActionResponse, StateChangeBuilder } from './ActionResponse';
 import { ActionType, IActionResponse, IActionRequirement as ActionRequirement } from '@shared/types/contracts';
 
 export class ExitBuildingAction extends Action {
