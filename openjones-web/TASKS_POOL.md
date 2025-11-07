@@ -46,7 +46,7 @@
 
 #### Task A2: Game State Management
 **Priority:** 🔴 P0
-**Status:** Available
+**Status:** ✅ Complete [Worker 1]
 **Estimated:** 6-8 hours
 **Files:** `frontend/src/engine/game/Game.ts`
 **Description:**
@@ -220,7 +220,7 @@
 
 #### Task B4: Measures System
 **Priority:** 🟠 P1
-**Status:** Available
+**Status:** ✅ Complete [Worker 2]
 **Estimated:** 4-5 hours
 **Files:** `frontend/src/engine/measures/Measure.ts`, `Health.ts`, `Happiness.ts`, `Education.ts`, `Career.ts`, `Wealth.ts`
 **Description:**
@@ -256,7 +256,7 @@
 
 #### Task B6: Building Base Class
 **Priority:** 🟠 P1
-**Status:** Available
+**Status:** ✅ Complete [Worker 3]
 **Estimated:** 3-4 hours
 **Files:** `frontend/src/engine/buildings/Building.ts`
 **Description:**
