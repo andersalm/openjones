@@ -62,10 +62,82 @@ export function App() {
     errorMessage: null,
   });
 
+  const [playerName, setPlayerName] = useState<string>('');
+
+  /**
+   * Stop the game
+   */
+  const stopGame = useCallback(() => {
+    if (gameControllerRef.current) {
+      gameControllerRef.current.stop();
+    }
+    if (renderCoordinatorRef.current) {
+      renderCoordinatorRef.current.stop();
+    }
+  }, []);
+
+  /**
+   * Update app state from game state
+   */
+  const updateAppState = useCallback((game: IGame) => {
+    if (!game || game.players.length === 0) return;
+
+    const player = game.getCurrentPlayer();
+    const playerState = player.state;
+
+    // Create victory conditions for UI
+    const victoryConditions: VictoryCondition[] = [
+      {
+        id: 'wealth',
+        type: 'cash',
+        description: 'Accumulate wealth',
+        targetValue: game.victoryConditions.targetWealth,
+        currentValue: player.state.cash,
+      },
+      {
+        id: 'career',
+        type: 'career',
+        description: 'Build your career',
+        targetValue: game.victoryConditions.targetCareer,
+        currentValue: player.state.career,
+      },
+    ];
+
+    setAppState(prev => ({
+      ...prev,
+      playerState,
+      currentWeek: game.currentWeek,
+      timeRemaining: game.timeUnitsRemaining,
+      victoryConditions,
+    }));
+
+    // Check for victory/defeat
+    const victoryResults = game.checkVictory();
+    if (victoryResults[0]?.isVictory) {
+      setAppState(prev => ({ ...prev, phase: 'victory' }));
+      stopGame();
+    } else if (player.state.health <= 0 || (player.state.cash <= 0 && game.currentWeek > 10)) {
+      setAppState(prev => ({ ...prev, phase: 'defeat' }));
+      stopGame();
+    }
+  }, [stopGame]);
+
   /**
    * Initialize a new game with full integration
+   * This is called when "Start Game" is clicked
    */
-  const initializeGame = useCallback((playerName: string) => {
+  const initializeGame = useCallback((name: string) => {
+    setPlayerName(name);
+    setAppState(prev => ({ ...prev, phase: 'playing' }));
+  }, []);
+
+  /**
+   * Set up game systems after canvas is rendered
+   */
+  useEffect(() => {
+    if (appState.phase !== 'playing' || !playerName || gameControllerRef.current) {
+      return;
+    }
     // Create game configuration
     const gameConfig = {
       players: [
@@ -145,70 +217,7 @@ export function App() {
 
     // Initial state update
     updateAppState(gameController.getGame());
-
-    setAppState(prev => ({
-      ...prev,
-      phase: 'playing',
-    }));
-  }, []);
-
-  /**
-   * Update app state from game state
-   */
-  const updateAppState = useCallback((game: IGame) => {
-    if (!game || game.players.length === 0) return;
-
-    const player = game.getCurrentPlayer();
-    const playerState = player.state;
-
-    // Create victory conditions for UI
-    const victoryConditions: VictoryCondition[] = [
-      {
-        id: 'wealth',
-        type: 'cash',
-        description: 'Accumulate wealth',
-        targetValue: game.victoryConditions.targetWealth,
-        currentValue: player.state.cash,
-      },
-      {
-        id: 'career',
-        type: 'career',
-        description: 'Build your career',
-        targetValue: game.victoryConditions.targetCareer,
-        currentValue: player.state.career,
-      },
-    ];
-
-    setAppState(prev => ({
-      ...prev,
-      playerState,
-      currentWeek: game.currentWeek,
-      timeRemaining: game.timeUnitsRemaining,
-      victoryConditions,
-    }));
-
-    // Check for victory/defeat
-    const victoryResults = game.checkVictory();
-    if (victoryResults[0]?.isVictory) {
-      setAppState(prev => ({ ...prev, phase: 'victory' }));
-      stopGame();
-    } else if (player.state.health <= 0 || (player.state.cash <= 0 && game.currentWeek > 10)) {
-      setAppState(prev => ({ ...prev, phase: 'defeat' }));
-      stopGame();
-    }
-  }, []);
-
-  /**
-   * Stop all game systems
-   */
-  const stopGame = useCallback(() => {
-    if (gameControllerRef.current) {
-      gameControllerRef.current.stop();
-    }
-    if (renderCoordinatorRef.current) {
-      renderCoordinatorRef.current.stop();
-    }
-  }, []);
+  }, [appState.phase, playerName, updateAppState]);
 
   /**
    * Clean up on unmount
@@ -323,6 +332,7 @@ export function App() {
     }
 
     // Reset state
+    setPlayerName('');
     setAppState({
       phase: 'menu',
       playerState: null,
