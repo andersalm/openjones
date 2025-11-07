@@ -43,11 +43,16 @@ Choose any available number (1-10):
 | 3 | ✅ Complete | Track C | 2025-11-07 | Tasks A3, B3, B6, C1, C2, C4 done |
 | 4 | ✅ Complete | Track A | 2025-11-07 | Task A8 (Zustand) done |
 | 5 | ✅ Complete | Track C | 2025-11-07 | Task C6 (Main Menu) done |
-| Session 2 Workers (Current) ||||
+| Session 2 Workers ||||
 | 1 | ✅ Complete | Track D | 2025-11-07 | Task D1 (Asset Prep) - 27 tests, 60 assets |
 | 2 | ✅ Complete | Track C | 2025-11-07 | Task C5 (GameBoard) - 31 tests |
 | 3 | ✅ Complete | Track B | 2025-11-07 | Task B9 (Shopping 1) - 120 tests, 3 buildings |
 | 4 | ✅ Complete | Track B | 2025-11-07 | Task B10 (Shopping 2) - 105 tests, 3 buildings |
+| Session 3 Workers (Current) ||||
+| 1 | ✅ Complete | Track D | 2025-11-07 | Task D2 (Sprite Manager) - 34 tests |
+| 2 | ✅ Complete | Track D | 2025-11-07 | Task D3 (Map Renderer) - 34 tests |
+| 3 | ✅ Complete | Track C | 2025-11-07 | Task C7 (Victory/GameOver) - 61 tests |
+| 4 | ✅ Complete | Track B | 2025-11-07 | Task B8 (Bank enhancements) - 5 new tests, 77 total |
 
 **Legend:**
 - 🟢 Available - Open slot
