@@ -3,7 +3,7 @@
 **Self-Service Task Board**
 **Pick any "Available" task and mark it "In Progress [Worker N]"**
 
-**Last Updated:** 2025-11-07 (Session 3 complete - updated by Session 4 coordinator)
+**Last Updated:** 2025-11-07 (Session 4 complete - D4, D5, C3, A1)
 
 ---
 
@@ -410,7 +410,7 @@
 
 #### Task C3: Building Modal
 **Priority:** 🟠 P1
-**Status:** Available
+**Status:** ✅ Complete [Session 4, Worker 3]
 **Estimated:** 5-6 hours
 **Files:** `frontend/src/components/Buildings/BuildingModal.tsx`
 **Description:**
@@ -563,7 +563,7 @@
 
 #### Task D4: Animation Engine
 **Priority:** 🟡 P2
-**Status:** Available
+**Status:** ✅ Complete [Session 4, Worker 1]
 **Estimated:** 5-6 hours
 **Files:** `frontend/src/rendering/AnimationEngine.ts`
 **Description:**
@@ -584,7 +584,7 @@
 
 #### Task D5: Effects Renderer
 **Priority:** 🟢 P3
-**Status:** Available
+**Status:** ✅ Complete [Session 4, Worker 2]
 **Estimated:** 4-5 hours
 **Files:** `frontend/src/rendering/EffectsRenderer.ts`
 **Description:**
