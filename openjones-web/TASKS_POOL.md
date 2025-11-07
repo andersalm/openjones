@@ -81,7 +81,7 @@
 
 #### Task A4: Base Action Classes
 **Priority:** 🟠 P1
-**Status:** Available
+**Status:** ✅ Complete [Worker 1]
 **Estimated:** 3-4 hours
 **Files:** `frontend/src/engine/actions/Action.ts`, `ActionResponse.ts`
 **Description:**
@@ -272,9 +272,9 @@
 
 ---
 
-#### Task B7: Employment Buildings
+#### Task B7: Core Buildings (Factory, College, Bank)
 **Priority:** 🟠 P1
-**Status:** Available
+**Status:** ✅ Complete [Worker 2]
 **Estimated:** 5-6 hours
 **Files:** `frontend/src/engine/buildings/EmploymentAgency.ts`, `Factory.ts`
 **Description:**
@@ -372,7 +372,7 @@
 
 #### Task C1: Design System Setup
 **Priority:** 🟡 P2
-**Status:** Available
+**Status:** ✅ Complete [Worker 3]
 **Estimated:** 4-5 hours
 **Files:** `frontend/src/components/ui/*`, Tailwind config
 **Description:**

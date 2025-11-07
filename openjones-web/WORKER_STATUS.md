@@ -1,6 +1,6 @@
 # Worker Status & Task Assignment
 
-**Last Updated:** 2025-11-06
+**Last Updated:** 2025-11-07
 **Update this file when you claim a track or task!**
 
 ---
@@ -37,9 +37,9 @@ Choose any available number (1-10):
 
 | Worker # | Status | Track | Started | Last Active |
 |----------|--------|-------|---------|-------------|
-| 1 | ✅ Complete | Track A | 2025-11-07 | Tasks A1, A2 done |
-| 2 | ✅ Complete | Track B | 2025-11-07 | Tasks B1, B2, B4 done |
-| 3 | ✅ Complete | Track A/B | 2025-11-07 | Tasks A3, B3, B6 done |
+| 1 | ✅ Complete | Track A | 2025-11-07 | Tasks A1, A2, A4 done (Round 4) |
+| 2 | ✅ Complete | Track B | 2025-11-07 | Tasks B1, B2, B4, B7 done (Round 4) |
+| 3 | ✅ Complete | Track A/B/C | 2025-11-07 | Tasks A3, B3, B6, C1 done (Round 4) |
 | 4 | 🟢 Available | - | - | - |
 | 5 | 🟢 Available | - | - | - |
 | 6 | 🟢 Available | - | - | - |
@@ -297,5 +297,5 @@ When you join, make sure you:
 
 ---
 
-**Last updated:** 2025-11-06
-**Next update:** When first worker joins!
+**Last updated:** 2025-11-07
+**Next update:** Round 5 starting!
