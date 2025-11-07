@@ -17,8 +17,11 @@ import {
   BuildingType,
   ActionType,
   IPosition,
+  IPossession,
+  PossessionType,
 } from '../../../../shared/types/contracts';
 import { Building } from './Building';
+import { Stock } from '../possessions/Stock';
 
 /**
  * Stock information for the bank
@@ -135,14 +138,22 @@ export class Bank extends Building {
 
   /**
    * Get available actions for a player at this building
-   * Bank offers stock trading (future) and exit
+   * Bank offers stock trading (buy/sell) and exit
    */
   getAvailableActions(player: IPlayerState, game: IGame): IAction[] {
     const actions: IAction[] = [];
 
     if (this.isPlayerInside(player)) {
-      // Stock trading submenu (placeholder for future implementation)
-      actions.push(this.createStockTradingSubmenu());
+      // Add buy actions for all available stocks
+      this.stocks.forEach((stock) => {
+        actions.push(this.createBuyStockAction(stock, game));
+      });
+
+      // Add sell actions for stocks the player owns
+      const playerStocks = player.possessions.filter((p) => p.type === PossessionType.STOCK);
+      playerStocks.forEach((possession) => {
+        actions.push(this.createSellStockAction(possession as Stock, game));
+      });
 
       // Exit action
       actions.push(this.createExitAction());
@@ -153,7 +164,7 @@ export class Bank extends Building {
 
   /**
    * Get the action tree for building interaction
-   * Bank has stock trading and exit actions
+   * Bank has buy/sell stock submenus and exit actions
    */
   getActionTree(player: IPlayerState, game: IGame): IActionTreeNode {
     const actions = this.getAvailableActions(player, game);
@@ -164,26 +175,204 @@ export class Bank extends Building {
       return Building.createActionTreeNode(exitAction, [], 0);
     }
 
-    // Create tree with all actions
-    const rootAction = actions[0];
-    const childNodes = actions.slice(1).map((action, index) =>
-      Building.createActionTreeNode(action, [], index + 1)
+    // Separate buy, sell, and exit actions
+    const buyActions = actions.filter((a) => a.type === ActionType.PURCHASE);
+    const sellActions = actions.filter((a) => a.type === ActionType.SELL);
+    const exitAction = actions.find((a) => a.type === ActionType.EXIT_BUILDING);
+
+    // Create buy submenu
+    const buySubmenu = Building.createSubmenuAction(
+      `${this.id}-buy-stocks`,
+      'Buy Stocks',
+      'Purchase stocks from available options'
+    );
+    const buyChildren = buyActions.map((action, index) =>
+      Building.createActionTreeNode(action, [], index)
     );
 
-    return Building.createActionTreeNode(rootAction, childNodes, 0);
+    // Create sell submenu (only if player owns stocks)
+    const sellSubmenu = Building.createSubmenuAction(
+      `${this.id}-sell-stocks`,
+      'Sell Stocks',
+      sellActions.length > 0 ? 'Sell your stock holdings' : 'You own no stocks'
+    );
+    const sellChildren = sellActions.map((action, index) =>
+      Building.createActionTreeNode(action, [], index)
+    );
+
+    // Build tree structure
+    const buyNode = Building.createActionTreeNode(buySubmenu, buyChildren, 0);
+    const sellNode = Building.createActionTreeNode(sellSubmenu, sellChildren, 1);
+    const exitNode = Building.createActionTreeNode(
+      exitAction || this.createExitAction(),
+      [],
+      2
+    );
+
+    // Root is a trading menu with buy/sell/exit as children
+    const tradingMenu = Building.createSubmenuAction(
+      `${this.id}-stock-trading`,
+      'Stock Trading',
+      'Buy and sell stocks'
+    );
+
+    return {
+      action: tradingMenu,
+      children: [buyNode, sellNode, exitNode],
+      index: 0,
+    };
   }
 
   /**
-   * Create a submenu action for stock trading
-   * This is a placeholder - actual stock trading actions would be implemented
-   * in a future task when Purchase/Sell actions are available
+   * Create a buy stock action for a specific stock
    */
-  private createStockTradingSubmenu(): IAction {
-    return Building.createSubmenuAction(
-      `${this.id}-stock-trading`,
-      'Stock Trading',
-      'Buy and sell stocks (coming soon)'
-    );
+  private createBuyStockAction(stock: StockInfo, game: IGame): IAction {
+    const currentPrice = game.economyModel.getStockPrice(game.currentWeek);
+    const shares = 1; // Buy 1 share at a time
+
+    return {
+      id: `${this.id}-buy-${stock.id}`,
+      type: ActionType.PURCHASE,
+      displayName: `Buy ${stock.name}`,
+      description: `Purchase 1 share of ${stock.name} for $${currentPrice}`,
+      timeCost: 5,
+
+      canExecute: (player: IPlayerState, game: IGame) => {
+        if (!this.isPlayerInside(player)) {
+          return false;
+        }
+        if (!player.canAfford(currentPrice)) {
+          return false;
+        }
+        if (game.timeUnitsRemaining < 5) {
+          return false;
+        }
+        return true;
+      },
+
+      execute: (player: IPlayerState, game: IGame) => {
+        if (!this.isPlayerInside(player)) {
+          return {
+            success: false,
+            message: 'You must be inside the bank to buy stocks',
+            timeSpent: 0,
+            stateChanges: [],
+          };
+        }
+
+        if (!player.canAfford(currentPrice)) {
+          return {
+            success: false,
+            message: `Not enough cash for ${stock.name}. Need $${currentPrice}, have $${player.cash}`,
+            timeSpent: 0,
+            stateChanges: [],
+          };
+        }
+
+        if (game.timeUnitsRemaining < 5) {
+          return {
+            success: false,
+            message: 'Not enough time remaining this week',
+            timeSpent: 0,
+            stateChanges: [],
+          };
+        }
+
+        // Create stock possession
+        const stockPossession = new Stock(stock.name, shares, currentPrice);
+
+        return {
+          success: true,
+          message: `Purchased ${shares} share of ${stock.name} for $${currentPrice}`,
+          timeSpent: 5,
+          stateChanges: [
+            {
+              type: 'cash',
+              value: player.cash - currentPrice,
+              description: `Paid $${currentPrice} for ${stock.name}`,
+            },
+            {
+              type: 'possession_add',
+              value: stockPossession,
+              description: `Acquired ${shares} share of ${stock.name}`,
+            },
+          ],
+        };
+      },
+
+      getRequirements: () => [
+        {
+          type: 'building',
+          value: this.id,
+          description: 'Must be inside the bank',
+        },
+        {
+          type: 'cash',
+          value: currentPrice,
+          comparison: 'gte',
+          description: `Need $${currentPrice}`,
+        },
+      ],
+    };
+  }
+
+  /**
+   * Create a sell stock action for a stock the player owns
+   */
+  private createSellStockAction(stock: Stock, game: IGame): IAction {
+    const currentPrice = game.economyModel.getStockPrice(game.currentWeek);
+    const currentValue = stock.getCurrentValue(currentPrice);
+    const profitLoss = stock.getProfitLoss(currentPrice);
+    const profitLossText = profitLoss >= 0 ? `+$${profitLoss}` : `-$${Math.abs(profitLoss)}`;
+
+    return {
+      id: `${this.id}-sell-${stock.id}`,
+      type: ActionType.SELL,
+      displayName: `Sell ${stock.name}`,
+      description: `Sell ${stock.shares} share(s) of ${stock.companyName} for $${currentValue} (${profitLossText})`,
+      timeCost: 5,
+
+      canExecute: (player: IPlayerState, _game: IGame) => {
+        return player.possessions.some((p) => p.id === stock.id);
+      },
+
+      execute: (player: IPlayerState, _game: IGame) => {
+        if (!player.possessions.some((p) => p.id === stock.id)) {
+          return {
+            success: false,
+            message: `You don't own ${stock.companyName} stock`,
+            timeSpent: 0,
+            stateChanges: [],
+          };
+        }
+
+        return {
+          success: true,
+          message: `Sold ${stock.shares} share(s) of ${stock.companyName} for $${currentValue} (${profitLossText})`,
+          timeSpent: 5,
+          stateChanges: [
+            {
+              type: 'cash',
+              value: player.cash + currentValue,
+              description: `Received $${currentValue} for ${stock.companyName}`,
+            },
+            {
+              type: 'possession_remove',
+              value: stock.id,
+              description: `Sold ${stock.companyName} stock`,
+            },
+          ],
+        };
+      },
+
+      getRequirements: () => [
+        {
+          type: 'possession',
+          value: stock.id,
+          description: `Must own ${stock.companyName} stock`,
+        },
+      ],
+    };
   }
 
   /**
