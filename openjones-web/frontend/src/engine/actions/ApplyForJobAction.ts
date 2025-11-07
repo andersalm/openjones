@@ -1,6 +1,5 @@
 import { Action } from './Action';
-import { ActionResponse } from './ActionResponse';
-import { StateChangeBuilder } from './StateChangeBuilder';
+import { ActionResponse, StateChangeBuilder } from './ActionResponse';
 import { IPlayerState, IGame, IActionResponse, IActionRequirement, ActionType, IJob } from '@shared/types/contracts';
 
 export class ApplyForJobAction extends Action {
@@ -14,14 +13,14 @@ export class ApplyForJobAction extends Action {
     );
   }
 
-  canExecute(player: IPlayerState, game: IGame): boolean {
+  canExecute(player: IPlayerState, _game: IGame): boolean {
     // Check education requirement
     if (player.education < this.job.requiredEducation) {
       return false;
     }
 
-    // Check career requirement
-    if (player.career < this.job.requiredCareer) {
+    // Check experience requirement
+    if (player.getExperienceAtRank(this.job.rank) < this.job.requiredExperience) {
       return false;
     }
 
@@ -48,7 +47,7 @@ export class ApplyForJobAction extends Action {
       .build();
 
     return ActionResponse.success(
-      `You got the job as ${this.job.title}! Wage: $${this.job.wage}/hour`,
+      `You got the job as ${this.job.title}! Wage: $${this.job.wagePerHour}/hour`,
       this.timeCost,
       changes
     );
@@ -63,8 +62,8 @@ export class ApplyForJobAction extends Action {
       },
       {
         type: 'measure',
-        value: this.job.requiredCareer,
-        description: `Career: ${this.job.requiredCareer}`,
+        value: this.job.requiredExperience,
+        description: `Experience: ${this.job.requiredExperience}`,
       },
       {
         type: 'location',
@@ -83,13 +82,14 @@ export class ApplyForJobAction extends Action {
     if (player.education < this.job.requiredEducation) {
       return `Not enough education. Need ${this.job.requiredEducation}, have ${player.education}`;
     }
-    if (player.career < this.job.requiredCareer) {
-      return `Not enough career experience. Need ${this.job.requiredCareer}, have ${player.career}`;
+    const playerExp = player.getExperienceAtRank(this.job.rank);
+    if (playerExp < this.job.requiredExperience) {
+      return `Not enough experience. Need ${this.job.requiredExperience}, have ${playerExp}`;
     }
     if (!this.hasEnoughTime(player)) {
-      return `Not enough time. Need ${this.timeCost}, have ${player.time}`;
+      return `Not enough time. Need ${this.timeCost} time units`;
     }
-    if (player.currentLocation !== 'employment-agency') {
+    if (player.currentBuilding !== 'employment-agency') {
       return 'Must be at Employment Agency to apply for jobs';
     }
     return 'Cannot apply for this job';

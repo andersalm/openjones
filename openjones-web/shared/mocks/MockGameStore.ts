@@ -1,18 +1,32 @@
-import { IPlayerState, IGameState, IVictoryCondition } from '../types';
+import { IPlayerState, IVictoryCondition } from '../types';
+
+interface IGameState {
+  playerState: IPlayerState;
+  currentWeek: number;
+  timeRemaining: number;
+  victoryConditions: IVictoryCondition[];
+  isGameWon: boolean;
+}
 
 /**
  * Mock player state for testing and development
  */
 export const createMockPlayerState = (overrides?: Partial<IPlayerState>): IPlayerState => ({
+  playerId: 'player-1',
   cash: 1000,
   health: 75,
   happiness: 60,
   education: 50,
   career: 40,
-  currentJob: 'Entry Level Developer',
-  weeklyIncome: 500,
+  position: { x: 0, y: 0, equals: () => false, toString: () => '0,0' },
+  currentBuilding: null,
+  job: null,
+  experience: [],
+  possessions: [],
+  rentedHome: null,
+  rentDebt: 0,
   ...overrides,
-});
+} as any);
 
 /**
  * Mock victory conditions for testing and development
@@ -72,27 +86,39 @@ export const createMockGameState = (overrides?: Partial<IGameState>): IGameState
  * Create a mock player state with low stats (critical condition)
  */
 export const createCriticalPlayerState = (): IPlayerState => ({
+  playerId: 'player-1',
   cash: 50,
   health: 15,
   happiness: 20,
   education: 30,
   career: 10,
-  currentJob: 'Unemployed',
-  weeklyIncome: 0,
-});
+  position: { x: 0, y: 0, equals: () => false, toString: () => '0,0' },
+  currentBuilding: null,
+  job: null,
+  experience: [],
+  possessions: [],
+  rentedHome: null,
+  rentDebt: 0,
+} as any);
 
 /**
  * Create a mock player state with high stats (near victory)
  */
 export const createWinningPlayerState = (): IPlayerState => ({
+  playerId: 'player-1',
   cash: 9500,
   health: 95,
   happiness: 98,
   education: 95,
   career: 90,
-  currentJob: 'Senior Developer',
-  weeklyIncome: 2000,
-});
+  position: { x: 0, y: 0, equals: () => false, toString: () => '0,0' },
+  currentBuilding: null,
+  job: null,
+  experience: [],
+  possessions: [],
+  rentedHome: null,
+  rentDebt: 0,
+} as any);
 
 /**
  * Create mock victory conditions with some achieved

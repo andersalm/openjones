@@ -37,7 +37,7 @@ export class StudyAction extends Action {
     }
 
     // Must have enough cash for tuition
-    if (!this.hasEnoughCash(player, this.tuitionCost)) {
+    if (!player.canAfford(this.tuitionCost)) {
       return false;
     }
 
@@ -55,8 +55,8 @@ export class StudyAction extends Action {
     }
 
     const changes = StateChangeBuilder.create()
-      .cash(-this.tuitionCost, `Paid $${this.tuitionCost} tuition`)
-      .education(this.educationGain, `Gained ${this.educationGain} education`)
+      .cash(player.cash - this.tuitionCost, `Paid $${this.tuitionCost} tuition`)
+      .education(player.education + this.educationGain, `Gained ${this.educationGain} education`)
       .build();
 
     return ActionResponse.success(

@@ -63,19 +63,19 @@ export const PlayerStatsHUD: React.FC<PlayerStatsHUDProps> = ({
           <div className="text-3xl font-bold text-green-600" data-testid="cash-amount">
             {formatCash(playerState.cash)}
           </div>
-          {playerState.weeklyIncome !== undefined && (
+          {playerState.job && (
             <div className="text-xs text-gray-500 mt-1" data-testid="weekly-income">
-              Weekly Income: {formatCash(playerState.weeklyIncome)}
+              Weekly Income: {formatCash(playerState.job.wagePerHour * 40)}
             </div>
           )}
         </div>
 
         {/* Job Display */}
-        {playerState.currentJob && (
+        {playerState.job && (
           <div className="job-display" data-testid="job-display">
             <div className="text-sm font-semibold text-gray-600">Current Job</div>
             <div className="text-base text-gray-800" data-testid="current-job">
-              {playerState.currentJob}
+              {playerState.job.title}
             </div>
           </div>
         )}

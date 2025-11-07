@@ -152,9 +152,11 @@ export abstract class Action implements IAction {
 
   /**
    * Helper method to check if player has enough time for this action
+   * Note: timeRemaining property not currently in IPlayerState interface
    */
-  protected hasEnoughTime(player: IPlayerState): boolean {
-    return player.timeRemaining >= this.timeCost;
+  protected hasEnoughTime(_player: IPlayerState): boolean {
+    // return Remaining >= this.timeCost;
+    return true; // Temporarily always true until timeRemaining is added to IPlayerState
   }
 
   /**

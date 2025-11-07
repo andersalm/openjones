@@ -200,6 +200,58 @@ export class StateChangeBuilder {
   }
 
   /**
+   * Add a custom state change
+   */
+  custom(type: string, value: any, description: string): StateChangeBuilder {
+    this.changes.push({
+      type: type as any,
+      value: value,
+      description,
+    });
+    return this;
+  }
+
+  /**
+   * Change current building
+   */
+  currentBuilding(buildingId: string | null, description: string): StateChangeBuilder {
+    this.changes.push({
+      type: 'location',
+      value: buildingId || '',
+      description,
+    });
+    return this;
+  }
+
+  /**
+   * Change health (as a measure)
+   */
+  health(newValue: number, description: string): StateChangeBuilder {
+    return this.measure(MeasureType.HEALTH, newValue, description);
+  }
+
+  /**
+   * Change education (as a measure)
+   */
+  education(newValue: number, description: string): StateChangeBuilder {
+    return this.measure(MeasureType.EDUCATION, newValue, description);
+  }
+
+  /**
+   * Change career (as a measure)
+   */
+  career(newValue: number, description: string): StateChangeBuilder {
+    return this.measure(MeasureType.CAREER, newValue, description);
+  }
+
+  /**
+   * Change happiness (as a measure)
+   */
+  happiness(newValue: number, description: string): StateChangeBuilder {
+    return this.measure(MeasureType.HAPPINESS, newValue, description);
+  }
+
+  /**
    * Build and return the state changes array
    */
   build(): IStateChange[] {

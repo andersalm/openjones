@@ -1,6 +1,5 @@
 import { Action } from './Action';
-import { ActionResponse } from './ActionResponse';
-import { StateChangeBuilder } from './StateChangeBuilder';
+import { ActionResponse, StateChangeBuilder } from './ActionResponse';
 import { IPlayerState, IGame, IActionResponse, IActionRequirement, ActionType } from '@shared/types/contracts';
 
 export class PayRentAction extends Action {
@@ -14,14 +13,14 @@ export class PayRentAction extends Action {
     );
   }
 
-  canExecute(player: IPlayerState, game: IGame): boolean {
+  canExecute(player: IPlayerState, _game: IGame): boolean {
     // Must have rent due
-    if (player.rentDue <= 0) {
+    if (player.rentDebt <= 0) {
       return false;
     }
 
     // Must have enough cash to pay rent
-    if (!this.hasEnoughCash(player, player.rentDue)) {
+    if (!player.canAfford(player.rentDebt)) {
       return false;
     }
 
@@ -38,11 +37,11 @@ export class PayRentAction extends Action {
       return ActionResponse.failure(this.getFailureMessage(player));
     }
 
-    const rentAmount = player.rentDue;
+    const rentAmount = player.rentDebt;
 
     const changes = StateChangeBuilder.create()
-      .cash(player.cash, player.cash - rentAmount, `Paid rent: $${rentAmount}`)
-      .rentDue(player.rentDue, 0, 'Rent paid for the week')
+      .cash(player.cash - rentAmount, `Paid rent: $${rentAmount}`)
+      .custom('rentDebt', 0, 'Rent paid for the week')
       .build();
 
     return ActionResponse.success(
@@ -68,14 +67,14 @@ export class PayRentAction extends Action {
   }
 
   private getFailureMessage(player: IPlayerState): string {
-    if (player.rentDue <= 0) {
+    if (player.rentDebt <= 0) {
       return 'No rent is due at this time';
     }
-    if (!this.hasEnoughCash(player, player.rentDue)) {
-      return `Not enough cash to pay rent. Need $${player.rentDue}, have $${player.cash}`;
+    if (!player.canAfford(player.rentDebt)) {
+      return `Not enough cash to pay rent. Need $${player.rentDebt}, have $${player.cash}`;
     }
     if (!this.hasEnoughTime(player)) {
-      return `Not enough time to pay rent. Need ${this.timeCost}, have ${player.time}`;
+      return `Not enough time to pay rent. Need ${this.timeCost}`;
     }
     return 'Cannot pay rent';
   }

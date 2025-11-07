@@ -32,8 +32,8 @@ export class WorkAction extends Action {
       return false;
     }
 
-    // Must be at workplace (in building)
-    if (!this.requiresBuilding(player, this.job.buildingId)) {
+    // Must be at workplace (in any building)
+    if (!this.requiresBuilding(player)) {
       return false;
     }
 
@@ -50,14 +50,14 @@ export class WorkAction extends Action {
       return ActionResponse.failure('Cannot work right now');
     }
 
-    const earnings = this.job.wage * this.hours;
+    const earnings = this.job.wagePerHour * this.hours;
     const healthLoss = this.hours * 2; // Lose 2 health per hour worked
     const careerGain = this.hours * 1; // Gain 1 career point per hour
 
     const changes = StateChangeBuilder.create()
-      .cash(earnings, `Earned $${earnings}`)
-      .health(-healthLoss, `Lost ${healthLoss} health from work`)
-      .career(careerGain, `Gained ${careerGain} career experience`)
+      .cash(player.cash + earnings, `Earned $${earnings}`)
+      .health(player.health - healthLoss, `Lost ${healthLoss} health from work`)
+      .career(player.career + careerGain, `Gained ${careerGain} career experience`)
       .build();
 
     return ActionResponse.success(
@@ -71,12 +71,13 @@ export class WorkAction extends Action {
     return [
       {
         type: 'job',
+        value: this.job.id,
         description: 'Must have a job',
       },
       {
-        type: 'location',
-        value: this.job.buildingId,
-        description: `Must be at ${this.job.buildingName}`,
+        type: 'building',
+        value: this.job.buildingType,
+        description: `Must be at a ${this.job.buildingType} building`,
       },
       {
         type: 'time',

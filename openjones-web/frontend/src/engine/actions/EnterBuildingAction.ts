@@ -1,5 +1,6 @@
 import { IPlayerState, IGame, IPosition } from '@shared/types/contracts';
-import { Action, ActionResponse, StateChangeBuilder } from './Action';
+import { Action } from './Action';
+import { ActionResponse, StateChangeBuilder } from './ActionResponse';
 import { ActionType, IActionResponse, IActionRequirement as ActionRequirement } from '@shared/types/contracts';
 
 export class EnterBuildingAction extends Action {
@@ -27,7 +28,7 @@ export class EnterBuildingAction extends Action {
     }
 
     // Must be a building at the position
-    const building = game.getBuildingAtPosition(this.position);
+    const building = game.map.getBuilding(this.position);
     if (!building) {
       return false;
     }
@@ -49,10 +50,10 @@ export class EnterBuildingAction extends Action {
       }
 
       if (!this.hasEnoughTime(player)) {
-        errors.push(`Not enough time (need ${this.timeCost}, have ${player.timeRemaining})`);
+        errors.push(`Not enough time (need ${this.timeCost}, have ${game.timeUnitsRemaining})`);
       }
 
-      const building = game.getBuildingAtPosition(this.position);
+      const building = game.map.getBuilding(this.position);
       if (!building) {
         errors.push('No building at this position');
       }
@@ -61,13 +62,13 @@ export class EnterBuildingAction extends Action {
         errors.push('Must be at the building location to enter');
       }
 
-      return ActionResponse.failure('Cannot enter building', errors);
+      return ActionResponse.failure(errors.join('; '));
     }
 
-    const building = game.getBuildingAtPosition(this.position);
+    const building = game.map.getBuilding(this.position);
     if (!building) {
       // This should not happen due to canExecute check, but handle it defensively
-      return ActionResponse.failure('Cannot enter building', ['No building at this position']);
+      return ActionResponse.failure('No building at this position');
     }
 
     const changes = StateChangeBuilder.create()

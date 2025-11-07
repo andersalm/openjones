@@ -1,5 +1,6 @@
 import { IPlayerState, IGame } from '@shared/types/contracts';
-import { Action, ActionResponse, StateChangeBuilder } from './Action';
+import { Action } from './Action';
+import { ActionResponse, StateChangeBuilder } from './ActionResponse';
 import { ActionType, IActionResponse, IActionRequirement as ActionRequirement } from '@shared/types/contracts';
 
 export class ExitBuildingAction extends Action {
@@ -15,7 +16,7 @@ export class ExitBuildingAction extends Action {
     );
   }
 
-  canExecute(player: IPlayerState, game: IGame): boolean {
+  canExecute(player: IPlayerState, _game: IGame): boolean {
     // Must be inside a building
     if (!this.requiresBuilding(player)) {
       return false;
@@ -38,16 +39,16 @@ export class ExitBuildingAction extends Action {
       }
 
       if (!this.hasEnoughTime(player)) {
-        errors.push(`Not enough time (need ${this.timeCost}, have ${player.timeRemaining})`);
+        errors.push(`Not enough time (need ${this.timeCost}, have ${game.timeUnitsRemaining})`);
       }
 
-      return ActionResponse.failure('Cannot exit building', errors);
+      return ActionResponse.failure(errors.join('; '));
     }
 
     // Get the building name for the message
     let buildingName = 'building';
     if (player.currentBuilding) {
-      const building = game.buildings.get(player.currentBuilding);
+      const building = game.map.getBuildingById(player.currentBuilding);
       if (building) {
         buildingName = building.name;
       }

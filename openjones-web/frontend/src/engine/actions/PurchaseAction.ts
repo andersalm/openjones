@@ -1,6 +1,5 @@
 import { Action } from './Action';
-import { ActionResponse } from './ActionResponse';
-import { StateChangeBuilder } from './StateChangeBuilder';
+import { ActionResponse, StateChangeBuilder } from './ActionResponse';
 import { IPlayerState, IGame, IActionResponse, IActionRequirement, ActionType } from '@shared/types/contracts';
 
 export interface IPurchasable {
@@ -23,7 +22,7 @@ export abstract class PurchaseAction extends Action {
 
   canExecute(player: IPlayerState, game: IGame): boolean {
     // Check if player has enough cash
-    if (!this.hasEnoughCash(player, this.item.price)) {
+    if (!player.canAfford(this.item.price)) {
       return false;
     }
 
@@ -46,8 +45,7 @@ export abstract class PurchaseAction extends Action {
     }
 
     const changes = StateChangeBuilder.create()
-      .cash(player.cash, player.cash - this.item.price, `Purchased ${this.item.name}`)
-      .possession(this.item.id, `Added ${this.item.name} to inventory`);
+      .cash(player.cash - this.item.price, `Purchased ${this.item.name}`);
 
     this.addAdditionalChanges(changes, player);
 
@@ -79,20 +77,20 @@ export abstract class PurchaseAction extends Action {
 
   protected abstract canPurchaseAtLocation(player: IPlayerState, game: IGame): boolean;
 
-  protected addAdditionalChanges(builder: StateChangeBuilder, player: IPlayerState): void {
+  protected addAdditionalChanges(_builder: StateChangeBuilder, _player: IPlayerState): void {
     // Override in subclasses to add specific changes
   }
 
-  protected addAdditionalRequirements(requirements: IActionRequirement[]): void {
+  protected addAdditionalRequirements(_requirements: IActionRequirement[]): void {
     // Override in subclasses to add specific requirements
   }
 
   protected getFailureMessage(player: IPlayerState): string {
-    if (!this.hasEnoughCash(player, this.item.price)) {
+    if (!player.canAfford(this.item.price)) {
       return `Not enough cash. Need $${this.item.price}, have $${player.cash}`;
     }
     if (!this.hasEnoughTime(player)) {
-      return `Not enough time. Need ${this.timeCost}, have ${player.time}`;
+      return `Not enough time. Need ${this.timeCost}`;
     }
     return 'Cannot purchase this item at current location';
   }

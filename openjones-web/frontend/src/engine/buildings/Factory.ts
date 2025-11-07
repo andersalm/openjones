@@ -179,7 +179,7 @@ export class Factory extends Building {
    * Get available actions for a player at this building
    * Factory only offers the exit action (no special building-specific actions)
    */
-  getAvailableActions(player: IPlayerState, game: IGame): IAction[] {
+  getAvailableActions(player: IPlayerState, _game: IGame): IAction[] {
     const actions: IAction[] = [];
 
     // Exit action (always available when inside)
@@ -214,7 +214,7 @@ export class Factory extends Building {
       description: 'Leave the factory and return to the street',
       timeCost: 0,
       canExecute: (player: IPlayerState) => this.isPlayerInside(player),
-      execute: (player: IPlayerState, game: IGame) => {
+      execute: (player: IPlayerState, _game: IGame) => {
         if (!this.isPlayerInside(player)) {
           return {
             success: false,

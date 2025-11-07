@@ -1,5 +1,6 @@
 import { IPlayerState, IGame, IPosition } from '@shared/types/contracts';
-import { Action, ActionResponse, StateChangeBuilder } from './Action';
+import { Action } from './Action';
+import { ActionResponse, StateChangeBuilder } from './ActionResponse';
 import { ActionType, IActionResponse, IActionRequirement as ActionRequirement } from '@shared/types/contracts';
 
 // Helper function to calculate distance between two positions
@@ -37,7 +38,7 @@ export class MovementAction extends Action {
     }
 
     // Target position must be valid
-    if (!game.isValidPosition(this.toPosition)) {
+    if (!game.map.isValidPosition(this.toPosition)) {
       return false;
     }
 
@@ -58,10 +59,10 @@ export class MovementAction extends Action {
       }
 
       if (!this.hasEnoughTime(player)) {
-        errors.push(`Not enough time (need ${this.timeCost}, have ${player.timeRemaining})`);
+        errors.push(`Not enough time (need ${this.timeCost} time units)`);
       }
 
-      if (!game.isValidPosition(this.toPosition)) {
+      if (!game.map.isValidPosition(this.toPosition)) {
         errors.push('Invalid target position');
       }
 
@@ -69,7 +70,7 @@ export class MovementAction extends Action {
         errors.push('Already at target position');
       }
 
-      return ActionResponse.failure('Cannot move', errors);
+      return ActionResponse.failure(errors.join('; '));
     }
 
     const changes = StateChangeBuilder.create()
