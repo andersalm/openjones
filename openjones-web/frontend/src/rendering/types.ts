@@ -1,3 +1,4 @@
+// Sprite Manager types (Worker 1)
 export interface SpriteMetadata {
   id: string;
   path: string;
@@ -21,4 +22,18 @@ export interface LoadProgress {
   loaded: number;
   total: number;
   percentage: number;
+}
+
+// Map Renderer types (Worker 2)
+export interface RenderOptions {
+  tileWidth: number;
+  tileHeight: number;
+  gridWidth: number;
+  gridHeight: number;
+  scale: number;
+}
+
+export interface ViewportSize {
+  width: number;
+  height: number;
 }
