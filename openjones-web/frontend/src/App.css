@@ -1,0 +1,439 @@
+/* ============================================
+   App.css - Main application styling
+   ============================================ */
+
+/* Root App Container */
+.app {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* ============================================
+   Main Menu
+   ============================================ */
+
+.main-menu {
+  max-width: 600px;
+  width: 90%;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.menu-content {
+  padding: 20px;
+}
+
+.menu-content h2 {
+  margin: 0 0 10px 0;
+  color: #1f2937;
+  font-size: 24px;
+  text-align: center;
+}
+
+.menu-description {
+  text-align: center;
+  color: #6b7280;
+  margin-bottom: 30px;
+  font-size: 16px;
+}
+
+.menu-form {
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.name-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.start-button {
+  width: 100%;
+  padding: 14px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.menu-info {
+  background: #f3f4f6;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.menu-info h3 {
+  margin: 0 0 12px 0;
+  color: #1f2937;
+  font-size: 18px;
+}
+
+.menu-info ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #4b5563;
+}
+
+.menu-info li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* ============================================
+   Game Container
+   ============================================ */
+
+.game-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Game Canvas Placeholder */
+.game-canvas-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, #1e293b, #0f172a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.placeholder-content {
+  text-align: center;
+  padding: 40px;
+  max-width: 800px;
+}
+
+.placeholder-content h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #f8fafc;
+}
+
+.placeholder-content p {
+  font-size: 16px;
+  color: #94a3b8;
+  margin-bottom: 40px;
+}
+
+.buildings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.buildings-grid h3 {
+  grid-column: 1 / -1;
+  font-size: 18px;
+  color: #cbd5e1;
+  margin-bottom: 10px;
+}
+
+/* ============================================
+   UI Overlay
+   ============================================ */
+
+.ui-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.ui-overlay > * {
+  pointer-events: auto;
+}
+
+/* HUD Panel */
+.hud-panel {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  max-width: 320px;
+  width: 100%;
+  animation: slideInLeft 0.3s ease-out;
+}
+
+/* Game Controls */
+.game-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  animation: slideInRight 0.3s ease-out;
+}
+
+/* Error Message */
+.error-message {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #dc2626;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s ease-out;
+  z-index: 1000;
+  font-weight: 500;
+}
+
+/* ============================================
+   Victory/Defeat Screens
+   ============================================ */
+
+.victory-screen,
+.defeat-screen {
+  max-width: 600px;
+  width: 90%;
+  animation: fadeIn 0.5s ease-in, scaleIn 0.5s ease-out;
+}
+
+.victory-content,
+.defeat-content {
+  padding: 40px;
+  text-align: center;
+}
+
+.victory-icon,
+.defeat-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: bounce 1s ease-in-out;
+}
+
+.victory-content h2,
+.defeat-content h2 {
+  font-size: 32px;
+  margin: 0 0 15px 0;
+  color: #1f2937;
+}
+
+.victory-message,
+.defeat-message {
+  font-size: 18px;
+  color: #6b7280;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.victory-stats,
+.defeat-stats {
+  background: #f3f4f6;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border: 1px solid #e5e7eb;
+}
+
+.victory-stats p,
+.defeat-stats p {
+  margin: 8px 0;
+  color: #4b5563;
+  font-size: 16px;
+}
+
+.victory-stats strong,
+.defeat-stats strong {
+  color: #1f2937;
+}
+
+.victory-content button,
+.defeat-content button {
+  min-width: 200px;
+  padding: 14px 28px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 768px) {
+  .hud-panel {
+    max-width: 280px;
+  }
+
+  .game-controls {
+    flex-direction: column;
+  }
+
+  .placeholder-content h2 {
+    font-size: 24px;
+  }
+
+  .victory-content,
+  .defeat-content {
+    padding: 30px 20px;
+  }
+
+  .victory-icon,
+  .defeat-icon {
+    font-size: 60px;
+  }
+
+  .victory-content h2,
+  .defeat-content h2 {
+    font-size: 24px;
+  }
+
+  .buildings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .ui-overlay {
+    padding: 10px;
+  }
+
+  .hud-panel {
+    top: 10px;
+    left: 10px;
+    max-width: calc(100% - 20px);
+  }
+
+  .game-controls {
+    top: auto;
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+.hidden {
+  display: none;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
