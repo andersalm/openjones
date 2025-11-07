@@ -30,6 +30,13 @@ export { WorkAction } from './WorkAction';
 export { StudyAction } from './StudyAction';
 export { RelaxAction } from './RelaxAction';
 
+// Economic actions (Task A7)
+export { PurchaseAction } from './PurchaseAction';
+export { PurchaseClothesAction } from './PurchaseClothesAction';
+export { ApplyForJobAction } from './ApplyForJobAction';
+export { PayRentAction } from './PayRentAction';
+export { RentHouseAction } from './RentHouseAction';
+
 // Re-export relevant types from contracts for convenience
 export type {
   IAction,
