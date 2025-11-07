@@ -39,7 +39,7 @@ Choose any available number (1-10):
 |----------|--------|-------|---------|-------------|
 | 1 | ✅ Complete | Track A | 2025-11-07 | Task A1 done |
 | 2 | ✅ Complete | Track B | 2025-11-07 | Task B1 done |
-| 3 | 🟢 Available | - | - | - |
+| 3 | ✅ Complete | Track A | 2025-11-07 | Task A3 done |
 | 4 | 🟢 Available | - | - | - |
 | 5 | 🟢 Available | - | - | - |
 | 6 | 🟢 Available | - | - | - |
