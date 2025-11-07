@@ -1,5 +1,5 @@
 import { PurchaseAction } from './PurchaseAction';
-import { StateChangeBuilder } from './StateChangeBuilder';
+import { StateChangeBuilder } from './ActionResponse';
 import { IPlayerState, IGame, IClothing, ActionType, IActionRequirement } from '@shared/types/contracts';
 
 export class PurchaseClothesAction extends PurchaseAction {

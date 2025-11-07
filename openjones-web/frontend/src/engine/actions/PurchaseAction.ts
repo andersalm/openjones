@@ -1,6 +1,5 @@
 import { Action } from './Action';
-import { ActionResponse } from './ActionResponse';
-import { StateChangeBuilder } from './StateChangeBuilder';
+import { ActionResponse, StateChangeBuilder } from './ActionResponse';
 import { IPlayerState, IGame, IActionResponse, IActionRequirement, ActionType } from '@shared/types/contracts';
 
 export interface IPurchasable {
