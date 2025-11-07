@@ -16,7 +16,12 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\"",
     "type-check": "tsc --noEmit"
   },
-  "keywords": ["game", "jones", "simulation", "browser-game"],
+  "keywords": [
+    "game",
+    "jones",
+    "simulation",
+    "browser-game"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
@@ -29,6 +34,7 @@
     "@vitejs/plugin-react": "^5.1.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
+    "image-size": "^2.0.2",
     "jsdom": "^27.1.0",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3",
