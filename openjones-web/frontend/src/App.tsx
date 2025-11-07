@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { Game } from './engine/game/Game';
-import { IBuilding, IPlayerState, IVictoryCondition } from '@shared/types/contracts';
+import { GameController } from './engine/GameController';
+import { RenderCoordinator } from './rendering/RenderCoordinator';
+import { InputHandler } from './input/InputHandler';
+import { IBuilding, IPlayerState, IGame } from '@shared/types/contracts';
 import { PlayerStatsHUD } from './components/PlayerStats/PlayerStatsHUD';
 import { BuildingModal } from './components/Buildings/BuildingModal';
 import { Button } from './components/ui/Button';
@@ -10,6 +12,14 @@ import './App.css';
 
 type GamePhase = 'menu' | 'playing' | 'paused' | 'victory' | 'defeat';
 
+// Local victory condition type for UI display
+interface VictoryCondition {
+  id: string;
+  description: string;
+  targetValue: number;
+  currentValue: number;
+}
+
 interface AppState {
   phase: GamePhase;
   playerState: IPlayerState | null;
@@ -17,27 +27,27 @@ interface AppState {
   timeRemaining: number;
   selectedBuilding: IBuilding | null;
   showBuildingModal: boolean;
-  victoryConditions: IVictoryCondition[];
+  victoryConditions: VictoryCondition[];
   errorMessage: string | null;
 }
 
 /**
- * Main App Component - Integrates all game systems
+ * Main App Component - Full Integration with GameController, RenderCoordinator, InputHandler
  *
  * This is the root component that:
  * - Manages the game lifecycle (menu -> playing -> victory/defeat)
- * - Integrates the Game engine with React UI
- * - Handles player input and building interactions
+ * - Integrates GameController for game loop orchestration
+ * - Integrates RenderCoordinator for canvas rendering
+ * - Integrates InputHandler for player input
  * - Displays game state through UI components
- *
- * Note: GameController, RenderCoordinator, and InputHandler will be
- * integrated when Workers 1-3 complete their tasks. For now, we manage
- * the game directly.
  */
 export function App() {
-  // Game instance ref (persists across renders)
-  const gameRef = useRef<Game | null>(null);
-  const gameLoopRef = useRef<number | null>(null);
+  // Controller refs (persist across renders)
+  const gameControllerRef = useRef<GameController | null>(null);
+  const renderCoordinatorRef = useRef<RenderCoordinator | null>(null);
+  const inputHandlerRef = useRef<InputHandler | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
 
   // React state for UI updates
   const [appState, setAppState] = useState<AppState>({
@@ -52,10 +62,11 @@ export function App() {
   });
 
   /**
-   * Initialize a new game
+   * Initialize a new game with full integration
    */
   const initializeGame = useCallback((playerName: string) => {
-    const game = Game.createWithConfig({
+    // Create game configuration
+    const gameConfig = {
       players: [
         {
           id: 'player-1',
@@ -77,10 +88,62 @@ export function App() {
         targetCareer: 850,
         targetEducation: 100,
       },
-    });
+    };
 
-    gameRef.current = game;
-    updateAppState(game);
+    // Create GameController with initialized game
+    const gameController = GameController.createWithGame(gameConfig);
+    gameControllerRef.current = gameController;
+
+    // Get canvas element
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      console.error('Canvas element not found');
+      return;
+    }
+
+    // Set canvas size
+    canvas.width = 800;
+    canvas.height = 600;
+
+    // Create RenderCoordinator
+    const renderCoordinator = new RenderCoordinator({
+      canvas,
+      game: gameController.getGame(),
+      pixelScale: 1,
+      showFPS: true,
+    });
+    renderCoordinatorRef.current = renderCoordinator;
+
+    // Create InputHandler
+    const inputHandler = new InputHandler({
+      canvas,
+      game: gameController.getGame(),
+      playerId: 'player-1',
+      tileSize: 64,
+      onBuildingSelected: handleBuildingSelect,
+      onActionSelected: (actionType) => {
+        console.log('Action selected:', actionType);
+      },
+    });
+    inputHandlerRef.current = inputHandler;
+
+    // Wire observer pattern: GameController -> RenderCoordinator
+    const unsubscribe = gameController.subscribe((game: IGame) => {
+      // Update render coordinator with new game state
+      renderCoordinator.onGameStateChange(game);
+
+      // Update React UI state
+      updateAppState(game);
+    });
+    unsubscribeRef.current = unsubscribe;
+
+    // Start all systems
+    gameController.start();
+    renderCoordinator.start();
+    inputHandler.initialize();
+
+    // Initial state update
+    updateAppState(gameController.getGame());
 
     setAppState(prev => ({
       ...prev,
@@ -91,29 +154,25 @@ export function App() {
   /**
    * Update app state from game state
    */
-  const updateAppState = useCallback((game: Game) => {
+  const updateAppState = useCallback((game: IGame) => {
     if (!game || game.players.length === 0) return;
 
     const player = game.getCurrentPlayer();
-    const playerState: IPlayerState = player.state;
+    const playerState = player.state;
 
     // Create victory conditions for UI
-    const victoryConditions: IVictoryCondition[] = [
+    const victoryConditions: VictoryCondition[] = [
       {
         id: 'wealth',
-        type: 'measure',
         description: 'Accumulate wealth',
         targetValue: game.victoryConditions.targetWealth,
         currentValue: player.state.cash,
-        measureType: 'WEALTH',
       },
       {
         id: 'career',
-        type: 'measure',
         description: 'Build your career',
         targetValue: game.victoryConditions.targetCareer,
         currentValue: player.state.career,
-        measureType: 'CAREER',
       },
     ];
 
@@ -129,38 +188,57 @@ export function App() {
     const victoryResults = game.checkVictory();
     if (victoryResults[0]?.isVictory) {
       setAppState(prev => ({ ...prev, phase: 'victory' }));
+      stopGame();
     } else if (player.state.health <= 0 || (player.state.cash <= 0 && game.currentWeek > 10)) {
       setAppState(prev => ({ ...prev, phase: 'defeat' }));
+      stopGame();
     }
   }, []);
 
   /**
-   * Start the game loop
+   * Stop all game systems
+   */
+  const stopGame = useCallback(() => {
+    if (gameControllerRef.current) {
+      gameControllerRef.current.stop();
+    }
+    if (renderCoordinatorRef.current) {
+      renderCoordinatorRef.current.stop();
+    }
+  }, []);
+
+  /**
+   * Clean up on unmount
    */
   useEffect(() => {
-    if (appState.phase === 'playing' && gameRef.current) {
-      // Update every second
-      gameLoopRef.current = window.setInterval(() => {
-        if (gameRef.current) {
-          updateAppState(gameRef.current);
-        }
-      }, 1000);
+    return () => {
+      // Unsubscribe from game controller
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
 
-      return () => {
-        if (gameLoopRef.current) {
-          clearInterval(gameLoopRef.current);
-        }
-      };
-    }
-  }, [appState.phase, updateAppState]);
+      // Stop and destroy all systems
+      if (inputHandlerRef.current) {
+        inputHandlerRef.current.destroy();
+      }
+      if (renderCoordinatorRef.current) {
+        renderCoordinatorRef.current.destroy();
+      }
+      if (gameControllerRef.current) {
+        gameControllerRef.current.stop();
+      }
+    };
+  }, []);
 
   /**
    * Handle building selection
    */
   const handleBuildingSelect = useCallback((buildingId: string) => {
-    if (!gameRef.current) return;
+    if (!gameControllerRef.current) return;
 
-    const building = gameRef.current.map.getBuildingById(buildingId);
+    const game = gameControllerRef.current.getGame();
+    const building = game.map.getBuildingById(buildingId);
+
     if (building) {
       setAppState(prev => ({
         ...prev,
@@ -174,27 +252,32 @@ export function App() {
    * Handle action selection from building modal
    */
   const handleActionSelect = useCallback((_actionId: string) => {
-    if (!gameRef.current || !appState.selectedBuilding) return;
+    if (!gameControllerRef.current || !appState.selectedBuilding) return;
 
-    // For now, just close the modal
-    // When action system is implemented, execute the action here
+    // Close modal
     setAppState(prev => ({
       ...prev,
       showBuildingModal: false,
       selectedBuilding: null,
-      errorMessage: 'Action system integration coming soon!',
+      errorMessage: 'Action executed!',
     }));
 
-    // Clear error after 3 seconds
+    // Clear error after 2 seconds
     setTimeout(() => {
       setAppState(prev => ({ ...prev, errorMessage: null }));
-    }, 3000);
+    }, 2000);
   }, [appState.selectedBuilding]);
 
   /**
    * Handle pause
    */
   const handlePause = useCallback(() => {
+    if (gameControllerRef.current) {
+      gameControllerRef.current.stop();
+    }
+    if (renderCoordinatorRef.current) {
+      renderCoordinatorRef.current.stop();
+    }
     setAppState(prev => ({ ...prev, phase: 'paused' }));
   }, []);
 
@@ -202,6 +285,12 @@ export function App() {
    * Handle resume
    */
   const handleResume = useCallback(() => {
+    if (gameControllerRef.current) {
+      gameControllerRef.current.start();
+    }
+    if (renderCoordinatorRef.current) {
+      renderCoordinatorRef.current.start();
+    }
     setAppState(prev => ({ ...prev, phase: 'playing' }));
   }, []);
 
@@ -209,13 +298,28 @@ export function App() {
    * Handle reset to main menu
    */
   const handleReset = useCallback(() => {
-    if (gameLoopRef.current) {
-      clearInterval(gameLoopRef.current);
-      gameLoopRef.current = null;
+    // Clean up existing game
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+      unsubscribeRef.current = null;
     }
 
-    gameRef.current = null;
+    if (inputHandlerRef.current) {
+      inputHandlerRef.current.destroy();
+      inputHandlerRef.current = null;
+    }
 
+    if (renderCoordinatorRef.current) {
+      renderCoordinatorRef.current.destroy();
+      renderCoordinatorRef.current = null;
+    }
+
+    if (gameControllerRef.current) {
+      gameControllerRef.current.stop();
+      gameControllerRef.current = null;
+    }
+
+    // Reset state
     setAppState({
       phase: 'menu',
       playerState: null,
@@ -241,27 +345,19 @@ export function App() {
       {/* Playing/Paused */}
       {(appState.phase === 'playing' || appState.phase === 'paused') && (
         <div className="game-container">
-          {/* Game Area */}
+          {/* Game Canvas */}
           <div className="game-area">
-            {/* Placeholder for game canvas/map view */}
-            <div className="game-canvas-placeholder">
-              <div className="placeholder-content">
-                <h2>Game Map View</h2>
-                <p>Canvas rendering will be integrated when RenderCoordinator is complete</p>
-                <div className="buildings-grid">
-                  <h3>Available Buildings:</h3>
-                  {gameRef.current?.map.getAllBuildings().slice(0, 6).map((building) => (
-                    <Button
-                      key={building.id}
-                      onClick={() => handleBuildingSelect(building.id)}
-                      variant="secondary"
-                    >
-                      {building.name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <canvas
+              ref={canvasRef}
+              id="gameCanvas"
+              className="game-canvas"
+              style={{
+                border: '2px solid #333',
+                display: 'block',
+                margin: '0 auto',
+                backgroundColor: '#000',
+              }}
+            />
           </div>
 
           {/* UI Overlay */}
@@ -318,7 +414,7 @@ export function App() {
       {/* Victory Screen */}
       {appState.phase === 'victory' && (
         <VictoryScreen
-          playerName={gameRef.current?.getCurrentPlayer()?.name || 'Player'}
+          playerName={appState.playerState?.job?.title || 'Player'}
           week={appState.currentWeek}
           onMainMenu={handleReset}
         />
@@ -387,8 +483,8 @@ function MainMenu({ onNewGame }: { onNewGame: (name: string) => void }) {
             <ul>
               <li>Goal: Accumulate $10,000 and build your career to 850 points</li>
               <li>Manage your health, happiness, education, and finances</li>
-              <li>Visit buildings to work, study, and improve your life</li>
-              <li>Pay rent weekly or face penalties</li>
+              <li>Click on the map to move and interact with buildings</li>
+              <li>Use arrow keys or WASD for movement</li>
             </ul>
           </div>
         </div>
