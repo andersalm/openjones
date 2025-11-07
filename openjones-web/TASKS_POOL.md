@@ -130,7 +130,7 @@
 
 #### Task A7: Purchase & Economic Actions
 **Priority:** 🟠 P1
-**Status:** Available
+**Status:** ✅ Complete [Worker 1]
 **Estimated:** 5-6 hours
 **Files:** `frontend/src/engine/actions/PurchaseAction.ts`, `PurchaseClothesAction.ts`, `ApplyForJobAction.ts`, `PayRentAction.ts`, `RentHouseAction.ts`
 **Description:**
@@ -429,7 +429,7 @@
 
 #### Task C4: Action Menu System
 **Priority:** 🟠 P1
-**Status:** Available
+**Status:** ✅ Complete [Worker 3]
 **Estimated:** 4-5 hours
 **Files:** `frontend/src/components/Buildings/ActionMenu.tsx`
 **Description:**
