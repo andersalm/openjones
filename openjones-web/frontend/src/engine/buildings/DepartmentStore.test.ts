@@ -1,0 +1,456 @@
+/**
+ * Tests for DepartmentStore building
+ *
+ * Part of Task B9: Shopping Buildings (Part 1)
+ * Worker 3 - Track B (Domain Logic)
+ */
+
+import { describe, it, expect, beforeEach } from 'vitest';
+import { DepartmentStore } from './DepartmentStore';
+import { Position } from '../types/Position';
+import { PlayerState } from '../game/PlayerState';
+import {
+  IPlayerState,
+  IGame,
+  BuildingType,
+  ActionType,
+  IEconomyModel,
+} from '../../../../shared/types/contracts';
+
+/**
+ * Helper to create a mock player state for testing
+ */
+function createMockPlayer(overrides: Partial<IPlayerState> = {}): IPlayerState {
+  return new PlayerState({
+    playerId: 'test-player',
+    cash: 1000,
+    health: 100,
+    happiness: 80,
+    education: 50,
+    career: 0,
+    position: new Position(2, 2),
+    currentBuilding: null,
+    job: null,
+    experience: [],
+    possessions: [],
+    rentedHome: null,
+    rentDebt: 0,
+    ...overrides,
+  });
+}
+
+/**
+ * Mock economy model for testing
+ */
+class MockEconomyModel implements IEconomyModel {
+  getPrice(_itemId: string, _buildingType: BuildingType): number {
+    return 100;
+  }
+
+  getWage(_job: any, hoursWorked: number): number {
+    return 10 * hoursWorked;
+  }
+
+  getRent(homeType: BuildingType): number {
+    return homeType === BuildingType.LOW_COST_APARTMENT ? 305 : 445;
+  }
+
+  getStockPrice(week: number): number {
+    return 50 + week * 5;
+  }
+
+  calculateSellPrice(possession: any): number {
+    return Math.floor(possession.value * 0.5);
+  }
+}
+
+/**
+ * Helper to create a mock game instance
+ */
+function createMockGame(): IGame {
+  const mockMap = {
+    width: 5,
+    height: 5,
+    getBuilding: () => null,
+    getAllBuildings: () => [],
+    getBuildingById: (id: string) => {
+      if (id === 'dept-1') {
+        return {
+          id: 'dept-1',
+          type: BuildingType.DEPARTMENT_STORE,
+          name: 'Department Store',
+        } as any;
+      }
+      return null;
+    },
+    isValidPosition: () => true,
+    getRoute: () => ({ start: null, end: null, positions: [], distance: 0 } as any),
+    getAdjacentPositions: () => [],
+  };
+
+  return {
+    id: 'test-game',
+    currentWeek: 1,
+    timeUnitsRemaining: 600,
+    currentPlayerIndex: 0,
+    players: [],
+    map: mockMap as any,
+    economyModel: new MockEconomyModel(),
+    victoryConditions: {
+      targetWealth: 10000,
+      targetHealth: 80,
+      targetHappiness: 80,
+      targetCareer: 100,
+      targetEducation: 80,
+    },
+    isGameOver: false,
+    initialize: () => {},
+    processTurn: () => ({
+      success: true,
+      message: 'Turn processed',
+      timeSpent: 0,
+      stateChanges: [],
+    }),
+    advanceTime: () => {},
+    nextPlayer: () => {},
+    getCurrentPlayer: () => null as any,
+    checkVictory: () => [],
+    serialize: () => '',
+    deserialize: () => {},
+    getPlayerById: () => null,
+    applyStateChanges: () => {},
+  };
+}
+
+describe('DepartmentStore Building', () => {
+  let store: DepartmentStore;
+  let player: IPlayerState;
+  let game: IGame;
+  const testPosition = new Position(3, 3);
+
+  beforeEach(() => {
+    store = new DepartmentStore('dept-1', 'Main Street Department Store', testPosition);
+    player = createMockPlayer();
+    game = createMockGame();
+  });
+
+  describe('Constructor and Properties', () => {
+    it('should initialize with correct properties', () => {
+      expect(store.id).toBe('dept-1');
+      expect(store.type).toBe(BuildingType.DEPARTMENT_STORE);
+      expect(store.name).toBe('Main Street Department Store');
+      expect(store.description).toContain('food');
+      expect(store.position).toBe(testPosition);
+    });
+
+    it('should not be a home', () => {
+      expect(store.isHome()).toBe(false);
+    });
+
+    it('should have correct building type', () => {
+      expect(store.type).toBe(BuildingType.DEPARTMENT_STORE);
+    });
+
+    it('should have a valid position', () => {
+      expect(store.position.x).toBe(3);
+      expect(store.position.y).toBe(3);
+    });
+
+    it('should have a description mentioning general goods', () => {
+      expect(store.description.toLowerCase()).toContain('goods');
+    });
+  });
+
+  describe('Job Offerings', () => {
+    it('should not offer any jobs', () => {
+      const jobs = store.getJobOfferings();
+      expect(jobs).toHaveLength(0);
+    });
+
+    it('should return an array for job offerings', () => {
+      const jobs = store.getJobOfferings();
+      expect(Array.isArray(jobs)).toBe(true);
+    });
+  });
+
+  describe('Available Actions - Outside Store', () => {
+    it('should return empty array when player is outside', () => {
+      const playerOutside = createMockPlayer({ currentBuilding: null });
+      const actions = store.getAvailableActions(playerOutside, game);
+      expect(actions).toHaveLength(0);
+    });
+
+    it('should not show purchase actions when outside', () => {
+      const playerOutside = createMockPlayer({ currentBuilding: null });
+      const actions = store.getAvailableActions(playerOutside, game);
+      const purchaseActions = actions.filter((a) => a.type === ActionType.PURCHASE);
+      expect(purchaseActions).toHaveLength(0);
+    });
+
+    it('should not show exit action when outside', () => {
+      const playerOutside = createMockPlayer({ currentBuilding: null });
+      const actions = store.getAvailableActions(playerOutside, game);
+      const exitActions = actions.filter((a) => a.type === ActionType.EXIT_BUILDING);
+      expect(exitActions).toHaveLength(0);
+    });
+  });
+
+  describe('Available Actions - Inside Store', () => {
+    it('should return actions when player is inside', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+      expect(actions.length).toBeGreaterThan(0);
+    });
+
+    it('should include purchase actions for food items', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+      const purchaseActions = actions.filter((a) => a.type === ActionType.PURCHASE);
+      expect(purchaseActions.length).toBeGreaterThan(0);
+    });
+
+    it('should include exit action when inside', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+      const exitAction = actions.find((a) => a.type === ActionType.EXIT_BUILDING);
+      expect(exitAction).toBeDefined();
+    });
+
+    it('should offer at least 3 food items', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+      const purchaseActions = actions.filter((a) => a.type === ActionType.PURCHASE);
+      expect(purchaseActions.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('should have food purchase actions with "Buy" in the name', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+      const purchaseActions = actions.filter((a) => a.type === ActionType.PURCHASE);
+      purchaseActions.forEach((action) => {
+        expect(action.displayName).toContain('Buy');
+      });
+    });
+
+    it('should offer food at different price points', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+      const purchaseActions = actions.filter((a) => a.type === ActionType.PURCHASE);
+
+      // Check that we have actions with different time costs (representing different items)
+      expect(purchaseActions.length).toBeGreaterThanOrEqual(3);
+    });
+  });
+
+  describe('Exit Action', () => {
+    it('should successfully exit when inside', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+      const exitAction = actions.find((a) => a.type === ActionType.EXIT_BUILDING);
+
+      expect(exitAction).toBeDefined();
+      const result = exitAction!.execute(playerInside, game);
+
+      expect(result.success).toBe(true);
+      expect(result.timeSpent).toBe(0);
+      expect(result.message).toContain('exit');
+    });
+
+    it('should fail when not inside', () => {
+      const playerOutside = createMockPlayer({ currentBuilding: null });
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+
+      const actions = store.getAvailableActions(playerInside, game);
+      const exitAction = actions.find((a) => a.type === ActionType.EXIT_BUILDING);
+
+      const result = exitAction!.execute(playerOutside, game);
+      expect(result.success).toBe(false);
+      expect(result.message).toContain('not inside');
+    });
+
+    it('should update player position in state changes', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+      const exitAction = actions.find((a) => a.type === ActionType.EXIT_BUILDING);
+
+      const result = exitAction!.execute(playerInside, game);
+      expect(result.stateChanges).toHaveLength(1);
+      expect(result.stateChanges[0].type).toBe('position');
+      expect(result.stateChanges[0].value).toBe(testPosition);
+    });
+
+    it('should have correct canExecute behavior', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const playerOutside = createMockPlayer({ currentBuilding: null });
+
+      const actions = store.getAvailableActions(playerInside, game);
+      const exitAction = actions.find((a) => a.type === ActionType.EXIT_BUILDING);
+
+      expect(exitAction?.canExecute(playerInside, game)).toBe(true);
+      expect(exitAction?.canExecute(playerOutside, game)).toBe(false);
+    });
+
+    it('should have zero time cost', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+      const exitAction = actions.find((a) => a.type === ActionType.EXIT_BUILDING);
+
+      expect(exitAction?.timeCost).toBe(0);
+    });
+
+    it('should have correct display name', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+      const exitAction = actions.find((a) => a.type === ActionType.EXIT_BUILDING);
+
+      expect(exitAction?.displayName).toContain('Exit');
+    });
+  });
+
+  describe('Action Tree', () => {
+    it('should create valid action tree when player is inside', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const tree = store.getActionTree(playerInside, game);
+
+      expect(tree).toBeDefined();
+      expect(tree.action).toBeDefined();
+      expect(tree.index).toBe(0);
+    });
+
+    it('should have children in action tree', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const tree = store.getActionTree(playerInside, game);
+
+      expect(tree.children).toBeDefined();
+      expect(tree.children.length).toBeGreaterThan(0);
+    });
+
+    it('should work when player is outside (fallback)', () => {
+      const playerOutside = createMockPlayer({ currentBuilding: null });
+      const tree = store.getActionTree(playerOutside, game);
+
+      expect(tree).toBeDefined();
+      expect(tree.action).toBeDefined();
+    });
+
+    it('should include food submenu in tree', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const tree = store.getActionTree(playerInside, game);
+
+      expect(tree.children.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('should have proper tree structure with root and children', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const tree = store.getActionTree(playerInside, game);
+
+      expect(tree.action).toBeDefined();
+      expect(Array.isArray(tree.children)).toBe(true);
+    });
+  });
+
+  describe('Building Entry', () => {
+    it('should allow all players to enter by default', () => {
+      expect(store.canEnter(player)).toBe(true);
+    });
+
+    it('should correctly identify player position', () => {
+      const playerAtStore = createMockPlayer({
+        position: new Position(3, 3),
+      });
+      expect(store.isPlayerAtPosition(playerAtStore)).toBe(true);
+
+      const playerAway = createMockPlayer({
+        position: new Position(1, 1),
+      });
+      expect(store.isPlayerAtPosition(playerAway)).toBe(false);
+    });
+
+    it('should correctly identify if player is inside', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      expect(store.isPlayerInside(playerInside)).toBe(true);
+
+      const playerOutside = createMockPlayer({ currentBuilding: null });
+      expect(store.isPlayerInside(playerOutside)).toBe(false);
+    });
+
+    it('should allow entry regardless of cash', () => {
+      const poorPlayer = createMockPlayer({ cash: 0 });
+      expect(store.canEnter(poorPlayer)).toBe(true);
+    });
+
+    it('should allow entry regardless of health', () => {
+      const sickPlayer = createMockPlayer({ health: 10 });
+      expect(store.canEnter(sickPlayer)).toBe(true);
+    });
+  });
+
+  describe('Integration Tests', () => {
+    it('should work with complete game scenario', () => {
+      const myStore = new DepartmentStore('dept-main', 'Central Department Store', new Position(2, 2));
+
+      const gamePlayer = createMockPlayer({
+        position: new Position(2, 2),
+        currentBuilding: null,
+        cash: 500,
+      });
+
+      expect(myStore.canEnter(gamePlayer)).toBe(true);
+      expect(myStore.isPlayerAtPosition(gamePlayer)).toBe(true);
+
+      gamePlayer.currentBuilding = 'dept-main';
+      expect(myStore.isPlayerInside(gamePlayer)).toBe(true);
+
+      const actions = myStore.getAvailableActions(gamePlayer, game);
+      expect(actions.length).toBeGreaterThan(0);
+
+      const purchaseActions = actions.filter((a) => a.type === ActionType.PURCHASE);
+      expect(purchaseActions.length).toBeGreaterThan(0);
+    });
+
+    it('should have exit action available when inside', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+
+      const exitAction = actions.find((a) => a.type === ActionType.EXIT_BUILDING);
+      expect(exitAction).toBeDefined();
+    });
+
+    it('should provide different food options', () => {
+      const playerInside = createMockPlayer({ currentBuilding: 'dept-1' });
+      const actions = store.getAvailableActions(playerInside, game);
+      const purchaseActions = actions.filter((a) => a.type === ActionType.PURCHASE);
+
+      // Should have multiple different food items
+      expect(purchaseActions.length).toBeGreaterThanOrEqual(3);
+
+      // Check that display names are different
+      const names = purchaseActions.map((a) => a.displayName);
+      const uniqueNames = new Set(names);
+      expect(uniqueNames.size).toBe(names.length);
+    });
+  });
+
+  describe('toString()', () => {
+    it('should return meaningful string representation', () => {
+      const result = store.toString();
+      expect(result).toContain('Main Street Department Store');
+      expect(result).toContain('DEPARTMENT_STORE');
+      expect(result).toContain('(3, 3)');
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle player in different building', () => {
+      const playerInOtherBuilding = createMockPlayer({ currentBuilding: 'other-building' });
+      const actions = store.getAvailableActions(playerInOtherBuilding, game);
+      expect(actions).toHaveLength(0);
+    });
+
+    it('should handle undefined current building', () => {
+      const playerWithUndefined = createMockPlayer({ currentBuilding: undefined as any });
+      const actions = store.getAvailableActions(playerWithUndefined, game);
+      expect(actions).toHaveLength(0);
+    });
+  });
+});

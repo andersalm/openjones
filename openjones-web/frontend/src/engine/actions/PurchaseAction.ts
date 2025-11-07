@@ -87,6 +87,13 @@ export abstract class PurchaseAction extends Action {
     // Override in subclasses to add specific requirements
   }
 
+  /**
+   * Helper method to check if player has enough cash
+   */
+  protected hasEnoughCash(player: IPlayerState, amount: number): boolean {
+    return player.canAfford(amount);
+  }
+
   protected getFailureMessage(player: IPlayerState): string {
     if (!this.hasEnoughCash(player, this.item.price)) {
       return `Not enough cash. Need $${this.item.price}, have $${player.cash}`;
