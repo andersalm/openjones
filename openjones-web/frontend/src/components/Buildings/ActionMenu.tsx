@@ -34,7 +34,7 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
       if (e.key >= '1' && e.key <= '9') {
         e.preventDefault();
         const index = parseInt(e.key) - 1;
-        if (actions[index] && !actions[index].disabled) {
+        if (actions[index]) {
           onActionSelect(actions[index].id);
         }
       }
@@ -53,7 +53,7 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
       if (e.key === 'Enter') {
         e.preventDefault();
         const action = actions[selectedIndex];
-        if (action && !action.disabled) {
+        if (action) {
           onActionSelect(action.id);
         }
       }
@@ -79,11 +79,7 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
           action={action}
           index={index}
           isSelected={index === selectedIndex}
-          onSelect={() => {
-            if (!action.disabled) {
-              onActionSelect(action.id);
-            }
-          }}
+          onSelect={() => onActionSelect(action.id)}
         />
       ))}
     </div>
@@ -108,25 +104,19 @@ const ActionMenuItem: React.FC<ActionMenuItemProps> = ({
   const selectedClasses = isSelected
     ? 'border-yellow-500 bg-yellow-50 shadow-md'
     : 'border-gray-300 bg-white';
-  const disabledClasses = action.disabled
-    ? 'opacity-50 cursor-not-allowed'
-    : 'hover:border-blue-500 hover:bg-blue-50 cursor-pointer hover:shadow-sm';
+  const interactionClasses = 'hover:border-blue-500 hover:bg-blue-50 cursor-pointer hover:shadow-sm';
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!action.disabled) {
-      onSelect();
-    }
+    onSelect();
   };
 
   return (
     <button
-      className={`${baseClasses} ${selectedClasses} ${disabledClasses}`}
+      className={`${baseClasses} ${selectedClasses} ${interactionClasses}`}
       onClick={handleClick}
-      disabled={action.disabled}
       data-testid={`action-item-${action.id}`}
       aria-label={`Action ${index + 1}: ${action.displayName}`}
-      aria-disabled={action.disabled}
     >
       <div className="flex items-center justify-between">
         <div className="flex-1">
@@ -137,11 +127,6 @@ const ActionMenuItem: React.FC<ActionMenuItemProps> = ({
             <span className="font-semibold text-gray-900">
               {action.displayName}
             </span>
-            {action.icon && (
-              <span className="text-sm" role="img" aria-label="icon">
-                {action.icon}
-              </span>
-            )}
           </div>
           {action.description && (
             <div className="text-sm text-gray-600 mt-1 ml-8">
@@ -156,19 +141,8 @@ const ActionMenuItem: React.FC<ActionMenuItemProps> = ({
               ⏱ {action.timeCost} {action.timeCost === 1 ? 'unit' : 'units'}
             </span>
           )}
-          {action.cost !== undefined && action.cost > 0 && (
-            <span className="bg-green-100 text-green-700 px-2 py-1 rounded font-semibold">
-              ${action.cost}
-            </span>
-          )}
         </div>
       </div>
-
-      {action.disabled && action.requirements && action.requirements.length > 0 && (
-        <div className="text-xs text-red-600 mt-2 ml-8 bg-red-50 px-2 py-1 rounded">
-          <strong>Requirements:</strong> {action.requirements.join(', ')}
-        </div>
-      )}
     </button>
   );
 };

@@ -3,21 +3,23 @@ import { IPlayerState, IGame, IJob } from '@shared/types/contracts';
 export const createMockPlayer = (overrides?: Partial<any>): IPlayerState => {
   // Handle legacy field names from worker's test code
   const currentBuilding = overrides?.currentBuilding ?? overrides?.location ?? null;
-  const timeRemaining = overrides?.timeRemaining ?? overrides?.time ?? 480;
+  const position = overrides?.position ?? { x: 0, y: 0, equals: () => false, toString: () => '0,0' };
 
   return {
+    playerId: overrides?.playerId ?? 'player-1',
     cash: overrides?.cash ?? 100,
     health: overrides?.health ?? 100,
     happiness: overrides?.happiness ?? 50,
     education: overrides?.education ?? 0,
     career: overrides?.career ?? 0,
-    timeRemaining,
     currentBuilding,
-    position: overrides?.position ?? { x: 0, y: 0 },
+    position,
     job: overrides?.job ?? null,
+    experience: overrides?.experience ?? [],
     possessions: overrides?.possessions ?? [],
-    canAfford: (amount: number) => (overrides?.cash ?? 100) >= amount,
-  } as IPlayerState;
+    rentedHome: overrides?.rentedHome ?? null,
+    rentDebt: overrides?.rentDebt ?? 0,
+  } as any;
 };
 
 export const createMockJob = (overrides?: Partial<IJob>): IJob => {

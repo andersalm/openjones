@@ -1,5 +1,6 @@
 import { IPlayerState, IGame, IPosition } from '@shared/types/contracts';
-import { Action, ActionResponse, StateChangeBuilder } from './Action';
+import { Action } from './Action';
+import { ActionResponse, StateChangeBuilder } from './ActionResponse';
 import { ActionType, IActionResponse, IActionRequirement as ActionRequirement } from '@shared/types/contracts';
 
 // Helper function to calculate distance between two positions

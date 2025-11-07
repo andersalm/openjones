@@ -3,7 +3,6 @@ import { Game } from './engine/game/Game';
 import { IBuilding, IPlayerState, IVictoryCondition } from '@shared/types/contracts';
 import { PlayerStatsHUD } from './components/PlayerStats/PlayerStatsHUD';
 import { BuildingModal } from './components/Buildings/BuildingModal';
-import { ActionMenu } from './components/Buildings/ActionMenu';
 import { Button } from './components/ui/Button';
 import { Container } from './components/ui/Container';
 import { Panel } from './components/ui/Panel';
@@ -96,23 +95,7 @@ export function App() {
     if (!game || game.players.length === 0) return;
 
     const player = game.getCurrentPlayer();
-    const playerState: IPlayerState = {
-      playerId: player.id,
-      cash: player.state.cash,
-      health: player.state.health,
-      happiness: player.state.happiness,
-      education: player.state.education,
-      career: player.state.career,
-      weeklyIncome: 0, // Calculate from job if exists
-      currentJob: player.state.job?.title || undefined,
-      position: player.state.position,
-      currentBuilding: player.state.currentBuilding,
-      job: player.state.job,
-      experience: player.state.experience,
-      possessions: player.state.possessions,
-      rentedHome: player.state.rentedHome,
-      rentDebt: player.state.rentDebt,
-    };
+    const playerState: IPlayerState = player.state;
 
     // Create victory conditions for UI
     const victoryConditions: IVictoryCondition[] = [
@@ -190,7 +173,7 @@ export function App() {
   /**
    * Handle action selection from building modal
    */
-  const handleActionSelect = useCallback((actionId: string) => {
+  const handleActionSelect = useCallback((_actionId: string) => {
     if (!gameRef.current || !appState.selectedBuilding) return;
 
     // For now, just close the modal
@@ -335,7 +318,7 @@ export function App() {
       {/* Victory Screen */}
       {appState.phase === 'victory' && (
         <VictoryScreen
-          playerName={appState.playerState?.currentJob || 'Player'}
+          playerName={gameRef.current?.getCurrentPlayer()?.name || 'Player'}
           week={appState.currentWeek}
           onMainMenu={handleReset}
         />
@@ -460,7 +443,7 @@ function DefeatScreen({
 }) {
   return (
     <Container className="defeat-screen">
-      <Panel title="Game Over" variant="danger">
+      <Panel title="Game Over" variant="warning">
         <div className="defeat-content">
           <div className="defeat-icon">😞</div>
           <h2>Better Luck Next Time!</h2>

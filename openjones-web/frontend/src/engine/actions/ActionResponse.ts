@@ -200,6 +200,37 @@ export class StateChangeBuilder {
   }
 
   /**
+   * Add a custom state change
+   */
+  custom(type: string, value: any, description: string): StateChangeBuilder {
+    this.changes.push({
+      type: type as any,
+      value: value,
+      description,
+    });
+    return this;
+  }
+
+  /**
+   * Change current building
+   */
+  currentBuilding(buildingId: string | null, description: string): StateChangeBuilder {
+    this.changes.push({
+      type: 'location',
+      value: buildingId || '',
+      description,
+    });
+    return this;
+  }
+
+  /**
+   * Change health (as a measure)
+   */
+  health(newValue: number, description: string): StateChangeBuilder {
+    return this.measure(MeasureType.HEALTH, newValue, description);
+  }
+
+  /**
    * Build and return the state changes array
    */
   build(): IStateChange[] {
