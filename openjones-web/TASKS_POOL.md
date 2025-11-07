@@ -114,7 +114,7 @@
 
 #### Task A6: Work & Study Actions
 **Priority:** 🟠 P1
-**Status:** Available
+**Status:** ✅ Complete [Worker 1]
 **Estimated:** 4-5 hours
 **Files:** `frontend/src/engine/actions/WorkAction.ts`, `StudyAction.ts`, `RelaxAction.ts`
 **Description:**

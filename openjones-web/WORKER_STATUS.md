@@ -37,9 +37,9 @@ Choose any available number (1-10):
 
 | Worker # | Status | Track | Started | Last Active |
 |----------|--------|-------|---------|-------------|
-| 1 | ✅ Complete | Track A | 2025-11-07 | Tasks A1, A2, A4, A5 done (Round 5) |
-| 2 | ⚠️ Incomplete | Track B | 2025-11-07 | Tasks B1, B2, B4, B7 done (B11 not submitted) |
-| 3 | ✅ Complete | Track A/B/C | 2025-11-07 | Tasks A3, B3, B6, C1, C2 done (Round 5) |
+| 1 | ✅ Complete | Track A | 2025-11-07 | Tasks A1, A2, A4, A5, A6 done (Round 6) |
+| 2 | ⚠️ Incomplete | Track B | 2025-11-07 | Tasks B1, B2, B4, B7 done (B11 not submitted x2) |
+| 3 | ⚠️ Incomplete | Track A/B/C | 2025-11-07 | Tasks A3, B3, B6, C1, C2 done (C3 not submitted) |
 | 4 | 🟢 Available | - | - | - |
 | 5 | 🟢 Available | - | - | - |
 | 6 | 🟢 Available | - | - | - |
