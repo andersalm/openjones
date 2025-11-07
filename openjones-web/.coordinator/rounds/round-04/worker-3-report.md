@@ -1,7 +1,7 @@
 # Worker 3 Report: Task C3 - Building Modal
 
 **Branch:** claude/building-modal-c3-011CUuENnSy1RqCd3ysqHMPJ
-**Commit:** (pending - will be added after commit)
+**Commit:** cd574d3
 
 ## Deliverables
 ✅ BuildingModal.tsx (277 lines)
