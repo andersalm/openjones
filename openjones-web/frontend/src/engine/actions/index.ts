@@ -25,6 +25,11 @@ export { MovementAction } from './MovementAction';
 export { EnterBuildingAction } from './EnterBuildingAction';
 export { ExitBuildingAction } from './ExitBuildingAction';
 
+// Work & Study actions (Task A6)
+export { WorkAction } from './WorkAction';
+export { StudyAction } from './StudyAction';
+export { RelaxAction } from './RelaxAction';
+
 // Re-export relevant types from contracts for convenience
 export type {
   IAction,
