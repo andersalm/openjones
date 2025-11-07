@@ -183,7 +183,7 @@
 
 #### Task B2: Map System
 **Priority:** 🔴 P0
-**Status:** Available
+**Status:** ✅ Complete [Worker 2]
 **Estimated:** 4-5 hours
 **Files:** `frontend/src/engine/map/Map.ts`
 **Description:**
@@ -202,7 +202,7 @@
 
 #### Task B3: Job System
 **Priority:** 🟠 P1
-**Status:** Available
+**Status:** ✅ Complete [Worker 3]
 **Estimated:** 3-4 hours
 **Files:** `frontend/src/engine/jobs/Job.ts`, `Unemployed.ts`
 **Description:**
