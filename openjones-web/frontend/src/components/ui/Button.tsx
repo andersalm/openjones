@@ -1,140 +1,63 @@
-import React from 'react';
-import { theme } from '../../theme';
+import React, { ButtonHTMLAttributes, ReactNode } from 'react';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'accent' | 'danger' | 'ghost';
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  /** Button content */
+  children: ReactNode;
+  /** Button variant/style */
+  variant?: 'primary' | 'secondary' | 'danger' | 'success';
+  /** Button size */
   size?: 'sm' | 'md' | 'lg';
-  fullWidth?: boolean;
-  children: React.ReactNode;
+  /** Whether button is in loading state */
+  isLoading?: boolean;
 }
 
 /**
  * Button component with retro game aesthetic
- *
- * @example
- * <Button variant="primary" size="md" onClick={handleClick}>
- *   Click Me
- * </Button>
  */
 export const Button: React.FC<ButtonProps> = ({
+  children,
   variant = 'primary',
   size = 'md',
-  fullWidth = false,
-  children,
-  disabled = false,
-  style,
+  isLoading = false,
+  disabled,
+  className = '',
   ...props
 }) => {
-  const getVariantStyles = (): React.CSSProperties => {
-    const baseStyles: React.CSSProperties = {
-      border: '2px solid',
-      cursor: disabled ? 'not-allowed' : 'pointer',
-      fontWeight: theme.typography.fontWeight.semibold,
-      transition: theme.transitions.fast,
-      textTransform: 'uppercase',
-      letterSpacing: '0.5px',
-      opacity: disabled ? 0.5 : 1,
-    };
-
-    switch (variant) {
-      case 'primary':
-        return {
-          ...baseStyles,
-          backgroundColor: theme.colors.primary.main,
-          borderColor: theme.colors.primary.light,
-          color: theme.colors.neutral.white,
-        };
-      case 'secondary':
-        return {
-          ...baseStyles,
-          backgroundColor: theme.colors.secondary.main,
-          borderColor: theme.colors.secondary.light,
-          color: theme.colors.neutral.white,
-        };
-      case 'accent':
-        return {
-          ...baseStyles,
-          backgroundColor: theme.colors.accent.gold,
-          borderColor: theme.colors.accent.orange,
-          color: theme.colors.primary.dark,
-        };
-      case 'danger':
-        return {
-          ...baseStyles,
-          backgroundColor: theme.colors.accent.red,
-          borderColor: theme.colors.accent.orange,
-          color: theme.colors.neutral.white,
-        };
-      case 'ghost':
-        return {
-          ...baseStyles,
-          backgroundColor: 'transparent',
-          borderColor: theme.colors.neutral.lightGray,
-          color: theme.colors.neutral.lightGray,
-        };
-      default:
-        return baseStyles;
-    }
+  const variantClasses = {
+    primary: 'bg-blue-500 hover:bg-blue-600 text-white border-blue-700',
+    secondary: 'bg-gray-500 hover:bg-gray-600 text-white border-gray-700',
+    danger: 'bg-red-500 hover:bg-red-600 text-white border-red-700',
+    success: 'bg-green-500 hover:bg-green-600 text-white border-green-700',
   };
 
-  const getSizeStyles = (): React.CSSProperties => {
-    switch (size) {
-      case 'sm':
-        return {
-          padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
-          fontSize: theme.typography.fontSize.xs,
-          borderRadius: theme.borderRadius.sm,
-        };
-      case 'md':
-        return {
-          padding: `${theme.spacing.sm} ${theme.spacing.md}`,
-          fontSize: theme.typography.fontSize.sm,
-          borderRadius: theme.borderRadius.md,
-        };
-      case 'lg':
-        return {
-          padding: `${theme.spacing.md} ${theme.spacing.lg}`,
-          fontSize: theme.typography.fontSize.md,
-          borderRadius: theme.borderRadius.md,
-        };
-      default:
-        return {};
-    }
+  const sizeClasses = {
+    sm: 'px-3 py-1 text-sm',
+    md: 'px-4 py-2 text-base',
+    lg: 'px-6 py-3 text-lg',
   };
 
-  const buttonStyles: React.CSSProperties = {
-    ...getVariantStyles(),
-    ...getSizeStyles(),
-    width: fullWidth ? '100%' : 'auto',
-    boxShadow: disabled ? 'none' : theme.shadows.retro,
-    ...style,
-  };
-
-  const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!disabled) {
-      e.currentTarget.style.transform = 'translate(2px, 2px)';
-      e.currentTarget.style.boxShadow = theme.shadows.sm;
-    }
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!disabled) {
-      e.currentTarget.style.transform = 'translate(0, 0)';
-      e.currentTarget.style.boxShadow = theme.shadows.retro;
-    }
-  };
+  const isDisabled = disabled || isLoading;
 
   return (
     <button
-      style={buttonStyles}
-      disabled={disabled}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      className={`
+        ${variantClasses[variant]}
+        ${sizeClasses[size]}
+        border-b-4
+        font-bold
+        uppercase
+        tracking-wide
+        transition-all
+        disabled:opacity-50
+        disabled:cursor-not-allowed
+        active:border-b-2
+        active:translate-y-0.5
+        ${className}
+      `}
+      disabled={isDisabled}
       {...props}
     >
-      {children}
+      {isLoading ? 'Loading...' : children}
     </button>
   );
 };
-
-export default Button;
