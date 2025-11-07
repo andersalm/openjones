@@ -15,6 +15,7 @@ type GamePhase = 'menu' | 'playing' | 'paused' | 'victory' | 'defeat';
 // Local victory condition type for UI display
 interface VictoryCondition {
   id: string;
+  type: 'measure' | 'cash' | 'education' | 'career' | 'happiness';
   description: string;
   targetValue: number;
   currentValue: number;
@@ -164,12 +165,14 @@ export function App() {
     const victoryConditions: VictoryCondition[] = [
       {
         id: 'wealth',
+        type: 'cash',
         description: 'Accumulate wealth',
         targetValue: game.victoryConditions.targetWealth,
         currentValue: player.state.cash,
       },
       {
         id: 'career',
+        type: 'career',
         description: 'Build your career',
         targetValue: game.victoryConditions.targetCareer,
         currentValue: player.state.career,

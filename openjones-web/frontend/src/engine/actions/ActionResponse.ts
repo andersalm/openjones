@@ -231,6 +231,27 @@ export class StateChangeBuilder {
   }
 
   /**
+   * Change education (as a measure)
+   */
+  education(newValue: number, description: string): StateChangeBuilder {
+    return this.measure(MeasureType.EDUCATION, newValue, description);
+  }
+
+  /**
+   * Change career (as a measure)
+   */
+  career(newValue: number, description: string): StateChangeBuilder {
+    return this.measure(MeasureType.CAREER, newValue, description);
+  }
+
+  /**
+   * Change happiness (as a measure)
+   */
+  happiness(newValue: number, description: string): StateChangeBuilder {
+    return this.measure(MeasureType.HAPPINESS, newValue, description);
+  }
+
+  /**
    * Build and return the state changes array
    */
   build(): IStateChange[] {

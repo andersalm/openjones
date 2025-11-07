@@ -109,7 +109,7 @@ export class College extends Building {
    * Get available actions for a player at this building
    * College offers study actions and exit
    */
-  getAvailableActions(player: IPlayerState, game: IGame): IAction[] {
+  getAvailableActions(player: IPlayerState, _game: IGame): IAction[] {
     const actions: IAction[] = [];
 
     if (this.isPlayerInside(player)) {
@@ -261,7 +261,7 @@ export class College extends Building {
 
       canExecute: (player: IPlayerState) => this.isPlayerInside(player),
 
-      execute: (player: IPlayerState, game: IGame) => {
+      execute: (player: IPlayerState, _game: IGame) => {
         if (!this.isPlayerInside(player)) {
           return {
             success: false,

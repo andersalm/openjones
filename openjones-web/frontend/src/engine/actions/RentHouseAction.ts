@@ -1,21 +1,29 @@
 import { Action } from './Action';
 import { ActionResponse, StateChangeBuilder } from './ActionResponse';
-import { IPlayerState, IGame, IActionResponse, IActionRequirement, ActionType, IApartment } from '@shared/types/contracts';
+import { IPlayerState, IGame, IActionResponse, IActionRequirement, ActionType } from '@shared/types/contracts';
+
+// Temporary apartment interface until proper types are added
+interface IApartment {
+  id: string;
+  name: string;
+  weeklyRent: number;
+  happinessBonus?: number;
+}
 
 export class RentHouseAction extends Action {
   constructor(private apartment: IApartment) {
     super(
       `rent-house-${apartment.id}`,
-      ActionType.RENT_HOUSE,
+      ActionType.RENT_HOME,
       'Rent Apartment',
       `Rent ${apartment.name}`,
       10
     );
   }
 
-  canExecute(player: IPlayerState, game: IGame): boolean {
+  canExecute(player: IPlayerState, _game: IGame): boolean {
     // Must have enough cash for first week's rent
-    if (!this.hasEnoughCash(player, this.apartment.weeklyRent)) {
+    if (!player.canAfford(this.apartment.weeklyRent)) {
       return false;
     }
 
@@ -25,7 +33,7 @@ export class RentHouseAction extends Action {
     }
 
     // Player shouldn't already have this apartment
-    if (player.currentHome === this.apartment.id) {
+    if (player.rentedHome === this.apartment.id) {
       return false;
     }
 
@@ -39,17 +47,15 @@ export class RentHouseAction extends Action {
 
     const changes = StateChangeBuilder.create()
       .cash(
-        player.cash,
         player.cash - this.apartment.weeklyRent,
         `Paid first week rent: $${this.apartment.weeklyRent}`
       )
-      .custom('currentHome', this.apartment.id, `Rented ${this.apartment.name}`)
-      .rentDue(player.rentDue, 0, 'Rent paid for first week');
+      .custom('rentedHome', this.apartment.id, `Rented ${this.apartment.name}`)
+      .custom('rentDebt', 0, 'Rent paid for first week');
 
     // Add happiness bonus if applicable
-    if (this.apartment.happinessBonus > 0) {
+    if (this.apartment.happinessBonus && this.apartment.happinessBonus > 0) {
       changes.happiness(
-        player.happiness,
         player.happiness + this.apartment.happinessBonus,
         `Gained ${this.apartment.happinessBonus} happiness from new home`
       );
@@ -78,14 +84,14 @@ export class RentHouseAction extends Action {
   }
 
   private getFailureMessage(player: IPlayerState): string {
-    if (player.currentHome === this.apartment.id) {
+    if (player.rentedHome === this.apartment.id) {
       return `You are already renting ${this.apartment.name}`;
     }
-    if (!this.hasEnoughCash(player, this.apartment.weeklyRent)) {
+    if (!player.canAfford(this.apartment.weeklyRent)) {
       return `Not enough cash for first week rent. Need $${this.apartment.weeklyRent}, have $${player.cash}`;
     }
     if (!this.hasEnoughTime(player)) {
-      return `Not enough time to rent apartment. Need ${this.timeCost}, have ${player.time}`;
+      return `Not enough time to rent apartment. Need ${this.timeCost}`;
     }
     return 'Cannot rent this apartment';
   }

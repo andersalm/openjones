@@ -57,7 +57,7 @@ export abstract class Building implements IBuilding {
    * Get all available actions for a player at this building
    * Must be implemented by each specific building type
    */
-  abstract getAvailableActions(player: IPlayerState, game: IGame): IAction[];
+  abstract getAvailableActions(_player: IPlayerState, _game: IGame): IAction[];
 
   /**
    * Get all job offerings available at this building
@@ -80,7 +80,7 @@ export abstract class Building implements IBuilding {
    * @param player Player attempting to enter
    * @returns true if player can enter, false otherwise
    */
-  canEnter(player: IPlayerState): boolean {
+  canEnter(_player: IPlayerState): boolean {
     // Default: all players can enter all buildings
     // Specific buildings can override this for special restrictions
     return true;

@@ -75,9 +75,9 @@ export class RelaxAction extends Action {
     // At home: 1.5x effectiveness
     // At street or unknown: 0.5x effectiveness (uncomfortable)
     // Other locations: 1x effectiveness
-    if (player.location === 'home') {
+    if (player.currentBuilding === 'home') {
       return 1.5;
-    } else if (player.location === 'street' || player.location === 'unknown') {
+    } else if (player.currentBuilding === 'street' || player.currentBuilding === 'unknown') {
       return 0.5;
     }
     return 1.0;

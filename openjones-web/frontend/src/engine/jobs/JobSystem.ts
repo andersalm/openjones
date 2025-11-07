@@ -15,7 +15,7 @@ import {
   IJob,
   IPlayerState,
   BuildingType,
-  GAME_CONSTANTS,
+  
 } from '../../../../shared/types/contracts';
 
 /**

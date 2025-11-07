@@ -20,22 +20,22 @@ export {
   type ActionMetadata,
 } from './ActionRegistry';
 
-// Movement actions (Task A5) - Temporarily disabled due to interface mismatches
-// export { MovementAction } from './MovementAction';
-// export { EnterBuildingAction } from './EnterBuildingAction';
-// export { ExitBuildingAction } from './ExitBuildingAction';
+// Movement actions (Task A5)
+export { MovementAction } from './MovementAction';
+export { EnterBuildingAction } from './EnterBuildingAction';
+export { ExitBuildingAction } from './ExitBuildingAction';
 
-// Work & Study actions (Task A6) - Temporarily disabled due to interface mismatches
-// export { WorkAction } from './WorkAction';
-// export { StudyAction } from './StudyAction';
-// export { RelaxAction } from './RelaxAction';
+// Work & Study actions (Task A6)
+export { WorkAction } from './WorkAction';
+export { StudyAction } from './StudyAction';
+export { RelaxAction } from './RelaxAction';
 
-// Economic actions (Task A7) - Temporarily disabled due to interface mismatches
-// export { PurchaseAction } from './PurchaseAction';
-// export { PurchaseClothesAction } from './PurchaseClothesAction';
-// export { ApplyForJobAction } from './ApplyForJobAction';
-// export { PayRentAction } from './PayRentAction';
-// export { RentHouseAction } from './RentHouseAction';
+// Economic actions (Task A7)
+export { PurchaseAction } from './PurchaseAction';
+export { PurchaseClothesAction } from './PurchaseClothesAction';
+export { ApplyForJobAction } from './ApplyForJobAction';
+export { PayRentAction } from './PayRentAction';
+export { RentHouseAction } from './RentHouseAction';
 
 // Re-export relevant types from contracts for convenience
 export type {

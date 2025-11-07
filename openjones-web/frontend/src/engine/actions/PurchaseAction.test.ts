@@ -16,7 +16,7 @@ class TestPurchaseAction extends PurchaseAction {
   }
 
   protected canPurchaseAtLocation(player: IPlayerState, game: IGame): boolean {
-    return player.currentLocation === this.requiredLocation;
+    return player.currentBuilding === this.requiredLocation;
   }
 }
 
