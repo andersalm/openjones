@@ -298,4 +298,4 @@ When you join, make sure you:
 ---
 
 **Last updated:** 2025-11-07
-**Next update:** Round 5 starting!
+**Next update:** Round 8 preparation - see SESSION_HANDOFF.md
