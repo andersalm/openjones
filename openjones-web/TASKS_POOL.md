@@ -97,7 +97,7 @@
 
 #### Task A5: Movement Actions
 **Priority:** 🟠 P1
-**Status:** Available
+**Status:** ✅ Complete [Worker 1]
 **Estimated:** 3-4 hours
 **Files:** `frontend/src/engine/actions/Movement.ts`, `EnterBuildingMovement.ts`, `ExitBuildingMovement.ts`
 **Description:**
@@ -390,7 +390,7 @@
 
 #### Task C2: Player Stats HUD
 **Priority:** 🟠 P1
-**Status:** Available
+**Status:** ✅ Complete [Worker 3]
 **Estimated:** 4-5 hours
 **Files:** `frontend/src/components/PlayerStats/PlayerStatsHUD.tsx`
 **Description:**
