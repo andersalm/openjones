@@ -13,9 +13,8 @@
 🚨 STOP! Execute these commands FIRST before doing ANYTHING else:
 
 cd /home/user/openjones
-git fetch origin
-git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
-git pull origin claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+git fetch origin claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+git checkout -b my-dev-branch origin/claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
 
 You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT initialize.
 
@@ -23,7 +22,7 @@ You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT i
 
 **Project:** OpenJones browser port (Jones in the Fast Lane)
 **Location:** /home/user/openjones/openjones-web (ALREADY EXISTS)
-**Branch:** claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ (MUST FETCH FROM REMOTE)
+**Your Branch:** my-dev-branch (tracking the main dev branch)
 **Status:** Phase 0 COMPLETE - All setup already done
 
 **Your onboarding (6 steps):**
@@ -46,16 +45,29 @@ You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT i
    - Read openjones-web/TASKS_POOL.md
    - Find a task in your track, mark "In Progress [Worker N]"
 
-5. **Create worker branch:**
+5. **Create feature branch:**
    ```bash
    cd openjones-web
    git checkout -b worker-[N]/[task-name]
+   # Example: git checkout -b worker-2/economy-model
    ```
 
 6. **Start coding:**
    - Read shared/types/contracts.ts (interfaces)
    - Read shared/mocks/index.ts (mock dependencies)
    - Implement your task using existing contracts
+
+**When you're done with your task:**
+```bash
+# Commit your work
+git add .
+git commit -m "[Worker N] Complete Task X: description"
+
+# Push to YOUR branch (this will work without conflicts)
+git push -u origin HEAD
+
+# Notify the team lead - they will merge your work
+```
 
 **Essential files:**
 - WORKER_STATUS.md ← Pick number & track

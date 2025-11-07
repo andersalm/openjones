@@ -12,9 +12,8 @@
 🚨 STOP! Execute these commands FIRST before doing ANYTHING else:
 
 cd /home/user/openjones
-git fetch origin
-git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
-git pull origin claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+git fetch origin claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+git checkout -b my-dev-branch origin/claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
 
 You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT initialize.
 
@@ -23,7 +22,8 @@ You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT i
 **Project:** OpenJones browser port (Jones in the Fast Lane)
 **Tech Stack:** React 19 + TypeScript + Vite
 **Location:** /home/user/openjones/openjones-web (ALREADY EXISTS)
-**Branch:** claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ (MUST FETCH FROM REMOTE)
+**Main Dev Branch:** claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ (fetch from remote)
+**Your Branch:** my-dev-branch (local tracking branch - you can push here)
 **Status:** Phase 0 COMPLETE - All files already created
 
 ---
@@ -44,6 +44,7 @@ ls openjones-web/  # You MUST see: frontend/, shared/, docs/, package.json
 - [ ] I'm in `/home/user/openjones` directory
 - [ ] I can see `openjones-web/` directory with frontend/, shared/, docs/
 - [ ] Phase 0 is complete - I will NOT create new project structure
+- [ ] I'm on my-dev-branch (not the main dev branch)
 
 **Step 1: Choose Your Identity**
 
@@ -85,10 +86,9 @@ Open TASKS_POOL.md and:
 # Navigate to project (if not already there)
 cd /home/user/openjones/openjones-web
 
-# Create your worker branch FROM the main development branch
-git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+# Create your feature branch (you're already on my-dev-branch)
 git checkout -b worker-[N]/[task-name]
-# Example: git checkout -b worker-1/game-state
+# Example: git checkout -b worker-2/economy-model
 ```
 
 **Step 5: Read the Contracts**
@@ -121,10 +121,18 @@ npm run lint         # Check code quality
 - Ask questions (update WORKER_STATUS.md with blockers)
 
 **When you finish a task:**
-1. Update TASKS_POOL.md - mark "Complete [Worker N]"
-2. Create PR with description
-3. Pick your next task from TASKS_POOL.md
-4. Repeat!
+1. Commit your work:
+   ```bash
+   git add .
+   git commit -m "[Worker N] Complete Task X: description"
+   ```
+2. Push to your branch (this will work!):
+   ```bash
+   git push -u origin HEAD
+   ```
+3. Update TASKS_POOL.md - mark "Complete [Worker N]"
+4. Notify team lead - they will merge your work
+5. Pick your next task from TASKS_POOL.md and repeat!
 
 ---
 
@@ -222,7 +230,6 @@ Edit TASKS_POOL.md Task A2:
 **Step 4: Create branch**
 ```bash
 cd /home/user/openjones/openjones-web
-git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
 git checkout -b worker-1/game-state
 ```
 

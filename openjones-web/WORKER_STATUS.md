@@ -154,16 +154,16 @@ Look at the Track Availability below and pick one that needs work!
 🚨 STOP! Execute these commands FIRST before reading any files:
 
 cd /home/user/openjones
-git fetch origin
-git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
-git pull origin claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+git fetch origin claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+git checkout -b my-dev-branch origin/claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
 
 ---
 
 You are joining the OpenJones browser port project as a worker.
 
 **CRITICAL INFO:**
-- Branch: `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ` (MUST FETCH FROM REMOTE)
+- Main Dev Branch: `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ` (fetch from remote)
+- Your Branch: `my-dev-branch` (local tracking branch - you can push here)
 - Location: `/home/user/openjones/openjones-web/` (ALREADY EXISTS)
 - Project Status: Phase 0 COMPLETE (DO NOT create from scratch!)
 
@@ -191,16 +191,28 @@ ls openjones-web/  # Verify you see: frontend/, shared/, docs/
 
 **Step 4 - Set up:**
 1. Location: /home/user/openjones/openjones-web
-2. Ensure on main branch: git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
-3. Create branch: git checkout -b worker-[N]/[task-name]
-4. Read shared/types/contracts.ts (understand interfaces)
-5. Read shared/mocks/index.ts (use mocks for dependencies)
+2. Create feature branch: git checkout -b worker-[N]/[task-name]
+3. Read shared/types/contracts.ts (understand interfaces)
+4. Read shared/mocks/index.ts (use mocks for dependencies)
 
 **Step 5 - Start coding:**
 1. Implement your task following the contracts
 2. Write tests as you go
 3. Use mocks for dependencies from other tracks
 4. Commit often: "[Worker N] feat: description"
+
+**Step 6 - When you're done:**
+```bash
+# Commit your work
+git add .
+git commit -m "[Worker N] Complete Task X: description"
+
+# Push to YOUR branch (this will work!)
+git push -u origin HEAD
+
+# Update TASKS_POOL.md to mark task complete
+# Notify team lead - they will merge your work
+```
 
 **Available now at:**
 /home/user/openjones/openjones-web
