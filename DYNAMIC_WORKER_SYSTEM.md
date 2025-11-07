@@ -7,10 +7,21 @@
 
 ## 🚀 Quick Start for New Workers
 
+### IMPORTANT: Customize This Prompt
+
+When spawning a worker, replace `[N]` with their assigned worker number (1-10).
+For example: "You are Worker 2" not "You are Worker [N]"
+
+---
+
 ### Copy/Paste This Prompt for AI Workers
 
+**⚠️ REPLACE [N] WITH THE ACTUAL WORKER NUMBER BEFORE SENDING!**
+
 ```markdown
-🚨 STOP! Execute these commands FIRST before doing ANYTHING else:
+🚨 YOU ARE WORKER [N] 🚨
+
+Execute these commands FIRST before doing ANYTHING else:
 
 cd /home/user/openjones
 git fetch origin claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
@@ -20,12 +31,13 @@ You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT i
 
 ---
 
+**Your Identity:** Worker [N]
 **Project:** OpenJones browser port (Jones in the Fast Lane)
 **Location:** /home/user/openjones/openjones-web (ALREADY EXISTS)
 **Your Branch:** my-dev-branch (tracking the main dev branch)
 **Status:** Phase 0 COMPLETE - All setup already done
 
-**Your onboarding (6 steps):**
+**Your onboarding (5 steps):**
 
 1. **VERIFY PROJECT EXISTS:**
    ```bash
@@ -33,26 +45,28 @@ You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT i
    ```
    ⛔ DO NOT proceed until you see these directories!
 
-2. **Choose worker number:**
-   - Read openjones-web/WORKER_STATUS.md
-   - Pick any number 1-10, mark it 🔴 Occupied
+2. **Claim your worker number:**
+   - Open openjones-web/WORKER_STATUS.md
+   - Find Worker [N] in the table
+   - Mark it 🔴 Occupied with today's date
 
-3. **Choose track:**
-   - Read tracks in WORKER_STATUS.md
-   - Pick one (A/B/C/D/E), update file
+3. **Choose your track:**
+   - Read track descriptions in WORKER_STATUS.md
+   - Pick one track (A/B/C/D/E)
+   - Update WORKER_STATUS.md with your track choice
 
-4. **Pick task:**
-   - Read openjones-web/TASKS_POOL.md
-   - Find a task in your track, mark "In Progress [Worker N]"
-
-5. **Create feature branch:**
+4. **Pick your first task:**
+   - Open openjones-web/TASKS_POOL.md
+   - Find a task in your chosen track marked "Available"
+   - Update status to "In Progress [Worker [N]]"
+   - Create feature branch:
    ```bash
    cd openjones-web
    git checkout -b worker-[N]/[task-name]
    # Example: git checkout -b worker-2/economy-model
    ```
 
-6. **Start coding:**
+5. **Start coding:**
    - Read shared/types/contracts.ts (interfaces)
    - Read shared/mocks/index.ts (mock dependencies)
    - Implement your task using existing contracts
@@ -81,11 +95,7 @@ git push -u origin HEAD
 - npm test (run tests)
 - npm run type-check (verify TypeScript)
 
-**Update these files:**
-- WORKER_STATUS.md when you join/change status
-- TASKS_POOL.md when you claim/complete tasks
-
-Start by reading WORKER_STATUS.md!
+Remember: You are Worker [N]. Use this number in all commits and status updates!
 ```
 
 ---

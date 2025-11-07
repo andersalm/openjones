@@ -148,71 +148,26 @@ Look at the Track Availability below and pick one that needs work!
 
 ## 📋 Quick Join Instructions
 
-### For AI Workers (Copy/Paste This)
+**⚠️ INSTRUCTIONS FOR TEAM LEAD:**
 
-```markdown
-🚨 STOP! Execute these commands FIRST before reading any files:
+When spawning a new worker, use DYNAMIC_WORKER_SYSTEM.md and:
+1. Check WORKER_STATUS.md table below for available worker numbers
+2. **Replace [N] with the actual worker number** in the prompt (e.g., "You are Worker 2")
+3. Send the customized prompt to the worker
 
-cd /home/user/openjones
-git fetch origin claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
-git checkout -b my-dev-branch origin/claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+**DO NOT** send workers a prompt that says "choose your number" - this causes confusion.
+**DO** assign them a specific number before spawning them.
 
 ---
 
-You are joining the OpenJones browser port project as a worker.
+### Worker Prompt Template (Customize Before Sending!)
 
-**CRITICAL INFO:**
-- Main Dev Branch: `claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ` (fetch from remote)
-- Your Branch: `my-dev-branch` (local tracking branch - you can push here)
-- Location: `/home/user/openjones/openjones-web/` (ALREADY EXISTS)
-- Project Status: Phase 0 COMPLETE (DO NOT create from scratch!)
+See `/home/user/openjones/DYNAMIC_WORKER_SYSTEM.md` for the full template.
 
-**Step 0 - VERIFY PROJECT EXISTS:**
-```bash
-ls openjones-web/  # Verify you see: frontend/, shared/, docs/
-```
-⛔ DO NOT proceed until you see these directories!
-
-**Step 1 - Choose your identity:**
-1. Pick an available worker number (1-10) from WORKER_STATUS.md
-2. Claim it by updating the table (change status to 🔴 Occupied)
-3. You are now "Worker [N]"
-
-**Step 2 - Choose your track:**
-1. Read track descriptions in WORKER_STATUS.md
-2. Pick a track that needs workers (look for 🟢 Available)
-3. Update WORKER_STATUS.md with your choice
-
-**Step 3 - Pick your first task:**
-1. Open TASKS_POOL.md
-2. Find tasks for your track marked "Available"
-3. Pick one that interests you (start with "Priority: High" tasks)
-4. Update TASKS_POOL.md - change status to "In Progress [Worker N]"
-
-**Step 4 - Set up:**
-1. Location: /home/user/openjones/openjones-web
-2. Create feature branch: git checkout -b worker-[N]/[task-name]
-3. Read shared/types/contracts.ts (understand interfaces)
-4. Read shared/mocks/index.ts (use mocks for dependencies)
-
-**Step 5 - Start coding:**
-1. Implement your task following the contracts
-2. Write tests as you go
-3. Use mocks for dependencies from other tracks
-4. Commit often: "[Worker N] feat: description"
-
-**Step 6 - When you're done:**
-```bash
-# Commit your work
-git add .
-git commit -m "[Worker N] Complete Task X: description"
-
-# Push to YOUR branch (this will work!)
-git push -u origin HEAD
-
-# Update TASKS_POOL.md to mark task complete
-# Notify team lead - they will merge your work
-```
+**Key points:**
+- First line must be: "🚨 YOU ARE WORKER [N] 🚨" with actual number
+- Worker must know their number from the very start
+- They claim their assigned number, not choose one
 
 **Available now at:**
 /home/user/openjones/openjones-web
