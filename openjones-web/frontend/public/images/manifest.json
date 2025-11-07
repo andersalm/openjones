@@ -1,0 +1,434 @@
+{
+  "version": "1.0.0",
+  "generated": "2025-11-07T18:13:33.782Z",
+  "assets": {
+    "buildings": [
+      {
+        "id": "bank-bot",
+        "path": "buildings/bank_bot.png",
+        "width": 155,
+        "height": 96,
+        "filename": "bank_bot.png"
+      },
+      {
+        "id": "clock-bot",
+        "path": "buildings/clock_bot.png",
+        "width": 155,
+        "height": 96,
+        "filename": "clock_bot.png"
+      },
+      {
+        "id": "clock-top",
+        "path": "buildings/clock_top.png",
+        "width": 155,
+        "height": 96,
+        "filename": "clock_top.png"
+      },
+      {
+        "id": "clock-top2",
+        "path": "buildings/clock_top2.png",
+        "width": 155,
+        "height": 96,
+        "filename": "clock_top2.png"
+      },
+      {
+        "id": "clock-top3",
+        "path": "buildings/clock_top3.png",
+        "width": 155,
+        "height": 96,
+        "filename": "clock_top3.png"
+      },
+      {
+        "id": "clothing",
+        "path": "buildings/clothing.png",
+        "width": 155,
+        "height": 96,
+        "filename": "clothing.png"
+      },
+      {
+        "id": "clothing-left",
+        "path": "buildings/clothing_left.png",
+        "width": 155,
+        "height": 96,
+        "filename": "clothing_left.png"
+      },
+      {
+        "id": "employment-bot",
+        "path": "buildings/employment_bot.png",
+        "width": 155,
+        "height": 96,
+        "filename": "employment_bot.png"
+      },
+      {
+        "id": "employment-top",
+        "path": "buildings/employment_top.png",
+        "width": 155,
+        "height": 96,
+        "filename": "employment_top.png"
+      },
+      {
+        "id": "factory-bot",
+        "path": "buildings/factory_bot.png",
+        "width": 155,
+        "height": 96,
+        "filename": "factory_bot.png"
+      },
+      {
+        "id": "hitech-bot",
+        "path": "buildings/hitech_bot.png",
+        "width": 155,
+        "height": 96,
+        "filename": "hitech_bot.png"
+      },
+      {
+        "id": "hitech-top",
+        "path": "buildings/hitech_top.png",
+        "width": 155,
+        "height": 96,
+        "filename": "hitech_top.png"
+      },
+      {
+        "id": "hitech-top2",
+        "path": "buildings/hitech_top2.png",
+        "width": 155,
+        "height": 96,
+        "filename": "hitech_top2.png"
+      },
+      {
+        "id": "hitech-top3",
+        "path": "buildings/hitech_top3.png",
+        "width": 155,
+        "height": 96,
+        "filename": "hitech_top3.png"
+      },
+      {
+        "id": "hitech-top-g",
+        "path": "buildings/hitech_top_g.png",
+        "width": 151,
+        "height": 96,
+        "filename": "hitech_top_g.png"
+      },
+      {
+        "id": "lowcost",
+        "path": "buildings/lowcost.png",
+        "width": 155,
+        "height": 96,
+        "filename": "lowcost.png"
+      },
+      {
+        "id": "lowcost-bot",
+        "path": "buildings/lowcost_bot.png",
+        "width": 155,
+        "height": 96,
+        "filename": "lowcost_bot.png"
+      },
+      {
+        "id": "lowcost-bot2",
+        "path": "buildings/lowcost_bot2.png",
+        "width": 155,
+        "height": 96,
+        "filename": "lowcost_bot2.png"
+      },
+      {
+        "id": "pawn",
+        "path": "buildings/pawn.png",
+        "width": 155,
+        "height": 96,
+        "filename": "pawn.png"
+      },
+      {
+        "id": "pawn-bot",
+        "path": "buildings/pawn_bot.png",
+        "width": 155,
+        "height": 96,
+        "filename": "pawn_bot.png"
+      },
+      {
+        "id": "rent",
+        "path": "buildings/rent.png",
+        "width": 155,
+        "height": 96,
+        "filename": "rent.png"
+      },
+      {
+        "id": "rent-bot",
+        "path": "buildings/rent_bot.png",
+        "width": 155,
+        "height": 96,
+        "filename": "rent_bot.png"
+      },
+      {
+        "id": "rent-bot2",
+        "path": "buildings/rent_bot2.png",
+        "width": 155,
+        "height": 96,
+        "filename": "rent_bot2.png"
+      },
+      {
+        "id": "socket-bot",
+        "path": "buildings/socket_bot.png",
+        "width": 155,
+        "height": 96,
+        "filename": "socket_bot.png"
+      },
+      {
+        "id": "socket-top",
+        "path": "buildings/socket_top.png",
+        "width": 155,
+        "height": 96,
+        "filename": "socket_top.png"
+      },
+      {
+        "id": "zmart",
+        "path": "buildings/zmart.png",
+        "width": 155,
+        "height": 96,
+        "filename": "zmart.png"
+      }
+    ],
+    "characters": [
+      {
+        "id": "black-bot",
+        "path": "characters/black_bot.png",
+        "width": 155,
+        "height": 96,
+        "filename": "black_bot.png"
+      },
+      {
+        "id": "black-right",
+        "path": "characters/black_right.png",
+        "width": 155,
+        "height": 96,
+        "filename": "black_right.png"
+      },
+      {
+        "id": "black-top",
+        "path": "characters/black_top.png",
+        "width": 155,
+        "height": 96,
+        "filename": "black_top.png"
+      },
+      {
+        "id": "monolith",
+        "path": "characters/monolith.png",
+        "width": 155,
+        "height": 96,
+        "filename": "monolith.png"
+      }
+    ],
+    "items": [
+      {
+        "id": "security",
+        "path": "items/security.png",
+        "width": 155,
+        "height": 96,
+        "filename": "security.png"
+      }
+    ],
+    "tiles": [
+      {
+        "id": "Grass-small-blur",
+        "path": "tiles/Grass_small_blur.png",
+        "width": 155,
+        "height": 96,
+        "filename": "Grass_small_blur.png"
+      },
+      {
+        "id": "jones-map",
+        "path": "tiles/jones_map.png",
+        "width": 775,
+        "height": 480,
+        "filename": "jones_map.png"
+      },
+      {
+        "id": "jones-map-grass",
+        "path": "tiles/jones_map_grass.png",
+        "width": 775,
+        "height": 480,
+        "filename": "jones_map_grass.png"
+      },
+      {
+        "id": "test00",
+        "path": "tiles/test00.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test00.png"
+      },
+      {
+        "id": "test01",
+        "path": "tiles/test01.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test01.png"
+      },
+      {
+        "id": "test02",
+        "path": "tiles/test02.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test02.png"
+      },
+      {
+        "id": "test03",
+        "path": "tiles/test03.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test03.png"
+      },
+      {
+        "id": "test04",
+        "path": "tiles/test04.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test04.png"
+      },
+      {
+        "id": "test05",
+        "path": "tiles/test05.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test05.png"
+      },
+      {
+        "id": "test06",
+        "path": "tiles/test06.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test06.png"
+      },
+      {
+        "id": "test07",
+        "path": "tiles/test07.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test07.png"
+      },
+      {
+        "id": "test08",
+        "path": "tiles/test08.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test08.png"
+      },
+      {
+        "id": "test09",
+        "path": "tiles/test09.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test09.png"
+      },
+      {
+        "id": "test10",
+        "path": "tiles/test10.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test10.png"
+      },
+      {
+        "id": "test11",
+        "path": "tiles/test11.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test11.png"
+      },
+      {
+        "id": "test12",
+        "path": "tiles/test12.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test12.png"
+      },
+      {
+        "id": "test13",
+        "path": "tiles/test13.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test13.png"
+      },
+      {
+        "id": "test14",
+        "path": "tiles/test14.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test14.png"
+      },
+      {
+        "id": "test15",
+        "path": "tiles/test15.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test15.png"
+      },
+      {
+        "id": "test16",
+        "path": "tiles/test16.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test16.png"
+      },
+      {
+        "id": "test17",
+        "path": "tiles/test17.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test17.png"
+      },
+      {
+        "id": "test18",
+        "path": "tiles/test18.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test18.png"
+      },
+      {
+        "id": "test19",
+        "path": "tiles/test19.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test19.png"
+      },
+      {
+        "id": "test20",
+        "path": "tiles/test20.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test20.png"
+      },
+      {
+        "id": "test21",
+        "path": "tiles/test21.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test21.png"
+      },
+      {
+        "id": "test22",
+        "path": "tiles/test22.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test22.png"
+      },
+      {
+        "id": "test23",
+        "path": "tiles/test23.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test23.png"
+      },
+      {
+        "id": "test24",
+        "path": "tiles/test24.png",
+        "width": 155,
+        "height": 96,
+        "filename": "test24.png"
+      },
+      {
+        "id": "wall",
+        "path": "tiles/wall.png",
+        "width": 155,
+        "height": 96,
+        "filename": "wall.png"
+      }
+    ]
+  }
+}
