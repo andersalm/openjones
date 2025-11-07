@@ -4,6 +4,7 @@
  * This module exports all action-related classes and utilities.
  *
  * Part of Task A4: Base Action Classes
+ * Part of Task A5: Movement Actions
  * Worker 1 - Track A (Core Engine)
  */
 
@@ -18,6 +19,11 @@ export {
   type ActionConstructor,
   type ActionMetadata,
 } from './ActionRegistry';
+
+// Movement actions (Task A5)
+export { MovementAction } from './MovementAction';
+export { EnterBuildingAction } from './EnterBuildingAction';
+export { ExitBuildingAction } from './ExitBuildingAction';
 
 // Re-export relevant types from contracts for convenience
 export type {

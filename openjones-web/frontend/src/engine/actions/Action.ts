@@ -151,6 +151,20 @@ export abstract class Action implements IAction {
   }
 
   /**
+   * Helper method to check if player has enough time for this action
+   */
+  protected hasEnoughTime(player: IPlayerState): boolean {
+    return player.timeRemaining >= this.timeCost;
+  }
+
+  /**
+   * Get the action name (alias for displayName for compatibility)
+   */
+  get name(): string {
+    return this.displayName;
+  }
+
+  /**
    * Helper method to validate possession requirement
    */
   protected requiresPossession(
