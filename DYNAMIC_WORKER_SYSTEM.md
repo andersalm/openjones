@@ -1,0 +1,354 @@
+# 🎯 Dynamic Worker System - Ready to Use!
+
+**Updated:** 2025-11-06
+**Status:** ✅ Active - Workers can self-assign now!
+
+---
+
+## 🚀 Quick Start for New Workers
+
+### IMPORTANT: Customize This Prompt
+
+When spawning a worker, replace `[N]` with their assigned worker number (1-10).
+For example: "You are Worker 2" not "You are Worker [N]"
+
+---
+
+### Copy/Paste This Prompt for AI Workers
+
+**⚠️ REPLACE [N] WITH THE ACTUAL WORKER NUMBER BEFORE SENDING!**
+
+```markdown
+🚨 YOU ARE WORKER [N] 🚨
+
+Execute these commands FIRST before doing ANYTHING else:
+
+cd /home/user/openjones
+git fetch origin claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+git checkout -b my-dev-branch origin/claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+
+You are joining an EXISTING project. DO NOT create files. DO NOT mkdir. DO NOT initialize.
+
+---
+
+**Your Identity:** Worker [N]
+**Project:** OpenJones browser port (Jones in the Fast Lane)
+**Location:** /home/user/openjones/openjones-web (ALREADY EXISTS)
+**Your Branch:** my-dev-branch (tracking the main dev branch)
+**Status:** Phase 0 COMPLETE - All setup already done
+
+**Your onboarding (5 steps):**
+
+1. **VERIFY PROJECT EXISTS:**
+   ```bash
+   ls openjones-web/  # Verify you see: frontend/, shared/, docs/, package.json
+   ```
+   ⛔ DO NOT proceed until you see these directories!
+
+2. **Claim your worker number:**
+   - Open openjones-web/WORKER_STATUS.md
+   - Find Worker [N] in the table
+   - Mark it 🔴 Occupied with today's date
+
+3. **Choose your track:**
+   - Read track descriptions in WORKER_STATUS.md
+   - Pick one track (A/B/C/D/E)
+   - Update WORKER_STATUS.md with your track choice
+
+4. **Pick your first task:**
+   - Open openjones-web/TASKS_POOL.md
+   - Find a task in your chosen track marked "Available"
+   - Update status to "In Progress [Worker [N]]"
+   - Create feature branch:
+   ```bash
+   cd openjones-web
+   git checkout -b worker-[N]/[task-name]
+   # Example: git checkout -b worker-2/economy-model
+   ```
+
+5. **Start coding:**
+   - Read shared/types/contracts.ts (interfaces)
+   - Read shared/mocks/index.ts (mock dependencies)
+   - Implement your task using existing contracts
+
+**When you're done with your task:**
+```bash
+# Commit your work
+git add .
+git commit -m "[Worker N] Complete Task X: description"
+
+# Push to YOUR branch (this will work without conflicts)
+git push -u origin HEAD
+
+# Notify the team lead - they will merge your work
+```
+
+**Essential files:**
+- WORKER_STATUS.md ← Pick number & track
+- TASKS_POOL.md ← Pick task (41 available)
+- shared/types/contracts.ts ← Interfaces to implement
+- shared/mocks/index.ts ← Mock dependencies
+- docs/INITIALIZE_WORKER.md ← Full guide
+
+**Commands:**
+- npm run dev (start dev server)
+- npm test (run tests)
+- npm run type-check (verify TypeScript)
+
+Remember: You are Worker [N]. Use this number in all commits and status updates!
+```
+
+---
+
+## 📋 What's Different Now
+
+### Before (Static Assignment)
+- Team lead assigns workers to tracks
+- Tasks defined in TASK_PARALLEL.md
+- Workers wait for assignments
+- Coordination overhead
+
+### After (Dynamic Self-Assignment)
+- **Workers pick their own number** (1-10)
+- **Workers choose their own track** (A, B, C, D, E)
+- **Workers claim tasks from pool** (41 detailed tasks)
+- **Zero coordination needed** - fully self-service!
+
+---
+
+## 🗂️ New Files
+
+### 1. WORKER_STATUS.md
+**Purpose:** Worker registration and track assignment
+
+**Contains:**
+- Worker number table (1-10, pick any available)
+- Track descriptions with capacity (how many workers needed)
+- Current worker assignments
+- Quick join instructions
+
+**Workers update this when:**
+- They join (pick number, pick track)
+- They finish work (mark complete)
+- Daily (update "last active" timestamp)
+
+---
+
+### 2. TASKS_POOL.md
+**Purpose:** Self-service task board
+
+**Contains:**
+- **41 detailed tasks** across all tracks
+- Task priorities (🔴 P0 = critical, 🟠 P1 = high, 🟡 P2 = medium, 🟢 P3 = low)
+- Time estimates (2-10 hours per task)
+- Dependencies (what must be done first)
+- Status tracking (Available → In Progress → Complete)
+
+**Task breakdown:**
+- Track A (Core Engine): 8 tasks
+- Track B (Domain Logic): 11 tasks
+- Track C (UI Components): 7 tasks
+- Track D (Rendering): 5 tasks
+- Track E (AI System): 6 tasks (Week 4+)
+
+**Workers update this when:**
+- They claim a task (mark "In Progress [Worker N]")
+- They complete a task (mark "Complete [Worker N]")
+
+---
+
+### 3. docs/INITIALIZE_WORKER.md
+**Purpose:** Complete worker initialization guide
+
+**Contains:**
+- Copy/paste prompt for AI workers
+- Step-by-step onboarding process
+- Examples of claiming tasks
+- Checklist for getting started
+
+---
+
+## 🎯 Example: Worker Self-Assigns to Task
+
+**Worker wants to join and work on Game State:**
+
+1. **Open WORKER_STATUS.md**, pick Worker 3:
+   ```diff
+   - | 3 | 🟢 Available | - | - | - |
+   + | 3 | 🔴 Occupied | Track A | 2025-11-06 | 2025-11-06 15:45 |
+   ```
+
+2. **Update Track A section:**
+   ```diff
+   **Current workers:**
+   - None yet
+   + Worker 3 (Track A) - Started 2025-11-06
+   ```
+
+3. **Open TASKS_POOL.md**, claim Task A2:
+   ```diff
+   #### Task A2: Game State Management
+   **Priority:** 🔴 P0
+   - **Status:** Available
+   + **Status:** In Progress [Worker 3]
+   ```
+
+4. **Create branch:**
+   ```bash
+   git checkout claude/analyze-project-depth-011CUsT3jWbYUM7oTUxpQ5cQ
+   git checkout -b worker-3/game-state
+   ```
+
+5. **Start coding:**
+   - Read `shared/types/contracts.ts` → find `IGame` interface
+   - Read `shared/mocks/index.ts` → see `MockGame` example
+   - Implement `frontend/src/engine/game/Game.ts`
+   - Write tests
+   - Use mocks for dependencies
+
+6. **When done:**
+   - Update TASKS_POOL.md: `Status: Complete [Worker 3]`
+   - Create PR
+   - Pick next task!
+
+---
+
+## 📊 Available Tasks Right Now
+
+### High Priority (Start Here)
+
+**Critical Path (🔴 P0):**
+- Task A1: Position & Route Classes (2-3 hours) - BLOCKS Map
+- Task A2: Game State Management (6-8 hours) - BLOCKS everything
+- Task A3: Player State (4-6 hours) - BLOCKS actions
+- Task B1: Economy Model (3-4 hours) - BLOCKS pricing
+- Task B2: Map System (4-5 hours) - BLOCKS rendering
+
+**High Value (🟠 P1):**
+- Task B3: Job System (3-4 hours) - Independent
+- Task B4: Measures System (4-5 hours) - Independent
+- Task B6: Building Base Class (3-4 hours) - BLOCKS buildings
+- Task C1: Design System Setup (4-5 hours) - Independent
+- Task D1: Asset Preparation (3-4 hours) - Independent
+
+### Recommended Order
+1. A1, B1, A3 (can do in parallel)
+2. A2, B2 (needs A1 and A3)
+3. Everything else unlocks!
+
+---
+
+## 🎮 Track Recommendations
+
+### If You're the First Worker
+**Pick Track A** (Core Engine)
+- Most critical
+- Unlocks other workers
+- Tasks A1, A3, A2 in that order
+
+### If Track A is Taken
+**Pick Track B** (Domain Logic)
+- Supports 2+ workers
+- Many independent tasks
+- Start with B1, B3, or B4
+
+### If You Want UI Work
+**Pick Track C** (UI Components)
+- Can use mocks immediately
+- Independent of other tracks
+- Start with C1 (Design System)
+
+### If You Want Graphics
+**Pick Track D** (Rendering)
+- Visual work
+- Can use mocks
+- Start with D1 (Asset Prep)
+
+---
+
+## 💡 Pro Tips for Workers
+
+### Picking Tasks
+- ✅ Start with 🔴 P0 or 🟠 P1 tasks (highest priority)
+- ✅ Pick tasks with no dependencies (or use mocks)
+- ✅ Check time estimate matches your availability
+- ❌ Don't pick Track E tasks until Week 4
+- ❌ Don't pick tasks someone else is working on
+
+### Using Mocks
+```typescript
+// If Task B2 (Map) isn't done yet, use the mock:
+import { MockMap } from '@shared/mocks';
+const map = new MockMap();
+
+// Later when B2 is done, swap to real:
+import { Map } from '@engine/map/Map';
+const map = new Map();
+```
+
+### Staying Unblocked
+- Use mocks for anything you need
+- Pick different task if blocked
+- Update WORKER_STATUS.md if paused
+- Don't wait - there are 41 tasks!
+
+### Communication
+- Update WORKER_STATUS.md daily (last active time)
+- Update TASKS_POOL.md when claiming/completing
+- Commit often (every 1-2 hours)
+- Create PRs when task is done
+
+---
+
+## 🔄 Worker Lifecycle
+
+```
+Join → Pick Number → Pick Track → Pick Task → Code → Complete → Pick Next Task
+  ↓         ↓            ↓           ↓         ↓        ↓
+  Update  Update       Update      Create    Write    Update    Create
+  STATUS  STATUS       TASKS       Branch    Code     TASKS     PR
+```
+
+---
+
+## 📈 Current Status
+
+**Workers:** 0/10 (all available!)
+**Tasks:** 41 total, 35 available now, 6 available Week 4+
+**Tracks:** All open
+**Readiness:** ✅ 100% - Ready for workers!
+
+---
+
+## 🎬 Next Steps
+
+### For You (Team Lead)
+1. Share `docs/INITIALIZE_WORKER.md` with potential workers
+2. Or use the copy/paste prompt above for AI workers
+3. Workers self-assign - no coordination needed!
+
+### For New Workers
+1. Open `/home/user/openjones/openjones-web/WORKER_STATUS.md`
+2. Pick a number and track
+3. Open `TASKS_POOL.md`
+4. Pick a task
+5. Start coding!
+
+---
+
+## 🆘 Quick Reference
+
+**Files to read:**
+- `WORKER_STATUS.md` - Worker & track assignment
+- `TASKS_POOL.md` - Task board (41 tasks)
+- `docs/INITIALIZE_WORKER.md` - Full onboarding guide
+- `shared/types/contracts.ts` - What to implement
+- `shared/mocks/index.ts` - How to use mocks
+
+**Location:** `/home/user/openjones/openjones-web/`
+
+**Copy/paste prompts:** See top of this file or `docs/INITIALIZE_WORKER.md`
+
+---
+
+**System is LIVE! Workers can join and self-assign now! 🚀**
