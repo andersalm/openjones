@@ -121,11 +121,13 @@ git log -1 --oneline
 
 ---
 
-## 📝 Final Report Template
+## 📝 Final Report (REQUIRED)
 
-**When complete, provide this report:**
+**When complete, write this report to a file so the coordinator can read it:**
 
-```markdown
+```bash
+# Create your completion report file
+cat > .coordinator/rounds/round-{{ROUND_NUMBER}}/worker-{{WORKER_ID}}-report.md <<'EOF'
 # Worker {{WORKER_ID}} Report: Task {{TASK_ID}}
 
 **Branch:** claude/{{BRANCH_NAME}}-[actual-session-id]
@@ -154,7 +156,15 @@ git log -1 --oneline
 
 ## Notes
 [Any important information for integration]
+EOF
+
+# Commit and push your report
+git add .coordinator/rounds/round-{{ROUND_NUMBER}}/worker-{{WORKER_ID}}-report.md
+git commit -m "docs: Add Worker {{WORKER_ID}} completion report for Task {{TASK_ID}}"
+git push
 ```
+
+**The coordinator will read this file from your branch - no need to copy/paste!**
 
 ---
 
