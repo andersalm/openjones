@@ -17,6 +17,11 @@ git checkout claude/coordinator-verify-openjones-011CUtpHk6esgGQYNjSSEvqU
 
 # Pull latest changes
 git pull origin claude/coordinator-verify-openjones-011CUtpHk6esgGQYNjSSEvqU
+
+# IMPORTANT: Your session will have a different ID!
+# The branch name above is from Session 1. You'll create a new branch:
+# git checkout -b claude/coordinator-verify-openjones-[YOUR-SESSION-ID]
+# Then update this START_HERE.md file with your new branch name
 ```
 
 ### Step 2: Read the Quick Start Guide
@@ -85,7 +90,12 @@ All coordinator documentation is in the `.coordinator/` directory:
 
 ## 🔄 Updating This File
 
-When creating a new development branch, update the "Active Development Branch" at the top of this file and merge this file back to master.
+**Each coordinator session should:**
+1. Start from the previous session's branch (checkout the branch listed above)
+2. Create a new branch with YOUR session ID: `claude/coordinator-verify-openjones-[YOUR-SESSION-ID]`
+3. Update line 4 of this file with your new branch name
+4. Commit and push the updated START_HERE.md to your branch
+5. At session end, this file will be ready for the next coordinator
 
 ---
 
