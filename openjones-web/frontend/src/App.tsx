@@ -63,6 +63,103 @@ export function App() {
   });
 
   /**
+   * Stop all game systems
+   */
+  const stopGame = useCallback(() => {
+    if (gameControllerRef.current) {
+      gameControllerRef.current.stop();
+    }
+    if (renderCoordinatorRef.current) {
+      renderCoordinatorRef.current.stop();
+    }
+  }, []);
+
+  /**
+   * Update app state from game state
+   */
+  const updateAppState = useCallback((game: IGame) => {
+    if (!game || game.players.length === 0) return;
+
+    const player = game.getCurrentPlayer();
+    const playerState = player.state;
+
+    // Create victory conditions for UI - ALL 5 goals must be met!
+    const victoryConditions: VictoryCondition[] = [
+      {
+        id: 'wealth',
+        type: 'cash',
+        description: 'Wealth',
+        targetValue: game.victoryConditions.targetWealth,
+        currentValue: player.state.cash,
+      },
+      {
+        id: 'health',
+        type: 'measure',
+        description: 'Health',
+        targetValue: game.victoryConditions.targetHealth,
+        currentValue: player.state.health,
+      },
+      {
+        id: 'happiness',
+        type: 'happiness',
+        description: 'Happiness',
+        targetValue: game.victoryConditions.targetHappiness,
+        currentValue: player.state.happiness,
+      },
+      {
+        id: 'career',
+        type: 'career',
+        description: 'Career',
+        targetValue: game.victoryConditions.targetCareer,
+        currentValue: player.state.career,
+      },
+      {
+        id: 'education',
+        type: 'education',
+        description: 'Education',
+        targetValue: game.victoryConditions.targetEducation,
+        currentValue: player.state.education,
+      },
+    ];
+
+    setAppState(prev => ({
+      ...prev,
+      playerState,
+      currentWeek: game.currentWeek,
+      timeRemaining: game.timeUnitsRemaining,
+      victoryConditions,
+    }));
+
+    // Check for victory/defeat
+    const victoryResults = game.checkVictory();
+    if (victoryResults[0]?.isVictory) {
+      setAppState(prev => ({ ...prev, phase: 'victory' }));
+      stopGame();
+    } else if (player.state.health <= 0 || (player.state.cash <= 0 && game.currentWeek > 10)) {
+      setAppState(prev => ({ ...prev, phase: 'defeat' }));
+      stopGame();
+    }
+  }, [stopGame]);
+
+  /**
+   * Handle building selection
+   */
+  const handleBuildingSelect = useCallback((buildingId: string) => {
+    if (!gameControllerRef.current) return;
+
+    const game = gameControllerRef.current.getGame();
+    const building = game.map.getBuildingById(buildingId);
+
+    if (building) {
+      setAppState(prev => ({
+        ...prev,
+        selectedBuilding: building,
+        showBuildingModal: true,
+      }));
+    }
+  }, []);
+
+  /**
    * Initialize a new game with full integration
    */
   const initializeGame = useCallback((playerName: string) => {
@@ -150,86 +247,7 @@ export function App() {
       ...prev,
       phase: 'playing',
     }));
-  }, []);
-
-  /**
-   * Update app state from game state
-   */
-  const updateAppState = useCallback((game: IGame) => {
-    if (!game || game.players.length === 0) return;
-
-    const player = game.getCurrentPlayer();
-    const playerState = player.state;
-
-    // Create victory conditions for UI - ALL 5 goals must be met!
-    const victoryConditions: VictoryCondition[] = [
-      {
-        id: 'wealth',
-        type: 'cash',
-        description: 'Wealth',
-        targetValue: game.victoryConditions.targetWealth,
-        currentValue: player.state.cash,
-      },
-      {
-        id: 'health',
-        type: 'measure',
-        description: 'Health',
-        targetValue: game.victoryConditions.targetHealth,
-        currentValue: player.state.health,
-      },
-      {
-        id: 'happiness',
-        type: 'happiness',
-        description: 'Happiness',
-        targetValue: game.victoryConditions.targetHappiness,
-        currentValue: player.state.happiness,
-      },
-      {
-        id: 'career',
-        type: 'career',
-        description: 'Career',
-        targetValue: game.victoryConditions.targetCareer,
-        currentValue: player.state.career,
-      },
-      {
-        id: 'education',
-        type: 'education',
-        description: 'Education',
-        targetValue: game.victoryConditions.targetEducation,
-        currentValue: player.state.education,
-      },
-    ];
-
-    setAppState(prev => ({
-      ...prev,
-      playerState,
-      currentWeek: game.currentWeek,
-      timeRemaining: game.timeUnitsRemaining,
-      victoryConditions,
-    }));
-
-    // Check for victory/defeat
-    const victoryResults = game.checkVictory();
-    if (victoryResults[0]?.isVictory) {
-      setAppState(prev => ({ ...prev, phase: 'victory' }));
-      stopGame();
-    } else if (player.state.health <= 0 || (player.state.cash <= 0 && game.currentWeek > 10)) {
-      setAppState(prev => ({ ...prev, phase: 'defeat' }));
-      stopGame();
-    }
-  }, []);
-
-  /**
-   * Stop all game systems
-   */
-  const stopGame = useCallback(() => {
-    if (gameControllerRef.current) {
-      gameControllerRef.current.stop();
-    }
-    if (renderCoordinatorRef.current) {
-      renderCoordinatorRef.current.stop();
-    }
-  }, []);
+  }, [updateAppState, handleBuildingSelect]);
 
   /**
    * Clean up on unmount
@@ -252,24 +270,6 @@ export function App() {
         gameControllerRef.current.stop();
       }
     };
-  }, []);
-
-  /**
-   * Handle building selection
-   */
-  const handleBuildingSelect = useCallback((buildingId: string) => {
-    if (!gameControllerRef.current) return;
-
-    const game = gameControllerRef.current.getGame();
-    const building = game.map.getBuildingById(buildingId);
-
-    if (building) {
-      setAppState(prev => ({
-        ...prev,
-        selectedBuilding: building,
-        showBuildingModal: true,
-      }));
-    }
   }, []);
 
   /**
