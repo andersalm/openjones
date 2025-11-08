@@ -53,7 +53,7 @@ export class LowCostApartment extends Building {
   /**
    * Get available actions - relax and exit
    */
-  getAvailableActions(player: IPlayerState, game: IGame): IAction[] {
+  getAvailableActions(player: IPlayerState, _game: IGame): IAction[] {
     const actions: IAction[] = [];
 
     if (this.isPlayerInside(player)) {
