@@ -6,27 +6,21 @@ import {
   IActionResponse,
   IActionRequirement,
   ActionType,
-  GAME_CONSTANTS,
+  BuildingType,
 } from '@shared/types/contracts';
 
 export class RelaxAction extends Action {
-  private readonly healthGain: number;
-  private readonly happinessGain: number;
+  // Java: REST_DURATION = 24 time units
+  private static readonly REST_DURATION = 24;
 
-  constructor(hours: number) {
-    const timeCost = hours * GAME_CONSTANTS.TIME_UNITS_PER_HOUR;
+  constructor() {
     super(
-      `relax-${hours}h`,
+      'relax',
       ActionType.RELAX,
       'Relax',
-      `Relax for ${hours} hours`,
-      timeCost
+      'Rest and restore health/happiness',
+      RelaxAction.REST_DURATION
     );
-
-    // Calculate health and happiness gains based on hours
-    // Base rates: 10 health per hour, 15 happiness per hour
-    this.healthGain = hours * 10;
-    this.happinessGain = hours * 15;
   }
 
   canExecute(player: IPlayerState, _game: IGame): boolean {
@@ -35,29 +29,50 @@ export class RelaxAction extends Action {
       return false;
     }
 
+    // Must be at rented home to relax (Java checks in House.getAvailableActions)
+    if (!player.rentedHome || player.currentBuilding !== player.rentedHome) {
+      return false;
+    }
+
     return true;
   }
 
   execute(player: IPlayerState, game: IGame): IActionResponse {
     if (!this.canExecute(player, game)) {
-      return ActionResponse.failure('Cannot relax right now');
+      return ActionResponse.failure('You must be at your rented home to relax');
     }
 
-    // Location-based effectiveness multiplier
-    const locationMultiplier = this.getLocationMultiplier(player);
-    const actualHealthGain = Math.floor(this.healthGain * locationMultiplier);
-    const actualHappinessGain = Math.floor(this.happinessGain * locationMultiplier);
+    // Get the house bonuses based on apartment type
+    // Java: healthEffect = (house.getRelaxHealthEffect() + possessions.sumRestHealthEffectsPerTimeUnit()) * timeEffect
+    const building = game.map.getBuildingById(player.rentedHome!);
+    let healthPerTimeUnit = 0;
+    let happinessPerTimeUnit = 0;
 
-    const locationNote = this.getLocationNote(player, locationMultiplier);
+    if (building?.type === BuildingType.LOW_COST_APARTMENT) {
+      // Java LowCostHousing: getRelaxHealthEffect() = 3, getRelaxHappinessEffect() = 3
+      healthPerTimeUnit = 3;
+      happinessPerTimeUnit = 3;
+    } else if (building?.type === BuildingType.SECURITY_APARTMENT) {
+      // Java SecurityHousing: getRelaxHealthEffect() = 7, getRelaxHappinessEffect() = 7
+      healthPerTimeUnit = 7;
+      happinessPerTimeUnit = 7;
+    }
+
+    // Calculate actual time available (up to REST_DURATION)
+    const timeAvailable = Math.min(game.timeUnitsRemaining, RelaxAction.REST_DURATION);
+
+    // Total effect = perTimeUnit * timeSpent (Java formula)
+    const healthGain = healthPerTimeUnit * timeAvailable;
+    const happinessGain = happinessPerTimeUnit * timeAvailable;
 
     const changes = StateChangeBuilder.create()
-      .health(actualHealthGain, `Restored ${actualHealthGain} health${locationNote}`)
-      .happiness(actualHappinessGain, `Restored ${actualHappinessGain} happiness${locationNote}`)
+      .health(player.health + healthGain, `Restored ${healthGain} health`)
+      .happiness(player.happiness + happinessGain, `Restored ${happinessGain} happiness`)
       .build();
 
     return ActionResponse.success(
-      `Relaxed and restored ${actualHealthGain} health and ${actualHappinessGain} happiness`,
-      this.timeCost,
+      'zzzzz', // Java message!
+      timeAvailable,
       changes
     );
   }
@@ -65,31 +80,15 @@ export class RelaxAction extends Action {
   getRequirements(): IActionRequirement[] {
     return [
       {
+        type: 'location',
+        value: 'home',
+        description: 'Must be at your rented home',
+      },
+      {
         type: 'time',
         value: this.timeCost,
-        description: `Requires ${this.timeCost / 60} hours`,
+        description: `Requires ${this.timeCost} time units`,
       },
     ];
-  }
-
-  private getLocationMultiplier(player: IPlayerState): number {
-    // At home (rented apartment): 1.5x effectiveness
-    // On street (not in building): 0.5x effectiveness (uncomfortable)
-    // Other locations: 1x effectiveness
-    if (player.currentBuilding && player.rentedHome === player.currentBuilding) {
-      return 1.5;
-    } else if (!player.currentBuilding) {
-      return 0.5;
-    }
-    return 1.0;
-  }
-
-  private getLocationNote(_player: IPlayerState, multiplier: number): string {
-    if (multiplier > 1.0) {
-      return ' (home bonus)';
-    } else if (multiplier < 1.0) {
-      return ' (uncomfortable location)';
-    }
-    return '';
   }
 }
