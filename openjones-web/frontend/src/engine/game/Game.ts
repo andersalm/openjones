@@ -436,6 +436,11 @@ export class Game implements IGame {
           player.state.currentBuilding = (change.value as string) || null;
           break;
 
+        case 'time':
+          // Advance game time
+          this.advanceTime(change.value as number);
+          break;
+
         default:
           console.warn(`Unknown state change type: ${change.type}`);
       }
