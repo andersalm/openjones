@@ -87,7 +87,6 @@ export class WorkAction extends Action {
       messagePrefix = `I had to garnish $${garnishedAmount}. `;
     }
 
-    const healthLoss = Math.floor(actualHours * 2); // Lose 2 health per hour worked
     const experienceGain = timeAvailable; // 1 experience unit per time unit worked
 
     // Add experience gain to player's experience at job rank
@@ -100,9 +99,10 @@ export class WorkAction extends Action {
     // Update career score
     const totalExperience = player.experience.reduce((sum, exp) => sum + exp.points, 0);
 
+    // Java: job.healthEffect() and job.happinessEffect() both return 0
+    // Work does NOT affect health or happiness in the base implementation
     const changes = StateChangeBuilder.create()
       .cash(player.cash + netEarnings, `Earned $${netEarnings} (base: $${baseEarnings})`)
-      .health(player.health - healthLoss, `Lost ${healthLoss} health from work`)
       .career(totalExperience, `Gained ${experienceGain} experience`)
       .build();
 
