@@ -357,18 +357,81 @@ export class MockMap implements IMap {
   width = GAME_CONSTANTS.GRID_WIDTH;
   height = GAME_CONSTANTS.GRID_HEIGHT;
   private buildings: IBuilding[] = [
-    MockBuilding.create({ id: 'factory', position: new MockPosition(1, 1) }),
+    // Row 0 (top row)
+    MockBuilding.create({
+      id: 'security-apartment',
+      type: BuildingType.SECURITY_APARTMENT,
+      name: 'Security Apartment',
+      position: new MockPosition(0, 0),
+    }),
+    MockBuilding.create({
+      id: 'rent-agency',
+      type: BuildingType.RENT_AGENCY,
+      name: 'Rent Agency',
+      position: new MockPosition(1, 0),
+    }),
+    MockBuilding.create({
+      id: 'low-cost-apartment',
+      type: BuildingType.LOW_COST_APARTMENT,
+      name: 'Low-Cost Apartment',
+      position: new MockPosition(2, 0),
+    }),
+    MockBuilding.create({
+      id: 'pawn-shop',
+      type: BuildingType.PAWN_SHOP,
+      name: 'Pawn Shop',
+      position: new MockPosition(3, 0),
+    }),
+    MockBuilding.create({
+      id: 'department-store',
+      type: BuildingType.DEPARTMENT_STORE,
+      name: 'Z-Mart',
+      position: new MockPosition(4, 0),
+    }),
+    // Right column
+    MockBuilding.create({
+      id: 'restaurant',
+      type: BuildingType.RESTAURANT,
+      name: 'Monolith Burgers',
+      position: new MockPosition(4, 1),
+    }),
+    MockBuilding.create({
+      id: 'clothes-store',
+      type: BuildingType.CLOTHES_STORE,
+      name: 'Clothing Store',
+      position: new MockPosition(4, 2),
+    }),
+    MockBuilding.create({
+      id: 'appliance-store',
+      type: BuildingType.APPLIANCE_STORE,
+      name: 'Socket City',
+      position: new MockPosition(4, 4),
+    }),
+    // Bottom row
+    MockBuilding.create({
+      id: 'college',
+      type: BuildingType.COLLEGE,
+      name: 'HI-TECH University',
+      position: new MockPosition(3, 4),
+    }),
+    MockBuilding.create({
+      id: 'employment-agency',
+      type: BuildingType.EMPLOYMENT_AGENCY,
+      name: 'Employment Agency',
+      position: new MockPosition(1, 4),
+    }),
+    MockBuilding.create({
+      id: 'factory',
+      type: BuildingType.FACTORY,
+      name: 'Factory',
+      position: new MockPosition(0, 4),
+    }),
+    // Left column
     MockBuilding.create({
       id: 'bank',
       type: BuildingType.BANK,
       name: 'Bank',
-      position: new MockPosition(2, 2),
-    }),
-    MockBuilding.create({
-      id: 'college',
-      type: BuildingType.COLLEGE,
-      name: 'College',
-      position: new MockPosition(3, 3),
+      position: new MockPosition(0, 3),
     }),
   ];
 

@@ -189,11 +189,12 @@ export function App() {
     renderCoordinatorRef.current = renderCoordinator;
 
     // Create InputHandler
+    // tileSize must match RenderCoordinator: 64 * pixelScale = 128
     const inputHandler = new InputHandler({
       canvas,
       game: gameController.getGame(),
       playerId: 'player-1',
-      tileSize: 64,
+      tileSize: 128, // 64 base * 2 pixelScale
       onBuildingSelected: handleBuildingSelect,
       onActionSelected: (actionType) => {
         console.log('Action selected:', actionType);
