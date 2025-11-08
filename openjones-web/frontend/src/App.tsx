@@ -130,13 +130,10 @@ export function App() {
       victoryConditions,
     }));
 
-    // Check for victory/defeat
+    // Check for victory (Java has NO defeat conditions - game continues until victory)
     const victoryResults = game.checkVictory();
     if (victoryResults[0]?.isVictory) {
       setAppState(prev => ({ ...prev, phase: 'victory' }));
-      stopGame();
-    } else if (player.state.health <= 0 || (player.state.cash <= 0 && game.currentWeek > 10)) {
-      setAppState(prev => ({ ...prev, phase: 'defeat' }));
       stopGame();
     }
   }, [stopGame]);
