@@ -243,10 +243,79 @@ export class RenderCoordinator {
    * Render buildings layer
    */
   private renderBuildings(): void {
-    // Placeholder for building rendering
-    // Will be implemented when MapRenderer/BuildingRenderer is available
-    // Note: Map interface provides getBuilding(id) and getBuildingAt(position)
-    // For now, we skip building rendering until a full building list method is available
+    const tileSize = 64 * this.pixelScale;
+    const buildings = this.game.map.getAllBuildings();
+
+    buildings.forEach((building) => {
+      const pos = building.position;
+      const x = pos.x * tileSize;
+      const y = pos.y * tileSize;
+
+      // Draw building as a colored rectangle
+      this.ctx.fillStyle = this.getBuildingColor(building.type);
+      this.ctx.fillRect(x, y, tileSize, tileSize);
+
+      // Draw building border
+      this.ctx.strokeStyle = '#000000';
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeRect(x, y, tileSize, tileSize);
+
+      // Draw building name
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.font = '10px Arial';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      const lines = this.wrapText(building.name, tileSize - 10);
+      lines.forEach((line, index) => {
+        this.ctx.fillText(line, x + tileSize / 2, y + tileSize / 2 + (index - lines.length / 2 + 0.5) * 12);
+      });
+    });
+  }
+
+  /**
+   * Get color for building type
+   */
+  private getBuildingColor(type: string): string {
+    const colors: Record<string, string> = {
+      'EMPLOYMENT_AGENCY': '#4A90E2',
+      'FACTORY': '#8B4513',
+      'BANK': '#FFD700',
+      'COLLEGE': '#9370DB',
+      'CLOTHES_STORE': '#FF69B4',
+      'RESTAURANT': '#FF6347',
+      'RENT_AGENCY': '#32CD32',
+      'LOW_COST_APARTMENT': '#A9A9A9',
+      'SECURITY_APARTMENT': '#708090',
+    };
+    return colors[type] || '#666666';
+  }
+
+  /**
+   * Wrap text to fit within width
+   */
+  private wrapText(text: string, maxWidth: number): string[] {
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let currentLine = '';
+
+    this.ctx.font = '10px Arial';
+
+    words.forEach(word => {
+      const testLine = currentLine + (currentLine ? ' ' : '') + word;
+      const metrics = this.ctx.measureText(testLine);
+      if (metrics.width > maxWidth && currentLine !== '') {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
+      }
+    });
+
+    if (currentLine) {
+      lines.push(currentLine);
+    }
+
+    return lines;
   }
 
   /**
