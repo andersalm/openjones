@@ -185,8 +185,8 @@ export function App() {
         ],
         startingCash: 200, // Match Java version
         startingStats: {
-          health: 100,
-          happiness: 100,
+          health: 0,      // Java starts at 0, not 100!
+          happiness: 0,   // Java starts at 0, not 100!
           education: 0,
         },
         victoryConditions: {
