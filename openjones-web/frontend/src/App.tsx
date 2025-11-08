@@ -163,90 +163,97 @@ export function App() {
    * Initialize a new game with full integration
    */
   const initializeGame = useCallback((playerName: string) => {
-    // Create game configuration
-    const gameConfig = {
-      players: [
-        {
-          id: 'player-1',
-          name: playerName,
-          color: '#3B82F6',
-          isAI: false,
-        },
-      ],
-      startingCash: 200, // Match Java version
-      startingStats: {
-        health: 100,
-        happiness: 100,
-        education: 0,
-      },
-      victoryConditions: {
-        targetWealth: 10000,
-        targetHealth: 100,
-        targetHappiness: 100,
-        targetCareer: 850,
-        targetEducation: 100,
-      },
-    };
-
-    // Create GameController with initialized game
-    const gameController = GameController.createWithGame(gameConfig);
-    gameControllerRef.current = gameController;
-
-    // Get canvas element
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      console.error('Canvas element not found');
-      return;
-    }
-
-    // Set canvas size
-    canvas.width = 800;
-    canvas.height = 600;
-
-    // Create RenderCoordinator
-    const renderCoordinator = new RenderCoordinator({
-      canvas,
-      game: gameController.getGame(),
-      pixelScale: 1,
-      showFPS: true,
-    });
-    renderCoordinatorRef.current = renderCoordinator;
-
-    // Create InputHandler
-    const inputHandler = new InputHandler({
-      canvas,
-      game: gameController.getGame(),
-      playerId: 'player-1',
-      tileSize: 64,
-      onBuildingSelected: handleBuildingSelect,
-      onActionSelected: (actionType) => {
-        console.log('Action selected:', actionType);
-      },
-    });
-    inputHandlerRef.current = inputHandler;
-
-    // Wire observer pattern: GameController -> RenderCoordinator
-    const unsubscribe = gameController.subscribe((game: IGame) => {
-      // Update render coordinator with new game state
-      renderCoordinator.onGameStateChange(game);
-
-      // Update React UI state
-      updateAppState(game);
-    });
-    unsubscribeRef.current = unsubscribe;
-
-    // Start all systems
-    gameController.start();
-    renderCoordinator.start();
-    inputHandler.initialize();
-
-    // Initial state update
-    updateAppState(gameController.getGame());
-
+    // Store player name and switch to playing phase
+    // The actual initialization will happen in useEffect once canvas is rendered
     setAppState(prev => ({
       ...prev,
       phase: 'playing',
+      errorMessage: null,
     }));
+
+    // Defer initialization to next tick after React renders the canvas
+    setTimeout(() => {
+      // Create game configuration
+      const gameConfig = {
+        players: [
+          {
+            id: 'player-1',
+            name: playerName,
+            color: '#3B82F6',
+            isAI: false,
+          },
+        ],
+        startingCash: 200, // Match Java version
+        startingStats: {
+          health: 100,
+          happiness: 100,
+          education: 0,
+        },
+        victoryConditions: {
+          targetWealth: 10000,
+          targetHealth: 100,
+          targetHappiness: 100,
+          targetCareer: 850,
+          targetEducation: 100,
+        },
+      };
+
+      // Create GameController with initialized game
+      const gameController = GameController.createWithGame(gameConfig);
+      gameControllerRef.current = gameController;
+
+      // Get canvas element
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        console.error('Canvas element not found');
+        setAppState(prev => ({ ...prev, errorMessage: 'Failed to initialize canvas', phase: 'menu' }));
+        return;
+      }
+
+      // Set canvas size
+      canvas.width = 800;
+      canvas.height = 600;
+
+      // Create RenderCoordinator
+      const renderCoordinator = new RenderCoordinator({
+        canvas,
+        game: gameController.getGame(),
+        pixelScale: 1,
+        showFPS: true,
+      });
+      renderCoordinatorRef.current = renderCoordinator;
+
+      // Create InputHandler
+      const inputHandler = new InputHandler({
+        canvas,
+        game: gameController.getGame(),
+        playerId: 'player-1',
+        tileSize: 64,
+        onBuildingSelected: handleBuildingSelect,
+        onActionSelected: (actionType) => {
+          console.log('Action selected:', actionType);
+        },
+      });
+      inputHandlerRef.current = inputHandler;
+
+      // Wire observer pattern: GameController -> RenderCoordinator
+      const unsubscribe = gameController.subscribe((game: IGame) => {
+        // Update render coordinator with new game state
+        renderCoordinator.onGameStateChange(game);
+
+        // Update React UI state
+        updateAppState(game);
+      });
+      unsubscribeRef.current = unsubscribe;
+
+      // Start all systems
+      gameController.start();
+      renderCoordinator.start();
+      inputHandler.initialize();
+
+      // Initial state update
+      updateAppState(gameController.getGame());
+    }, 0);
   }, [updateAppState, handleBuildingSelect]);
 
   /**
