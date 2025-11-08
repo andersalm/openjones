@@ -37,11 +37,13 @@ const ITEM_PRICES: Record<string, number> = {
 };
 
 /**
- * Rent prices per week for different housing types
+ * Rent prices PER WEEK for different housing types
+ * (Java: BASE_RENT_LOWCOST_HOUSING = 305, BASE_RENT_SECURITY_HOUSING = 445)
+ * Players purchase rent in advance and it's consumed weekly
  */
 const RENT_PRICES: Record<BuildingType, number> = {
-  [BuildingType.LOW_COST_APARTMENT]: 305,
-  [BuildingType.SECURITY_APARTMENT]: 445,
+  [BuildingType.LOW_COST_APARTMENT]: 305,  // Weekly rent
+  [BuildingType.SECURITY_APARTMENT]: 445,  // Weekly rent
 
   // Non-housing buildings have no rent
   [BuildingType.EMPLOYMENT_AGENCY]: 0,

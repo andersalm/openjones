@@ -153,6 +153,7 @@ export class MockPlayerState implements IPlayerState {
   possessions: IPossession[] = [];
   rentedHome = null;
   rentDebt = 0;
+  weeksOfRentRemaining = 0;
 
   clone(): IPlayerState {
     const cloned = new MockPlayerState();

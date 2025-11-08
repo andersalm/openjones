@@ -101,6 +101,7 @@ export class Game implements IGame {
         possessions: [],
         rentedHome: 'lowcost-apartment', // Start with Low-Cost Apartment rented
         rentDebt: 0,
+        weeksOfRentRemaining: GAME_CONSTANTS.STARTING_WEEKS_OF_RENT, // Start with 4 prepaid weeks
       });
 
       // Create player
@@ -216,7 +217,12 @@ export class Game implements IGame {
   }
 
   /**
-   * Process end-of-week events (rent payment, etc.)
+   * Process end-of-week events (rent consumption, etc.)
+   *
+   * Java behavior:
+   * - Before consuming rent, check if player has 0 weeks remaining
+   * - If 0 weeks, add weekly rent cost to rent debt
+   * - Then consume 1 week of rent (if available)
    */
   private processEndOfWeek(): void {
     // Process rent for all players
@@ -224,20 +230,17 @@ export class Game implements IGame {
       if (player.state.rentedHome) {
         const building = this.map.getBuildingById(player.state.rentedHome);
         if (building && building.isHome()) {
-          const rent = this.economyModel.getRent(building.type);
+          const weeklyRent = this.economyModel.getRent(building.type);
 
-          if (player.state.canAfford(rent)) {
-            // Player can pay rent
-            player.state.cash -= rent;
-          } else {
-            // Player cannot afford rent - add to debt
-            const shortage = rent - player.state.cash;
-            player.state.cash = 0;
-            player.state.rentDebt += shortage;
+          // Check if rent is depleted (before consuming)
+          if (player.state.weeksOfRentRemaining <= 0) {
+            // Accumulate rent debt (Java: PossessionManager.consume())
+            player.state.rentDebt += weeklyRent;
+          }
 
-            // Apply penalties for debt (health and happiness reduction)
-            player.state.updateMeasure(MeasureType.HEALTH, -5);
-            player.state.updateMeasure(MeasureType.HAPPINESS, -10);
+          // Consume 1 week of rent if available
+          if (player.state.weeksOfRentRemaining > 0) {
+            player.state.weeksOfRentRemaining -= 1;
           }
         }
       }
@@ -318,6 +321,7 @@ export class Game implements IGame {
           possessions: player.state.possessions,
           rentedHome: player.state.rentedHome,
           rentDebt: player.state.rentDebt,
+          weeksOfRentRemaining: player.state.weeksOfRentRemaining,
         },
       })),
       victoryConditions: this.victoryConditions,
@@ -361,6 +365,7 @@ export class Game implements IGame {
           possessions: playerData.state.possessions,
           rentedHome: playerData.state.rentedHome,
           rentDebt: playerData.state.rentDebt,
+          weeksOfRentRemaining: playerData.state.weeksOfRentRemaining || 0,
         });
 
         return new Player({
@@ -439,6 +444,24 @@ export class Game implements IGame {
         case 'time':
           // Advance game time
           this.advanceTime(change.value as number);
+          break;
+
+        case 'rent_weeks':
+        case 'weeksOfRent':
+          // Modify weeks of rent remaining
+          player.state.weeksOfRentRemaining = change.value as number;
+          break;
+
+        case 'rent_debt':
+        case 'rentDebt':
+          // Modify rent debt
+          player.state.rentDebt = change.value as number;
+          break;
+
+        case 'rented_home':
+        case 'rentedHome':
+          // Change rented home
+          player.state.rentedHome = (change.value as string) || null;
           break;
 
         default:

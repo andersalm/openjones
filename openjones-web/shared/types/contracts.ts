@@ -70,6 +70,7 @@ export const GAME_CONSTANTS = {
   MAX_HAPPINESS: 100,
   MAX_EDUCATION: 100,
   MAX_JOB_RANK: 9,
+  STARTING_WEEKS_OF_RENT: 4, // Java: PossessionManager.STARTING_WEEKS_OF_RENT
 } as const;
 
 // ============================================
@@ -191,6 +192,7 @@ export interface IPlayerState {
   possessions: IPossession[];
   rentedHome: string | null; // building ID or null
   rentDebt: number;
+  weeksOfRentRemaining: number; // Prepaid rent weeks remaining
 
   // Methods
   clone(): IPlayerState;
@@ -223,7 +225,7 @@ export interface IActionRequirement {
 }
 
 export interface IStateChange {
-  type: 'cash' | 'measure' | 'possession_add' | 'possession_remove' | 'job' | 'position' | 'location' | 'time';
+  type: 'cash' | 'measure' | 'possession_add' | 'possession_remove' | 'job' | 'position' | 'location' | 'time' | 'rent_weeks' | 'weeksOfRent' | 'rent_debt' | 'rentDebt' | 'rented_home' | 'rentedHome';
   measure?: MeasureType;
   value: number | string | IPossession | IJob | IPosition;
   description: string;
