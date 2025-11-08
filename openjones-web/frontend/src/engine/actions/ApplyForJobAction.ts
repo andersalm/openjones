@@ -3,13 +3,15 @@ import { ActionResponse, StateChangeBuilder } from './ActionResponse';
 import { IPlayerState, IGame, IActionResponse, IActionRequirement, ActionType, IJob } from '@shared/types/contracts';
 
 export class ApplyForJobAction extends Action {
+  private static readonly APPLY_DURATION = 5; // Java: ApplyForJobAction.APPLY_DURATION
+
   constructor(private job: IJob) {
     super(
       `apply-job-${job.id}`,
       ActionType.APPLY_JOB,
       'Apply for Job',
       `Apply for ${job.title}`,
-      15
+      ApplyForJobAction.APPLY_DURATION // Was 15, should be 5!
     );
   }
 
@@ -21,6 +23,11 @@ export class ApplyForJobAction extends Action {
 
     // Check experience requirement
     if (player.getExperienceAtRank(this.job.rank) < this.job.requiredExperience) {
+      return false;
+    }
+
+    // Check clothes level requirement (was missing!)
+    if (player.getClothesLevel() < this.job.requiredClothesLevel) {
       return false;
     }
 
@@ -66,6 +73,11 @@ export class ApplyForJobAction extends Action {
         description: `Experience: ${this.job.requiredExperience}`,
       },
       {
+        type: 'measure',
+        value: this.job.requiredClothesLevel,
+        description: `Clothes level: ${this.job.requiredClothesLevel}`,
+      },
+      {
         type: 'location',
         value: 'employment-agency',
         description: 'Must be at Employment Agency',
@@ -85,6 +97,9 @@ export class ApplyForJobAction extends Action {
     const playerExp = player.getExperienceAtRank(this.job.rank);
     if (playerExp < this.job.requiredExperience) {
       return `Not enough experience. Need ${this.job.requiredExperience}, have ${playerExp}`;
+    }
+    if (player.getClothesLevel() < this.job.requiredClothesLevel) {
+      return `Not dressed properly. Need clothes level ${this.job.requiredClothesLevel}, have ${player.getClothesLevel()}`;
     }
     if (!this.hasEnoughTime(player)) {
       return `Not enough time. Need ${this.timeCost} time units`;
