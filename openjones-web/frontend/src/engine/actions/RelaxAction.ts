@@ -6,6 +6,7 @@ import {
   IActionResponse,
   IActionRequirement,
   ActionType,
+  GAME_CONSTANTS,
 } from '@shared/types/contracts';
 
 export class RelaxAction extends Action {
@@ -13,7 +14,7 @@ export class RelaxAction extends Action {
   private readonly happinessGain: number;
 
   constructor(hours: number) {
-    const timeCost = hours * 60; // Convert hours to minutes
+    const timeCost = hours * GAME_CONSTANTS.TIME_UNITS_PER_HOUR;
     super(
       `relax-${hours}h`,
       ActionType.RELAX,
@@ -72,12 +73,12 @@ export class RelaxAction extends Action {
   }
 
   private getLocationMultiplier(player: IPlayerState): number {
-    // At home: 1.5x effectiveness
-    // At street or unknown: 0.5x effectiveness (uncomfortable)
+    // At home (rented apartment): 1.5x effectiveness
+    // On street (not in building): 0.5x effectiveness (uncomfortable)
     // Other locations: 1x effectiveness
-    if (player.currentBuilding === 'home') {
+    if (player.currentBuilding && player.rentedHome === player.currentBuilding) {
       return 1.5;
-    } else if (player.currentBuilding === 'street' || player.currentBuilding === 'unknown') {
+    } else if (!player.currentBuilding) {
       return 0.5;
     }
     return 1.0;

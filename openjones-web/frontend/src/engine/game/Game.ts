@@ -431,6 +431,11 @@ export class Game implements IGame {
           player.state.position = change.value as IPosition;
           break;
 
+        case 'location':
+          // Handle entering/exiting buildings
+          player.state.currentBuilding = (change.value as string) || null;
+          break;
+
         default:
           console.warn(`Unknown state change type: ${change.type}`);
       }

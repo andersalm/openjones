@@ -260,6 +260,14 @@ export class RentAgency extends Building {
           debtPayment = Math.min(newCash - rent, player.rentDebt);
         }
 
+        // Set the rented home directly on player state
+        player.rentedHome = building.id;
+
+        // Reduce rent debt
+        if (debtPayment > 0) {
+          player.rentDebt = Math.max(0, player.rentDebt - debtPayment);
+        }
+
         return {
           success: true,
           message: `You rented ${building.name}! Paid $${rent} for first week.${debtPayment > 0 ? ` Reduced debt by $${debtPayment}.` : ''}`,
