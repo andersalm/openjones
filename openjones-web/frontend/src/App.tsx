@@ -76,7 +76,7 @@ export function App() {
           isAI: false,
         },
       ],
-      startingCash: 500,
+      startingCash: 200, // Match Java version
       startingStats: {
         health: 100,
         happiness: 100,
@@ -161,21 +161,42 @@ export function App() {
     const player = game.getCurrentPlayer();
     const playerState = player.state;
 
-    // Create victory conditions for UI
+    // Create victory conditions for UI - ALL 5 goals must be met!
     const victoryConditions: VictoryCondition[] = [
       {
         id: 'wealth',
         type: 'cash',
-        description: 'Accumulate wealth',
+        description: 'Wealth',
         targetValue: game.victoryConditions.targetWealth,
         currentValue: player.state.cash,
       },
       {
+        id: 'health',
+        type: 'measure',
+        description: 'Health',
+        targetValue: game.victoryConditions.targetHealth,
+        currentValue: player.state.health,
+      },
+      {
+        id: 'happiness',
+        type: 'happiness',
+        description: 'Happiness',
+        targetValue: game.victoryConditions.targetHappiness,
+        currentValue: player.state.happiness,
+      },
+      {
         id: 'career',
         type: 'career',
-        description: 'Build your career',
+        description: 'Career',
         targetValue: game.victoryConditions.targetCareer,
         currentValue: player.state.career,
+      },
+      {
+        id: 'education',
+        type: 'education',
+        description: 'Education',
+        targetValue: game.victoryConditions.targetEducation,
+        currentValue: player.state.education,
       },
     ];
 

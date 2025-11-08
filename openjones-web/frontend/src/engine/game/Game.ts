@@ -33,7 +33,7 @@ import { Player } from './Player';
 import { PlayerState } from './PlayerState';
 import { Position } from '../types/Position';
 import { EconomyModel } from '../economy/EconomyModel';
-import { MockMap } from '@shared/mocks';
+import { MapFactory } from '../map/MapFactory';
 
 export class Game implements IGame {
   id: string;
@@ -53,7 +53,7 @@ export class Game implements IGame {
     this.timeUnitsRemaining = GAME_CONSTANTS.TIME_UNITS_PER_WEEK;
     this.currentPlayerIndex = 0;
     this.players = [];
-    this.map = new MockMap(); // TODO: Replace with real Map when Task B2 is complete
+    this.map = MapFactory.createDefaultMap();
     this.economyModel = new EconomyModel();
     this.victoryConditions = {
       targetWealth: 10000,
@@ -86,6 +86,7 @@ export class Game implements IGame {
     // Create players from config
     this.players = config.players.map((playerConfig) => {
       // Create player state with starting values
+      // Players start at Low-Cost Apartment (2,0) with it rented
       const state = new PlayerState({
         playerId: playerConfig.id,
         cash: config.startingCash,
@@ -93,12 +94,12 @@ export class Game implements IGame {
         happiness: config.startingStats.happiness,
         education: config.startingStats.education,
         career: 0,
-        position: new Position(0, 0), // All players start at (0,0)
+        position: new Position(2, 0), // Start at Low-Cost Apartment
         currentBuilding: null,
         job: null,
         experience: [],
         possessions: [],
-        rentedHome: null,
+        rentedHome: 'lowcost-apartment', // Start with Low-Cost Apartment rented
         rentDebt: 0,
       });
 
@@ -115,8 +116,8 @@ export class Game implements IGame {
     // Set victory conditions
     this.victoryConditions = { ...config.victoryConditions };
 
-    // Initialize map (using MockMap for now)
-    this.map = new MockMap();
+    // Initialize map with all buildings
+    this.map = MapFactory.createDefaultMap();
 
     // Initialize economy model
     this.economyModel = new EconomyModel();
@@ -373,7 +374,7 @@ export class Game implements IGame {
 
       // Reinitialize map and economy model
       // (These are stateless in the current implementation)
-      this.map = new MockMap();
+      this.map = MapFactory.createDefaultMap();
       this.economyModel = new EconomyModel();
     } catch (error) {
       throw new Error(`Failed to deserialize game state: ${error}`);

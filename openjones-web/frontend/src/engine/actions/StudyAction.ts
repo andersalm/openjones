@@ -9,25 +9,21 @@ import {
 } from '@shared/types/contracts';
 
 export class StudyAction extends Action {
-  private readonly tuitionCost: number;
-  private readonly educationGain: number;
+  // Match Java version exactly
+  private static readonly STUDY_DURATION = 20; // Time units per study session
+  private static readonly STUDY_COST = 15; // Cost per study session
+  private static readonly EDUCATION_POINTS_GAIN = 1; // Education gained per session
+
   private readonly collegeId: string = 'college';
 
-  constructor(hours: number) {
-    const timeCost = hours * 60; // Convert hours to minutes
+  constructor() {
     super(
-      `study-${hours}h`,
+      'study',
       ActionType.STUDY,
       'Study',
-      `Study for ${hours} hours`,
-      timeCost
+      `Study ($${StudyAction.STUDY_COST})`,
+      StudyAction.STUDY_DURATION
     );
-
-    // Calculate tuition cost and education gain based on hours
-    // Tuition: $20 per hour
-    // Education: 5 points per hour
-    this.tuitionCost = hours * 20;
-    this.educationGain = hours * 5;
   }
 
   canExecute(player: IPlayerState, _game: IGame): boolean {
@@ -37,7 +33,7 @@ export class StudyAction extends Action {
     }
 
     // Must have enough cash for tuition
-    if (!player.canAfford(this.tuitionCost)) {
+    if (!player.canAfford(StudyAction.STUDY_COST)) {
       return false;
     }
 
@@ -55,12 +51,15 @@ export class StudyAction extends Action {
     }
 
     const changes = StateChangeBuilder.create()
-      .cash(player.cash - this.tuitionCost, `Paid $${this.tuitionCost} tuition`)
-      .education(player.education + this.educationGain, `Gained ${this.educationGain} education`)
+      .cash(player.cash - StudyAction.STUDY_COST, `Paid $${StudyAction.STUDY_COST} tuition`)
+      .education(
+        player.education + StudyAction.EDUCATION_POINTS_GAIN,
+        `Gained ${StudyAction.EDUCATION_POINTS_GAIN} education`
+      )
       .build();
 
     return ActionResponse.success(
-      `Studied and gained ${this.educationGain} education`,
+      'Another brick in the wall', // Classic Java message!
       this.timeCost,
       changes
     );
@@ -70,8 +69,8 @@ export class StudyAction extends Action {
     return [
       {
         type: 'cash',
-        value: this.tuitionCost,
-        description: `Requires $${this.tuitionCost} for tuition`,
+        value: StudyAction.STUDY_COST,
+        description: `Requires $${StudyAction.STUDY_COST} for tuition`,
       },
       {
         type: 'location',
@@ -81,7 +80,7 @@ export class StudyAction extends Action {
       {
         type: 'time',
         value: this.timeCost,
-        description: `Requires ${this.timeCost / 60} hours`,
+        description: `Requires ${StudyAction.STUDY_DURATION} time units`,
       },
     ];
   }
