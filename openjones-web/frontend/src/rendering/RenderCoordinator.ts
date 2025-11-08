@@ -100,6 +100,12 @@ export class RenderCoordinator {
   start(): void {
     if (this.isRunning) return;
 
+    console.log('RenderCoordinator starting...', {
+      canvasSize: `${this.canvas.width}x${this.canvas.height}`,
+      buildingCount: this.game.map.getAllBuildings().length,
+      playerCount: this.game.players.length,
+    });
+
     this.isRunning = true;
     this.lastRenderTime = performance.now();
     this.lastFPSUpdate = performance.now();
@@ -245,6 +251,10 @@ export class RenderCoordinator {
   private renderBuildings(): void {
     const tileSize = 64 * this.pixelScale;
     const buildings = this.game.map.getAllBuildings();
+
+    if (buildings.length === 0) {
+      console.warn('No buildings to render!');
+    }
 
     buildings.forEach((building) => {
       const pos = building.position;
