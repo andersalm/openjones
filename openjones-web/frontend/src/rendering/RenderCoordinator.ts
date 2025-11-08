@@ -14,6 +14,7 @@
 import { AnimationEngine } from './AnimationEngine';
 import { EffectsRenderer } from './EffectsRenderer';
 import { Easing } from './easing';
+import { assetLoader } from './AssetLoader';
 import type { IGame } from '@shared/types/contracts';
 
 export interface RenderCoordinatorConfig {
@@ -97,8 +98,13 @@ export class RenderCoordinator {
   /**
    * Start the rendering loop
    */
-  start(): void {
+  async start(): Promise<void> {
     if (this.isRunning) return;
+
+    // Load assets before starting
+    console.log('🎨 Loading game assets...');
+    await assetLoader.load();
+    console.log('✅ Assets loaded, starting render loop');
 
     this.isRunning = true;
     this.lastRenderTime = performance.now();
@@ -206,9 +212,19 @@ export class RenderCoordinator {
    * Render background layer
    */
   private renderBackground(): void {
-    // Fill with background color
-    this.ctx.fillStyle = '#87CEEB'; // Sky blue
+    // Fill with grass-like green color
+    this.ctx.fillStyle = '#4A7C59'; // Dark green grass
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Add a subtle texture pattern
+    this.ctx.fillStyle = '#5A8C69';
+    for (let i = 0; i < this.canvas.width; i += 8) {
+      for (let j = 0; j < this.canvas.height; j += 8) {
+        if (Math.random() > 0.7) {
+          this.ctx.fillRect(i, j, 4, 4);
+        }
+      }
+    }
   }
 
   /**
@@ -243,42 +259,101 @@ export class RenderCoordinator {
    * Render buildings layer
    */
   private renderBuildings(): void {
-    // Placeholder for building rendering
-    // Will be implemented when MapRenderer/BuildingRenderer is available
-    // Note: Map interface provides getBuilding(id) and getBuildingAt(position)
-    // For now, we skip building rendering until a full building list method is available
+    if (!assetLoader.isLoaded()) return;
+
+    const tileSize = 64 * this.pixelScale;
+    const buildings = this.game.map.getAllBuildings();
+
+    buildings.forEach((building) => {
+      const pos = building.position;
+      const sprite = assetLoader.getBuildingSprite(building.type);
+
+      if (sprite && sprite.complete) {
+        // Calculate position (center the sprite in the tile)
+        const x = pos.x * tileSize;
+        const y = pos.y * tileSize;
+
+        this.ctx.save();
+
+        // Draw the building sprite
+        // Scale sprite to fit in tile (with some padding)
+        const padding = 4;
+        const spriteWidth = tileSize - padding * 2;
+        const spriteHeight = tileSize - padding * 2;
+
+        this.ctx.drawImage(
+          sprite,
+          x + padding,
+          y + padding,
+          spriteWidth,
+          spriteHeight
+        );
+
+        // Draw building name below sprite
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.strokeStyle = '#000000';
+        this.ctx.lineWidth = 3;
+        this.ctx.font = `bold ${10 * this.pixelScale}px sans-serif`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'top';
+
+        const textX = x + tileSize / 2;
+        const textY = y + tileSize - 16;
+
+        // Draw text with outline for visibility
+        this.ctx.strokeText(building.name, textX, textY);
+        this.ctx.fillText(building.name, textX, textY);
+
+        this.ctx.restore();
+      }
+    });
   }
 
   /**
    * Render players layer
    */
   private renderPlayers(): void {
+    if (!assetLoader.isLoaded()) return;
+
     const tileSize = 64 * this.pixelScale;
+    const playerSprite = assetLoader.getSprite('player');
 
     this.game.players.forEach((player) => {
       const pos = player.state.position;
-
-      // Draw simple player representation
-      this.ctx.save();
-
-      // Use player color
-      this.ctx.fillStyle = player.color;
-
-      // Draw player as a circle
       const centerX = pos.x * tileSize + tileSize / 2;
       const centerY = pos.y * tileSize + tileSize / 2;
-      const radius = tileSize / 4;
 
-      this.ctx.beginPath();
-      this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      this.ctx.fill();
+      this.ctx.save();
+
+      if (playerSprite && playerSprite.complete) {
+        // Draw player sprite
+        const spriteSize = tileSize / 2;
+        this.ctx.drawImage(
+          playerSprite,
+          centerX - spriteSize / 2,
+          centerY - spriteSize / 2,
+          spriteSize,
+          spriteSize
+        );
+      } else {
+        // Fallback to circle if sprite not loaded
+        this.ctx.fillStyle = player.color;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, tileSize / 4, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
 
       // Draw player name
-      this.ctx.fillStyle = '#000000';
-      this.ctx.font = `${12 * this.pixelScale}px sans-serif`;
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.strokeStyle = '#000000';
+      this.ctx.lineWidth = 2;
+      this.ctx.font = `bold ${12 * this.pixelScale}px sans-serif`;
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'top';
-      this.ctx.fillText(player.name, centerX, centerY + radius + 4);
+
+      const textY = centerY + tileSize / 4 + 4;
+      this.ctx.strokeText(player.name, centerX, textY);
+      this.ctx.fillText(player.name, centerX, textY);
 
       this.ctx.restore();
     });

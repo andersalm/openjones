@@ -174,15 +174,16 @@ export function App() {
       return;
     }
 
-    // Set canvas size
-    canvas.width = 800;
-    canvas.height = 600;
+    // Set canvas size for 5x5 grid
+    // With pixelScale=2 and tileSize=64, each tile is 128px
+    canvas.width = 640;
+    canvas.height = 640;
 
     // Create RenderCoordinator
     const renderCoordinator = new RenderCoordinator({
       canvas,
       game: gameController.getGame(),
-      pixelScale: 1,
+      pixelScale: 2, // Larger tiles for better visibility
       showFPS: true,
     });
     renderCoordinatorRef.current = renderCoordinator;
