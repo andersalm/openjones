@@ -72,35 +72,47 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
+      style={{ background: 'rgba(0, 0, 0, 0.75)' }}
       onClick={onClose}
       data-testid="building-modal-overlay"
     >
       <div
         className={`
-          bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden
+          bg-gradient-to-br from-slate-50 to-slate-100
+          rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[85vh] overflow-hidden
           transform transition-all duration-300
           ${isAnimating ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}
           ${className}
         `}
+        style={{
+          border: '3px solid rgba(51, 65, 85, 0.3)',
+          boxShadow: '0 25px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+        }}
         onClick={(e) => e.stopPropagation()}
         data-testid="building-modal"
       >
-        {/* Header */}
-        <div className="bg-blue-600 text-white px-6 py-4 flex items-center justify-between">
+        {/* Modern Header with Gradient */}
+        <div
+          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-7 py-5 flex items-center justify-between"
+          style={{
+            borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+          }}
+        >
           <div>
-            <h2 className="text-2xl font-bold" data-testid="building-name">
+            <h2 className="text-3xl font-bold tracking-tight" data-testid="building-name">
               {building.name}
             </h2>
             {building.description && (
-              <p className="text-blue-100 text-sm mt-1" data-testid="building-description">
+              <p className="text-blue-100 text-sm mt-1.5 font-medium" data-testid="building-description">
                 {building.description}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:text-blue-200 transition-colors text-3xl font-bold leading-none"
+            className="text-white hover:text-blue-200 hover:bg-white/10 transition-all text-4xl font-bold leading-none w-12 h-12 flex items-center justify-center rounded-lg"
             aria-label="Close modal"
             data-testid="close-button"
           >
@@ -108,13 +120,13 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[70vh]">
+        {/* Content with Better Spacing */}
+        <div className="p-7 overflow-y-auto max-h-[65vh]">
           {actionResult ? (
             <ActionResultDisplay result={actionResult} onDismiss={() => onActionSelect('')} />
           ) : (
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              <h3 className="text-xl font-bold text-slate-800 mb-5 tracking-tight">
                 What would you like to do?
               </h3>
               <ActionMenu
@@ -126,19 +138,21 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
           )}
         </div>
 
-        {/* Footer */}
-        <div className="bg-gray-100 px-6 py-3 flex justify-between items-center text-sm text-gray-600">
-          <div>
-            <kbd className="px-2 py-1 bg-white border border-gray-300 rounded shadow-sm font-mono text-xs">
+        {/* Modern Footer with Keyboard Hints */}
+        <div
+          className="bg-gradient-to-br from-slate-100 to-slate-200 px-7 py-4 flex justify-between items-center text-sm text-slate-600 border-t-2 border-slate-300/50"
+        >
+          <div className="flex items-center gap-2">
+            <kbd className="px-3 py-1.5 bg-white border-2 border-slate-300 rounded-lg shadow-sm font-mono text-xs font-semibold text-slate-700">
               ESC
             </kbd>
-            <span className="ml-2">to close</span>
+            <span className="font-medium">to close</span>
           </div>
-          <div>
-            <kbd className="px-2 py-1 bg-white border border-gray-300 rounded shadow-sm font-mono text-xs">
+          <div className="flex items-center gap-2">
+            <kbd className="px-3 py-1.5 bg-white border-2 border-slate-300 rounded-lg shadow-sm font-mono text-xs font-semibold text-slate-700">
               1-9
             </kbd>
-            <span className="ml-2">to select action</span>
+            <span className="font-medium">quick select</span>
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 /**
- * Button component with retro game aesthetic
+ * Modern Button component with polished design
  */
 export const Button: React.FC<ButtonProps> = ({
   children,
@@ -24,16 +24,16 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const variantClasses = {
-    primary: 'bg-blue-500 hover:bg-blue-600 text-white border-blue-700',
-    secondary: 'bg-gray-500 hover:bg-gray-600 text-white border-gray-700',
-    danger: 'bg-red-500 hover:bg-red-600 text-white border-red-700',
-    success: 'bg-green-500 hover:bg-green-600 text-white border-green-700',
+    primary: 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/30',
+    secondary: 'bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white shadow-lg shadow-slate-500/30',
+    danger: 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-500/30',
+    success: 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg shadow-green-500/30',
   };
 
   const sizeClasses = {
-    sm: 'px-3 py-1 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
+    sm: 'px-4 py-2 text-sm',
+    md: 'px-5 py-2.5 text-base',
+    lg: 'px-7 py-3.5 text-lg',
   };
 
   const isDisabled = disabled || isLoading;
@@ -43,21 +43,32 @@ export const Button: React.FC<ButtonProps> = ({
       className={`
         ${variantClasses[variant]}
         ${sizeClasses[size]}
-        border-b-4
         font-bold
-        uppercase
+        rounded-lg
         tracking-wide
         transition-all
+        duration-200
+        transform
+        hover:scale-105
+        active:scale-95
         disabled:opacity-50
         disabled:cursor-not-allowed
-        active:border-b-2
-        active:translate-y-0.5
+        disabled:hover:scale-100
+        border-0
         ${className}
       `}
+      style={{
+        textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
+      }}
       disabled={isDisabled}
       {...props}
     >
-      {isLoading ? 'Loading...' : children}
+      {isLoading ? (
+        <span className="flex items-center gap-2">
+          <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          Loading...
+        </span>
+      ) : children}
     </button>
   );
 };
