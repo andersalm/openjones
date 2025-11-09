@@ -218,29 +218,30 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render map layer
+   * Render map layer - 5x5 grid matching Java
    */
   private renderMap(): void {
-    // Basic grid rendering
+    // Basic grid rendering - fixed 5x5 grid
     this.ctx.strokeStyle = '#CCCCCC';
     this.ctx.lineWidth = 1;
 
     const tileSize = 64 * this.pixelScale;
-    const cols = Math.ceil(this.canvas.width / tileSize);
-    const rows = Math.ceil(this.canvas.height / tileSize);
+    const gridWidth = 5;  // Java uses 5x5 grid
+    const gridHeight = 5;
 
-    // Draw grid lines
-    for (let x = 0; x <= cols; x++) {
+    // Draw vertical grid lines
+    for (let x = 0; x <= gridWidth; x++) {
       this.ctx.beginPath();
       this.ctx.moveTo(x * tileSize, 0);
-      this.ctx.lineTo(x * tileSize, this.canvas.height);
+      this.ctx.lineTo(x * tileSize, gridHeight * tileSize);
       this.ctx.stroke();
     }
 
-    for (let y = 0; y <= rows; y++) {
+    // Draw horizontal grid lines
+    for (let y = 0; y <= gridHeight; y++) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, y * tileSize);
-      this.ctx.lineTo(this.canvas.width, y * tileSize);
+      this.ctx.lineTo(gridWidth * tileSize, y * tileSize);
       this.ctx.stroke();
     }
   }
@@ -270,15 +271,32 @@ export class RenderCoordinator {
       this.ctx.lineWidth = 2;
       this.ctx.strokeRect(x, y, tileSize, tileSize);
 
-      // Draw building name
+      // Draw building name with shadow for better readability
+      this.ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+      this.ctx.shadowBlur = 3;
+      this.ctx.shadowOffsetX = 1;
+      this.ctx.shadowOffsetY = 1;
+
       this.ctx.fillStyle = '#FFFFFF';
-      this.ctx.font = '10px Arial';
+      // Scale font with tile size for better visibility
+      const fontSize = Math.max(12, Math.floor(tileSize / 10));
+      this.ctx.font = `bold ${fontSize}px Arial`;
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
-      const lines = this.wrapText(building.name, tileSize - 10);
+
+      const lines = this.wrapText(building.name, tileSize - 20);
+      const lineHeight = fontSize + 4;
       lines.forEach((line, index) => {
-        this.ctx.fillText(line, x + tileSize / 2, y + tileSize / 2 + (index - lines.length / 2 + 0.5) * 12);
+        this.ctx.fillText(
+          line,
+          x + tileSize / 2,
+          y + tileSize / 2 + (index - lines.length / 2 + 0.5) * lineHeight
+        );
       });
+
+      // Reset shadow
+      this.ctx.shadowColor = 'transparent';
+      this.ctx.shadowBlur = 0;
     });
   }
 
@@ -343,21 +361,34 @@ export class RenderCoordinator {
       // Use player color
       this.ctx.fillStyle = player.color;
 
-      // Draw player as a circle
+      // Draw player as a circle with border
       const centerX = pos.x * tileSize + tileSize / 2;
       const centerY = pos.y * tileSize + tileSize / 2;
-      const radius = tileSize / 4;
+      const radius = tileSize / 5;
 
+      // Draw player circle
       this.ctx.beginPath();
       this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
       this.ctx.fill();
 
-      // Draw player name
+      // Draw border
+      this.ctx.strokeStyle = '#000000';
+      this.ctx.lineWidth = 3;
+      this.ctx.stroke();
+
+      // Draw player name with shadow for better visibility
+      this.ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+      this.ctx.shadowBlur = 3;
       this.ctx.fillStyle = '#000000';
-      this.ctx.font = `${12 * this.pixelScale}px sans-serif`;
+      const nameFontSize = Math.max(14, Math.floor(tileSize / 9));
+      this.ctx.font = `bold ${nameFontSize}px Arial`;
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'top';
-      this.ctx.fillText(player.name, centerX, centerY + radius + 4);
+      this.ctx.fillText(player.name, centerX, centerY + radius + 8);
+
+      // Reset shadow
+      this.ctx.shadowColor = 'transparent';
+      this.ctx.shadowBlur = 0;
 
       this.ctx.restore();
     });

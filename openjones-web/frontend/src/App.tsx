@@ -207,15 +207,17 @@ export function App() {
         return;
       }
 
-      // Set canvas size
-      canvas.width = 800;
-      canvas.height = 600;
+      // Set canvas size - optimized for 5x5 grid
+      // Java uses 155x96 tiles = 775x480 total for 5x5 grid
+      // We'll use 640x480 (128px tiles) for good visibility and clean scaling
+      canvas.width = 640;  // 5 tiles * 128px = 640px
+      canvas.height = 480; // 5 tiles * 96px = 480px (matching Java aspect)
 
       // Create RenderCoordinator
       const renderCoordinator = new RenderCoordinator({
         canvas,
         game: gameController.getGame(),
-        pixelScale: 1,
+        pixelScale: 2, // 64 * 2 = 128px tiles (closer to Java's 155px)
         showFPS: true,
       });
       renderCoordinatorRef.current = renderCoordinator;
@@ -225,7 +227,7 @@ export function App() {
         canvas,
         game: gameController.getGame(),
         playerId: 'player-1',
-        tileSize: 64,
+        tileSize: 128, // Match the rendering tile size
         onBuildingSelected: handleBuildingSelect,
         onActionSelected: (actionType) => {
           console.log('Action selected:', actionType);
