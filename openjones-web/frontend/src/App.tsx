@@ -148,9 +148,19 @@ export function App() {
     const building = game.map.getBuildingById(buildingId);
 
     if (building) {
+      // Get available actions for this building
+      const player = game.getCurrentPlayer();
+      const actions = building.getAvailableActions(player.state, game);
+
+      // Attach actions to building for modal display
+      const buildingWithActions = {
+        ...building,
+        actions,
+      };
+
       setAppState(prev => ({
         ...prev,
-        selectedBuilding: building,
+        selectedBuilding: buildingWithActions as IBuilding,
         showBuildingModal: true,
       }));
     }
@@ -281,21 +291,58 @@ export function App() {
   /**
    * Handle action selection from building modal
    */
-  const handleActionSelect = useCallback((_actionId: string) => {
+  const handleActionSelect = useCallback(async (actionId: string) => {
     if (!gameControllerRef.current || !appState.selectedBuilding) return;
 
-    // Close modal
-    setAppState(prev => ({
-      ...prev,
-      showBuildingModal: false,
-      selectedBuilding: null,
-      errorMessage: 'Action executed!',
-    }));
+    // Get the action from the building's available actions
+    const building = appState.selectedBuilding as any;
+    const action = building.actions?.find((a: any) => a.id === actionId);
 
-    // Clear error after 2 seconds
-    setTimeout(() => {
-      setAppState(prev => ({ ...prev, errorMessage: null }));
-    }, 2000);
+    if (!action) {
+      console.error('Action not found:', actionId);
+      setAppState(prev => ({
+        ...prev,
+        errorMessage: 'Action not found',
+      }));
+      return;
+    }
+
+    // Execute the action via GameController
+    try {
+      const result = await gameControllerRef.current.executeAction('player-1', action);
+
+      if (result.success) {
+        // Success - close modal and show success message
+        setAppState(prev => ({
+          ...prev,
+          showBuildingModal: false,
+          selectedBuilding: null,
+          errorMessage: result.message,
+        }));
+
+        // Clear message after 3 seconds
+        setTimeout(() => {
+          setAppState(prev => ({ ...prev, errorMessage: null }));
+        }, 3000);
+      } else {
+        // Failure - keep modal open and show error
+        setAppState(prev => ({
+          ...prev,
+          errorMessage: result.message,
+        }));
+
+        // Clear error after 3 seconds
+        setTimeout(() => {
+          setAppState(prev => ({ ...prev, errorMessage: null }));
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Error executing action:', error);
+      setAppState(prev => ({
+        ...prev,
+        errorMessage: `Error: ${error}`,
+      }));
+    }
   }, [appState.selectedBuilding]);
 
   /**
