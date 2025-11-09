@@ -49,42 +49,44 @@
 }
 
 .menu-content h2 {
-  margin: 0 0 16px 0;
+  margin: 0 0 24px 0;
   color: #000000;
-  font-size: 16px;
+  font-size: 24px;
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  line-height: 1.4;
 }
 
 .menu-description {
   text-align: center;
   color: #000000;
-  margin-bottom: 24px;
-  font-size: 8px;
-  line-height: 1.6;
+  margin-bottom: 32px;
+  font-size: 12px;
+  line-height: 1.8;
 }
 
 .menu-form {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
-  font-size: 8px;
+  margin-bottom: 12px;
+  font-size: 12px;
   color: #000000;
   text-transform: uppercase;
+  line-height: 1.6;
 }
 
 .name-input {
   width: 100%;
-  padding: 8px;
-  font-size: 10px;
+  padding: 12px;
+  font-size: 14px;
   font-family: 'Press Start 2P', monospace;
   border: 3px solid #000000;
   background: #FFFFFF;
@@ -92,6 +94,7 @@
   box-sizing: border-box;
   box-shadow: inset 2px 2px 0px #808080, inset -2px -2px 0px #DFDFDF;
   image-rendering: pixelated;
+  line-height: 1.6;
 }
 
 .name-input:focus {
@@ -101,33 +104,34 @@
 
 .start-button {
   width: 100%;
-  padding: 12px;
-  font-size: 10px;
+  padding: 16px;
+  font-size: 14px;
 }
 
 .menu-info {
   background: #E0E0E0;
-  padding: 16px;
+  padding: 20px;
   border: 3px solid #000000;
   box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
 }
 
 .menu-info h3 {
-  margin: 0 0 12px 0;
+  margin: 0 0 16px 0;
   color: #000000;
-  font-size: 10px;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .menu-info ul {
   margin: 0;
-  padding-left: 16px;
+  padding-left: 20px;
   color: #000000;
-  font-size: 7px;
-  line-height: 1.8;
+  font-size: 11px;
+  line-height: 2.0;
 }
 
 .menu-info li {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 /* ============================================
@@ -211,15 +215,16 @@
   transform: translateX(-50%);
   background: #C0C0C0;
   color: #000000;
-  padding: 12px 20px;
+  padding: 16px 24px;
   border: 4px solid #000000;
   box-shadow: 4px 4px 0px #000000;
   animation: blinkAlert 0.5s steps(2) infinite;
   z-index: 1000;
-  font-size: 8px;
+  font-size: 12px;
   text-transform: uppercase;
-  max-width: 400px;
+  max-width: 500px;
   text-align: center;
+  line-height: 1.6;
 }
 
 /* ============================================
@@ -249,35 +254,36 @@
 
 .victory-content h2,
 .defeat-content h2 {
-  font-size: 20px;
-  margin: 0 0 16px 0;
+  font-size: 28px;
+  margin: 0 0 20px 0;
   color: #000000;
   text-transform: uppercase;
+  line-height: 1.4;
 }
 
 .victory-message,
 .defeat-message {
-  font-size: 8px;
+  font-size: 12px;
   color: #000000;
-  margin-bottom: 24px;
-  line-height: 1.8;
+  margin-bottom: 32px;
+  line-height: 2.0;
 }
 
 .victory-stats,
 .defeat-stats {
   background: #E0E0E0;
-  padding: 16px;
+  padding: 20px;
   border: 3px solid #000000;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
   box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
 }
 
 .victory-stats p,
 .defeat-stats p {
-  margin: 8px 0;
+  margin: 10px 0;
   color: #000000;
-  font-size: 8px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.8;
 }
 
 .victory-stats strong,
@@ -288,9 +294,9 @@
 
 .victory-content button,
 .defeat-content button {
-  min-width: 180px;
-  padding: 12px 24px;
-  font-size: 10px;
+  min-width: 200px;
+  padding: 16px 32px;
+  font-size: 14px;
 }
 
 /* ============================================
@@ -342,19 +348,19 @@
 
 /* Text utilities */
 .text-sm {
-  font-size: 8px;
+  font-size: 12px;
 }
 
 .text-xs {
-  font-size: 7px;
-}
-
-.text-base {
   font-size: 10px;
 }
 
+.text-base {
+  font-size: 14px;
+}
+
 .text-3xl {
-  font-size: 16px;
+  font-size: 24px;
 }
 
 .font-semibold,

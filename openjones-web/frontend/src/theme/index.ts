@@ -98,21 +98,21 @@ export const typography = {
     retro: '"Press Start 2P", monospace',
   },
   fontSize: {
-    tiny: '6px',   // For very small retro text
-    xs: '8px',     // Small pixel text
-    sm: '10px',    // Medium pixel text
-    md: '12px',    // Standard pixel text
-    lg: '16px',    // Large pixel text
-    xl: '20px',    // XL pixel text
-    xxl: '24px',   // XXL pixel text
+    tiny: '10px',  // For very small retro text (readable minimum)
+    xs: '12px',    // Small pixel text
+    sm: '14px',    // Medium pixel text
+    md: '16px',    // Standard pixel text
+    lg: '20px',    // Large pixel text
+    xl: '28px',    // XL pixel text
+    xxl: '36px',   // XXL pixel text
   },
   fontWeight: {
     normal: 400,   // Press Start 2P only has one weight
   },
   lineHeight: {
-    tight: 1.0,    // Tighter for pixel fonts
-    normal: 1.4,   // Normal for readability
-    relaxed: 1.6,  // Relaxed for body text
+    tight: 1.2,    // Minimum for pixel fonts (was too tight at 1.0)
+    normal: 1.6,   // Better spacing for readability
+    relaxed: 2.0,  // Generous spacing for body text
   },
 } as const;
 
