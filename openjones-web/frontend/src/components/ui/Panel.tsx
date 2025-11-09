@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { theme } from '../../theme';
 
 export interface PanelProps {
   /** Panel title */
@@ -12,7 +13,12 @@ export interface PanelProps {
 }
 
 /**
- * Panel component with retro game aesthetic
+ * Panel component with authentic Windows 95 / DOS retro aesthetic
+ * Features:
+ * - Classic title bar with gradient
+ * - Thick black borders
+ * - Beveled 3D edges
+ * - System color palette
  */
 export const Panel: React.FC<PanelProps> = ({
   title,
@@ -20,33 +26,72 @@ export const Panel: React.FC<PanelProps> = ({
   variant = 'default',
   className = '',
 }) => {
-  const variantClasses = {
-    default: 'bg-gray-100 border-gray-400',
-    accent: 'bg-blue-50 border-blue-400',
-    warning: 'bg-yellow-50 border-yellow-400',
-    success: 'bg-green-50 border-green-400',
+  const variantColors = {
+    default: {
+      background: theme.colors.system.windowGray,
+      titleBg: theme.colors.primary.background, // Teal like Windows 95
+      titleColor: theme.colors.neutral.white,
+      border: theme.colors.neutral.black,
+    },
+    accent: {
+      background: theme.colors.retro.tan,
+      titleBg: theme.colors.primary.dark,
+      titleColor: theme.colors.neutral.white,
+      border: theme.colors.neutral.black,
+    },
+    warning: {
+      background: '#FFE066',
+      titleBg: '#FF8C00',
+      titleColor: theme.colors.neutral.black,
+      border: theme.colors.neutral.black,
+    },
+    success: {
+      background: '#A8E6CF',
+      titleBg: '#51CF66',
+      titleColor: theme.colors.neutral.black,
+      border: theme.colors.neutral.black,
+    },
   };
 
-  const titleBgClasses = {
-    default: 'bg-gray-300',
-    accent: 'bg-blue-300',
-    warning: 'bg-yellow-300',
-    success: 'bg-green-300',
+  const colors = variantColors[variant];
+
+  const panelStyle: React.CSSProperties = {
+    background: colors.background,
+    border: `4px solid ${colors.border}`,
+    boxShadow: theme.shadows.retro2,
+    borderRadius: theme.borderRadius.none,
+    fontFamily: theme.typography.fontFamily.primary,
+    imageRendering: 'pixelated',
+    overflow: 'hidden',
+  };
+
+  const titleBarStyle: React.CSSProperties = {
+    background: colors.titleBg,
+    color: colors.titleColor,
+    padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
+    fontSize: theme.typography.fontSize.sm,
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    borderBottom: `3px solid ${colors.border}`,
+    fontFamily: theme.typography.fontFamily.primary,
+    userSelect: 'none',
+    WebkitUserSelect: 'none',
+  };
+
+  const contentStyle: React.CSSProperties = {
+    padding: theme.spacing.md,
   };
 
   return (
-    <div
-      className={`border-4 ${variantClasses[variant]} shadow-lg ${className}`}
-      style={{
-        boxShadow: '4px 4px 0px rgba(0, 0, 0, 0.25)',
-      }}
-    >
+    <div style={panelStyle} className={className}>
       {title && (
-        <div className={`${titleBgClasses[variant]} px-4 py-2 border-b-4 border-gray-400`}>
-          <h2 className="font-bold text-lg uppercase tracking-wide">{title}</h2>
+        <div style={titleBarStyle}>
+          {title}
         </div>
       )}
-      <div className="p-4">{children}</div>
+      <div style={contentStyle}>
+        {children}
+      </div>
     </div>
   );
 };

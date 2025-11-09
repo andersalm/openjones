@@ -1,62 +1,83 @@
 /**
  * OpenJones Design System - Theme Configuration
  *
- * Retro game aesthetic inspired by Jones in the Fast Lane (1990)
- * Color palette: Blues, purples, and warm earth tones
+ * Authentic 1990s retro game aesthetic inspired by:
+ * - Jones in the Fast Lane (1990)
+ * - SimCity 2000 (1993)
+ * - Windows 95 UI
+ * - DOS-era 16-color palette with dithering
  */
 
 export const colors = {
-  // Primary palette - Blues and purples (retro game feel)
+  // DOS/Win95 System Colors - Authentic retro palette
+  system: {
+    // Classic Windows 95 grays
+    windowGray: '#C0C0C0',      // Standard window background
+    darkGray: '#808080',         // Window borders, disabled text
+    buttonFace: '#D4D0C8',       // Button surface (beige-gray)
+    buttonShadow: '#808080',     // Button shadow
+    buttonDkShadow: '#000000',   // Button dark shadow
+    buttonLight: '#FFFFFF',      // Button highlight
+    buttonHilight: '#DFDFDF',    // Button light edge
+  },
+
+  // DOS-era Earth Tones - Warm, muted palette
+  retro: {
+    tan: '#D4C4A8',              // Beige/tan backgrounds
+    darkTan: '#A89878',          // Darker tan for contrast
+    brown: '#8B7355',            // Brown UI panels
+    darkBrown: '#6B5345',        // Dark brown borders
+    cream: '#F5F5DC',            // Cream for highlights
+    olive: '#808000',            // Olive green accent
+  },
+
+  // Primary UI Colors - High contrast for readability
   primary: {
-    dark: '#1a1a3e',      // Deep navy for backgrounds
-    main: '#4169e1',      // Royal blue
-    light: '#6b8cff',     // Light blue for highlights
-    pale: '#b8c9ff',      // Very light blue for hover states
+    background: '#008080',       // Teal (classic 90s color)
+    dark: '#000080',             // Navy blue
+    light: '#00FFFF',            // Cyan
+    text: '#FFFF00',             // Yellow (high contrast on blue)
   },
 
-  // Secondary palette - Purples
-  secondary: {
-    dark: '#4a1a4a',      // Deep purple
-    main: '#8b4789',      // Medium purple
-    light: '#b57eb5',     // Light purple
-    pale: '#d9b8d9',      // Very light purple
-  },
-
-  // Accent colors - Warm tones
+  // Accent colors - Limited DOS palette
   accent: {
-    gold: '#ffd700',      // Gold for money/wealth
-    green: '#3cb371',     // Green for positive/success
-    red: '#dc143c',       // Red for warnings/danger
-    orange: '#ff8c00',    // Orange for important actions
+    gold: '#FFFF00',             // Bright yellow for money
+    green: '#00FF00',            // Lime green for success
+    red: '#FF0000',              // Pure red for danger
+    orange: '#FF8000',           // Orange for warnings
+    cyan: '#00FFFF',             // Cyan for info
+    magenta: '#FF00FF',          // Magenta for special
   },
 
-  // Neutral palette
+  // Neutral palette - DOS black and white
   neutral: {
     black: '#000000',
-    darkGray: '#1e1e1e',
+    darkGray: '#404040',
     gray: '#808080',
-    lightGray: '#c0c0c0',
-    paleGray: '#e8e8e8',
-    white: '#ffffff',
+    lightGray: '#C0C0C0',
+    paleGray: '#E0E0E0',
+    white: '#FFFFFF',
   },
 
-  // Game-specific colors
+  // Game-specific colors - Earthy retro feel
   game: {
-    background: '#0a0a1e',     // Dark background for game board
-    panel: '#1a1a3e',          // Panels and UI containers
-    border: '#4169e1',         // Borders for UI elements
-    highlight: '#ffd700',      // Highlights and selections
-    text: '#ffffff',           // Primary text color
-    textSecondary: '#c0c0c0',  // Secondary text color
+    background: '#8B7355',       // Brown background
+    boardBg: '#D4C4A8',          // Tan game board
+    panel: '#C0C0C0',            // Gray UI panels
+    border: '#000000',           // Black borders (thick and bold)
+    highlight: '#FFFF00',        // Yellow highlights
+    text: '#000000',             // Black text on light backgrounds
+    textLight: '#FFFFFF',        // White text on dark backgrounds
+    gridLine: '#A89878',         // Subtle grid lines
   },
 
-  // Status colors
+  // Status colors - Vibrant for visibility
   status: {
-    health: '#dc143c',         // Red for health
-    happiness: '#ffd700',      // Gold for happiness
-    education: '#4169e1',      // Blue for education
-    career: '#8b4789',         // Purple for career
-    wealth: '#3cb371',         // Green for wealth
+    health: '#FF0000',           // Bright red
+    happiness: '#FFFF00',        // Bright yellow
+    education: '#0000FF',        // Bright blue
+    career: '#800080',           // Purple
+    wealth: '#00FF00',           // Bright green
   },
 } as const;
 
@@ -71,46 +92,46 @@ export const spacing = {
 
 export const typography = {
   fontFamily: {
-    primary: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    primary: '"Press Start 2P", "Courier New", monospace', // Pixel font primary
+    system: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
     mono: '"Courier New", Courier, monospace',
-    retro: '"Press Start 2P", monospace', // Optional retro font (would need to be loaded)
+    retro: '"Press Start 2P", monospace',
   },
   fontSize: {
-    xs: '12px',
-    sm: '14px',
-    md: '16px',
-    lg: '18px',
-    xl: '24px',
-    xxl: '32px',
+    tiny: '6px',   // For very small retro text
+    xs: '8px',     // Small pixel text
+    sm: '10px',    // Medium pixel text
+    md: '12px',    // Standard pixel text
+    lg: '16px',    // Large pixel text
+    xl: '20px',    // XL pixel text
+    xxl: '24px',   // XXL pixel text
   },
   fontWeight: {
-    normal: 400,
-    medium: 500,
-    semibold: 600,
-    bold: 700,
+    normal: 400,   // Press Start 2P only has one weight
   },
   lineHeight: {
-    tight: 1.2,
-    normal: 1.5,
-    relaxed: 1.8,
+    tight: 1.0,    // Tighter for pixel fonts
+    normal: 1.4,   // Normal for readability
+    relaxed: 1.6,  // Relaxed for body text
   },
 } as const;
 
 export const borderRadius = {
-  none: '0',
-  sm: '4px',
-  md: '8px',
-  lg: '12px',
-  full: '9999px',
+  none: '0',        // Retro aesthetic = no rounded corners!
+  pixel: '0',       // All corners are sharp pixels
 } as const;
 
 export const shadows = {
   none: 'none',
-  sm: '0 1px 2px 0 rgba(0, 0, 0, 0.5)',
-  md: '0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3)',
-  lg: '0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3)',
-  xl: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3)',
-  retro: '4px 4px 0px rgba(0, 0, 0, 0.8)', // Retro box shadow
+  // Retro hard-edged drop shadows (no blur)
+  retro1: '2px 2px 0px #000000',           // Small retro shadow
+  retro2: '4px 4px 0px #000000',           // Medium retro shadow
+  retro3: '6px 6px 0px #000000',           // Large retro shadow
+  // Windows 95 style beveled edges (inset/outset)
+  win95Raised: 'inset -1px -1px 0px #000000, inset 1px 1px 0px #FFFFFF, inset -2px -2px 0px #808080, inset 2px 2px 0px #DFDFDF',
+  win95Sunken: 'inset 1px 1px 0px #000000, inset -1px -1px 0px #FFFFFF, inset 2px 2px 0px #808080, inset -2px -2px 0px #DFDFDF',
+  win95Button: 'inset -1px -1px 0px #000000, inset 1px 1px 0px #FFFFFF, inset -2px -2px 0px #808080, inset 2px 2px 0px #DFDFDF',
+  win95Pressed: 'inset 1px 1px 0px #000000, inset 2px 2px 0px #808080',
 } as const;
 
 export const transitions = {

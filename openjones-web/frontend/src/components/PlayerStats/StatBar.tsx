@@ -1,4 +1,5 @@
 import React from 'react';
+import { theme } from '../../theme';
 
 export interface StatBarProps {
   /** Label for the stat */
@@ -16,7 +17,12 @@ export interface StatBarProps {
 }
 
 /**
- * StatBar component - displays a labeled progress bar with color coding
+ * StatBar component - Retro pixel-perfect progress bar
+ * Features:
+ * - Chunky pixel borders
+ * - Bright retro colors from DOS palette
+ * - Stepped fill animation
+ * - High contrast design
  */
 export const StatBar: React.FC<StatBarProps> = ({
   label,
@@ -30,39 +36,83 @@ export const StatBar: React.FC<StatBarProps> = ({
   const clampedValue = Math.max(0, Math.min(value, maxValue));
   const percentage = maxValue > 0 ? (clampedValue / maxValue) * 100 : 0;
 
-  // Color classes for the bar
-  const colorClasses = {
-    red: 'bg-red-500',
-    yellow: 'bg-yellow-500',
-    blue: 'bg-blue-500',
-    purple: 'bg-purple-500',
-    green: 'bg-green-500',
+  // Retro color palette - Bright DOS colors
+  const colorMap = {
+    red: theme.colors.status.health,       // #FF0000
+    yellow: theme.colors.status.happiness, // #FFFF00
+    blue: theme.colors.status.education,   // #0000FF
+    purple: theme.colors.status.career,    // #800080
+    green: theme.colors.status.wealth,     // #00FF00
   };
 
-  // Determine bar color based on percentage for health-like stats
-  const getStatusColor = (): string => {
-    if (percentage >= 70) return colorClasses.green;
-    if (percentage >= 40) return colorClasses.yellow;
-    return colorClasses.red;
+  const barColor = colorMap[color];
+
+  const containerStyle: React.CSSProperties = {
+    marginBottom: theme.spacing.sm,
   };
 
-  // Use status color for red/yellow/green, otherwise use specified color
-  const barColor = color === 'red' && percentage > 30 ? getStatusColor() : colorClasses[color];
+  const labelRowStyle: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '4px',
+    fontFamily: theme.typography.fontFamily.primary,
+    fontSize: theme.typography.fontSize.xs,
+  };
+
+  const labelStyle: React.CSSProperties = {
+    color: theme.colors.neutral.black,
+    textTransform: 'uppercase',
+  };
+
+  const valueStyle: React.CSSProperties = {
+    color: theme.colors.neutral.black,
+  };
+
+  const barBackgroundStyle: React.CSSProperties = {
+    width: '100%',
+    height: '16px',
+    background: theme.colors.neutral.white,
+    border: `3px solid ${theme.colors.neutral.black}`,
+    borderRadius: theme.borderRadius.none,
+    overflow: 'hidden',
+    boxShadow: 'inset 2px 2px 0px #808080',
+    position: 'relative',
+    imageRendering: 'pixelated',
+  };
+
+  const barFillStyle: React.CSSProperties = {
+    height: '100%',
+    width: `${percentage}%`,
+    background: barColor,
+    transition: 'none', // No smooth transitions - retro!
+    imageRendering: 'pixelated',
+    position: 'relative',
+    // Add chunky pixel pattern to the fill
+    backgroundImage: percentage > 0 ? `
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.1) 0px,
+        rgba(255, 255, 255, 0.1) 2px,
+        transparent 2px,
+        transparent 4px
+      )
+    ` : 'none',
+  };
 
   return (
-    <div className={`stat-bar ${className}`} data-testid={`stat-bar-${label.toLowerCase()}`}>
-      <div className="flex justify-between items-center text-sm mb-1">
-        <span className="font-semibold text-gray-700">{label}</span>
+    <div style={containerStyle} className={className} data-testid={`stat-bar-${label.toLowerCase()}`}>
+      <div style={labelRowStyle}>
+        <span style={labelStyle}>{label}</span>
         {showValue && (
-          <span className="text-gray-600" data-testid={`stat-value-${label.toLowerCase()}`}>
+          <span style={valueStyle} data-testid={`stat-value-${label.toLowerCase()}`}>
             {Math.round(clampedValue)}/{maxValue}
           </span>
         )}
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden border-2 border-gray-400">
+      <div style={barBackgroundStyle}>
         <div
-          className={`${barColor} h-full transition-all duration-300 ease-out`}
-          style={{ width: `${percentage}%` }}
+          style={barFillStyle}
           data-testid={`stat-bar-fill-${label.toLowerCase()}`}
           role="progressbar"
           aria-valuenow={clampedValue}

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { IAction, IBuilding } from '../../../../shared/types/contracts';
 import { ActionMenu } from './ActionMenu';
+import { theme } from '../../theme';
+import { Button } from '../ui/Button';
 
 export interface BuildingModalProps {
   /** The building being interacted with */
@@ -61,7 +63,7 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setIsAnimating(true);
-      const timer = setTimeout(() => setIsAnimating(false), 300);
+      const timer = setTimeout(() => setIsAnimating(false), 150);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -70,53 +72,151 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
     return null;
   }
 
+  const overlayStyle: React.CSSProperties = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: theme.zIndex.modalBackdrop,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'rgba(0, 0, 0, 0.5)',
+    backdropFilter: 'blur(2px)',
+  };
+
+  const modalStyle: React.CSSProperties = {
+    background: theme.colors.system.windowGray,
+    border: `4px solid ${theme.colors.neutral.black}`,
+    boxShadow: theme.shadows.retro3,
+    maxWidth: '600px',
+    width: '90%',
+    maxHeight: '80vh',
+    display: 'flex',
+    flexDirection: 'column',
+    transform: isAnimating ? 'scale(0.9)' : 'scale(1)',
+    opacity: isAnimating ? 0 : 1,
+    transition: isAnimating ? 'none' : 'transform 0.1s steps(3), opacity 0.1s steps(3)',
+    fontFamily: theme.typography.fontFamily.primary,
+    imageRendering: 'pixelated',
+  };
+
+  const headerStyle: React.CSSProperties = {
+    background: theme.colors.primary.background,
+    color: theme.colors.neutral.white,
+    padding: theme.spacing.sm,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottom: `4px solid ${theme.colors.neutral.black}`,
+  };
+
+  const titleContainerStyle: React.CSSProperties = {
+    flex: 1,
+  };
+
+  const titleStyle: React.CSSProperties = {
+    fontSize: theme.typography.fontSize.md,
+    textTransform: 'uppercase',
+    marginBottom: '4px',
+  };
+
+  const subtitleStyle: React.CSSProperties = {
+    fontSize: theme.typography.fontSize.tiny,
+    opacity: 0.9,
+  };
+
+  const closeButtonStyle: React.CSSProperties = {
+    background: theme.colors.system.buttonFace,
+    color: theme.colors.neutral.black,
+    border: `3px solid ${theme.colors.neutral.black}`,
+    width: '32px',
+    height: '32px',
+    fontSize: theme.typography.fontSize.md,
+    cursor: 'pointer',
+    boxShadow: theme.shadows.win95Button,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: 'Arial, sans-serif',
+    fontWeight: 'bold',
+  };
+
+  const contentStyle: React.CSSProperties = {
+    padding: theme.spacing.md,
+    overflowY: 'auto',
+    flex: 1,
+  };
+
+  const promptStyle: React.CSSProperties = {
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.neutral.black,
+    marginBottom: theme.spacing.md,
+    textTransform: 'uppercase',
+  };
+
+  const footerStyle: React.CSSProperties = {
+    background: theme.colors.neutral.lightGray,
+    padding: theme.spacing.sm,
+    borderTop: `3px solid ${theme.colors.neutral.black}`,
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: theme.typography.fontSize.tiny,
+    color: theme.colors.neutral.black,
+  };
+
+  const kbdStyle: React.CSSProperties = {
+    background: theme.colors.neutral.white,
+    border: `2px solid ${theme.colors.neutral.black}`,
+    padding: '2px 6px',
+    marginRight: '4px',
+    fontFamily: theme.typography.fontFamily.primary,
+  };
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      style={overlayStyle}
       onClick={onClose}
       data-testid="building-modal-overlay"
     >
       <div
-        className={`
-          bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden
-          transform transition-all duration-300
-          ${isAnimating ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}
-          ${className}
-        `}
+        style={modalStyle}
         onClick={(e) => e.stopPropagation()}
+        className={className}
         data-testid="building-modal"
       >
         {/* Header */}
-        <div className="bg-blue-600 text-white px-6 py-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold" data-testid="building-name">
+        <div style={headerStyle}>
+          <div style={titleContainerStyle}>
+            <div style={titleStyle} data-testid="building-name">
               {building.name}
-            </h2>
+            </div>
             {building.description && (
-              <p className="text-blue-100 text-sm mt-1" data-testid="building-description">
+              <div style={subtitleStyle} data-testid="building-description">
                 {building.description}
-              </p>
+              </div>
             )}
           </div>
           <button
+            style={closeButtonStyle}
             onClick={onClose}
-            className="text-white hover:text-blue-200 transition-colors text-3xl font-bold leading-none"
             aria-label="Close modal"
             data-testid="close-button"
           >
-            ×
+            X
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[70vh]">
+        <div style={contentStyle}>
           {actionResult ? (
             <ActionResultDisplay result={actionResult} onDismiss={() => onActionSelect('')} />
           ) : (
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                What would you like to do?
-              </h3>
+              <div style={promptStyle}>
+                WHAT WOULD YOU LIKE TO DO?
+              </div>
               <ActionMenu
                 actions={(building as any).actions || []}
                 onActionSelect={onActionSelect}
@@ -127,18 +227,14 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-100 px-6 py-3 flex justify-between items-center text-sm text-gray-600">
+        <div style={footerStyle}>
           <div>
-            <kbd className="px-2 py-1 bg-white border border-gray-300 rounded shadow-sm font-mono text-xs">
-              ESC
-            </kbd>
-            <span className="ml-2">to close</span>
+            <span style={kbdStyle}>ESC</span>
+            <span>TO CLOSE</span>
           </div>
           <div>
-            <kbd className="px-2 py-1 bg-white border border-gray-300 rounded shadow-sm font-mono text-xs">
-              1-9
-            </kbd>
-            <span className="ml-2">to select action</span>
+            <span style={kbdStyle}>1-9</span>
+            <span>SELECT ACTION</span>
           </div>
         </div>
       </div>
@@ -152,23 +248,70 @@ interface ActionResultDisplayProps {
 }
 
 const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDismiss }) => {
+  const containerStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing.md,
+  };
+
+  const resultBoxStyle: React.CSSProperties = {
+    padding: theme.spacing.md,
+    border: `4px solid ${theme.colors.neutral.black}`,
+    background: result.success ? '#A8E6CF' : '#FFB6B6',
+    boxShadow: 'inset 2px 2px 0px rgba(255, 255, 255, 0.5)',
+  };
+
+  const resultHeaderStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  };
+
+  const iconStyle: React.CSSProperties = {
+    fontSize: '24px',
+  };
+
+  const messageStyle: React.CSSProperties = {
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.neutral.black,
+    textTransform: 'uppercase',
+  };
+
+  const effectsBoxStyle: React.CSSProperties = {
+    background: theme.colors.neutral.paleGray,
+    padding: theme.spacing.md,
+    border: `3px solid ${theme.colors.neutral.black}`,
+    boxShadow: 'inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080',
+  };
+
+  const effectsTitleStyle: React.CSSProperties = {
+    fontSize: theme.typography.fontSize.xs,
+    color: theme.colors.neutral.black,
+    marginBottom: theme.spacing.sm,
+    textTransform: 'uppercase',
+  };
+
+  const effectsGridStyle: React.CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: theme.spacing.sm,
+  };
+
+  const buttonContainerStyle: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: theme.spacing.md,
+  };
+
   return (
-    <div className="space-y-4" data-testid="action-result">
+    <div style={containerStyle} data-testid="action-result">
       {/* Result Status */}
-      <div
-        className={`
-          p-4 rounded-lg border-2
-          ${result.success
-            ? 'bg-green-50 border-green-500 text-green-900'
-            : 'bg-red-50 border-red-500 text-red-900'
-          }
-        `}
-      >
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">
+      <div style={resultBoxStyle}>
+        <div style={resultHeaderStyle}>
+          <span style={iconStyle}>
             {result.success ? '✓' : '✗'}
           </span>
-          <span className="font-semibold text-lg" data-testid="result-message">
+          <span style={messageStyle} data-testid="result-message">
             {result.message}
           </span>
         </div>
@@ -176,9 +319,9 @@ const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDis
 
       {/* Effects Display */}
       {result.effects && (
-        <div className="bg-gray-50 p-4 rounded-lg" data-testid="action-effects">
-          <h4 className="font-semibold text-gray-800 mb-3">Effects:</h4>
-          <div className="grid grid-cols-2 gap-3">
+        <div style={effectsBoxStyle} data-testid="action-effects">
+          <div style={effectsTitleStyle}>EFFECTS:</div>
+          <div style={effectsGridStyle}>
             {result.effects.cashChange !== undefined && result.effects.cashChange !== 0 && (
               <EffectItem
                 label="Cash"
@@ -216,32 +359,28 @@ const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDis
               />
             )}
             {result.effects.timeSpent !== undefined && result.effects.timeSpent > 0 && (
-              <div className="flex items-center justify-between" data-testid="time-spent">
-                <span className="text-gray-700">Time Spent:</span>
-                <span className="font-semibold text-blue-600">
-                  {result.effects.timeSpent} units
-                </span>
-              </div>
+              <EffectItem
+                label="Time"
+                value={-result.effects.timeSpent}
+                suffix="H"
+                testId="time-spent"
+              />
             )}
           </div>
         </div>
       )}
 
       {/* Continue Button */}
-      <div className="flex justify-center pt-4">
-        <button
-          onClick={onDismiss}
-          className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md"
-          data-testid="dismiss-button"
-        >
+      <div style={buttonContainerStyle}>
+        <Button onClick={onDismiss} variant="primary" data-testid="dismiss-button">
           Continue
-        </button>
+        </Button>
       </div>
 
       {/* New Actions (if any) */}
       {result.newActions && result.newActions.length > 0 && (
-        <div className="pt-4 border-t border-gray-200">
-          <h4 className="font-semibold text-gray-800 mb-3">Next Actions:</h4>
+        <div>
+          <div style={effectsTitleStyle}>NEXT ACTIONS:</div>
           <ActionMenu
             actions={result.newActions}
             onActionSelect={() => {}}
@@ -257,20 +396,41 @@ interface EffectItemProps {
   label: string;
   value: number;
   prefix?: string;
+  suffix?: string;
   testId: string;
 }
 
-const EffectItem: React.FC<EffectItemProps> = ({ label, value, prefix = '', testId }) => {
+const EffectItem: React.FC<EffectItemProps> = ({
+  label,
+  value,
+  prefix = '',
+  suffix = '',
+  testId
+}) => {
   const isPositive = value > 0;
-  const color = isPositive ? 'text-green-600' : 'text-red-600';
-  const sign = isPositive ? '+' : '-';
-  const absoluteValue = Math.abs(value);
+  const color = isPositive ? theme.colors.accent.green : theme.colors.accent.red;
+  const sign = isPositive ? '+' : '';
+
+  const containerStyle: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: theme.typography.fontSize.xs,
+  };
+
+  const labelStyle: React.CSSProperties = {
+    color: theme.colors.neutral.black,
+  };
+
+  const valueStyle: React.CSSProperties = {
+    color: color,
+  };
 
   return (
-    <div className="flex items-center justify-between" data-testid={testId}>
-      <span className="text-gray-700">{label}:</span>
-      <span className={`font-semibold ${color}`}>
-        {sign}{prefix}{absoluteValue}
+    <div style={containerStyle} data-testid={testId}>
+      <span style={labelStyle}>{label}:</span>
+      <span style={valueStyle}>
+        {sign}{prefix}{value}{suffix}
       </span>
     </div>
   );

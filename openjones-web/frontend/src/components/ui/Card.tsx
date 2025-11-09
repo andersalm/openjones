@@ -25,9 +25,9 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   const getVariantStyles = (): React.CSSProperties => {
     const baseStyles: React.CSSProperties = {
-      border: '2px solid',
-      borderRadius: theme.borderRadius.md,
-      boxShadow: theme.shadows.retro,
+      border: '4px solid',
+      borderRadius: theme.borderRadius.none,
+      boxShadow: theme.shadows.retro2,
     };
 
     switch (variant) {
@@ -43,13 +43,13 @@ export const Card: React.FC<CardProps> = ({
           ...baseStyles,
           backgroundColor: theme.colors.primary.dark,
           borderColor: theme.colors.accent.gold,
-          color: theme.colors.game.text,
+          color: theme.colors.game.textLight,
         };
       case 'dark':
         return {
           ...baseStyles,
           backgroundColor: theme.colors.game.background,
-          borderColor: theme.colors.primary.main,
+          borderColor: theme.colors.primary.dark,
           color: theme.colors.game.text,
         };
       default:

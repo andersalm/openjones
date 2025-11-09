@@ -203,27 +203,38 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render background layer
+   * Render background layer - Retro DOS/Windows 95 style
    */
   private renderBackground(): void {
-    // Fill with background color
-    this.ctx.fillStyle = '#87CEEB'; // Sky blue
+    // Fill with retro tan/beige background
+    this.ctx.fillStyle = '#D4C4A8'; // Tan background (retro aesthetic)
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Add subtle texture/dither pattern for retro feel
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+    for (let y = 0; y < this.canvas.height; y += 2) {
+      for (let x = (y % 4 === 0 ? 0 : 2); x < this.canvas.width; x += 4) {
+        this.ctx.fillRect(x, y, 1, 1);
+      }
+    }
   }
 
   /**
-   * Render map layer
+   * Render map layer - Retro pixel-perfect grid
    */
   private renderMap(): void {
-    // Basic grid rendering
-    this.ctx.strokeStyle = '#CCCCCC';
-    this.ctx.lineWidth = 1;
+    // Pixel-perfect grid rendering with retro colors
+    this.ctx.strokeStyle = '#A89878'; // Darker tan for grid lines
+    this.ctx.lineWidth = 2; // Thicker lines for retro aesthetic
 
-    const tileSize = 64 * this.pixelScale;
+    const tileSize = 64; // Fixed tile size, no scaling
     const cols = Math.ceil(this.canvas.width / tileSize);
     const rows = Math.ceil(this.canvas.height / tileSize);
 
-    // Draw grid lines
+    // Disable anti-aliasing for crisp pixel edges
+    this.ctx.imageSmoothingEnabled = false;
+
+    // Draw vertical grid lines
     for (let x = 0; x <= cols; x++) {
       this.ctx.beginPath();
       this.ctx.moveTo(x * tileSize, 0);
@@ -231,6 +242,7 @@ export class RenderCoordinator {
       this.ctx.stroke();
     }
 
+    // Draw horizontal grid lines
     for (let y = 0; y <= rows; y++) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, y * tileSize);
@@ -250,35 +262,63 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render players layer
+   * Render players layer - Retro pixel sprites
    */
   private renderPlayers(): void {
-    const tileSize = 64 * this.pixelScale;
+    const tileSize = 64; // Fixed tile size
 
     this.game.players.forEach((player) => {
       const pos = player.state.position;
 
-      // Draw simple player representation
       this.ctx.save();
+      this.ctx.imageSmoothingEnabled = false;
 
-      // Use player color
+      // Calculate pixel-aligned position
+      const centerX = Math.floor(pos.x * tileSize + tileSize / 2);
+      const centerY = Math.floor(pos.y * tileSize + tileSize / 2);
+
+      // Draw player as pixel-perfect square (retro sprite style)
+      const spriteSize = 24;
+      const halfSize = Math.floor(spriteSize / 2);
+
+      // Player body (solid square)
       this.ctx.fillStyle = player.color;
+      this.ctx.fillRect(
+        centerX - halfSize,
+        centerY - halfSize,
+        spriteSize,
+        spriteSize
+      );
 
-      // Draw player as a circle
-      const centerX = pos.x * tileSize + tileSize / 2;
-      const centerY = pos.y * tileSize + tileSize / 2;
-      const radius = tileSize / 4;
+      // Black pixel border for definition
+      this.ctx.strokeStyle = '#000000';
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeRect(
+        centerX - halfSize,
+        centerY - halfSize,
+        spriteSize,
+        spriteSize
+      );
 
-      this.ctx.beginPath();
-      this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Draw player name
+      // Player name (pixel font)
       this.ctx.fillStyle = '#000000';
-      this.ctx.font = `${12 * this.pixelScale}px sans-serif`;
+      this.ctx.font = '8px "Press Start 2P", monospace';
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'top';
-      this.ctx.fillText(player.name, centerX, centerY + radius + 4);
+
+      // Background for name (for readability)
+      const nameWidth = this.ctx.measureText(player.name).width;
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      this.ctx.fillRect(
+        centerX - nameWidth / 2 - 2,
+        centerY + halfSize + 4,
+        nameWidth + 4,
+        10
+      );
+
+      // Name text
+      this.ctx.fillStyle = '#000000';
+      this.ctx.fillText(player.name, centerX, centerY + halfSize + 6);
 
       this.ctx.restore();
     });

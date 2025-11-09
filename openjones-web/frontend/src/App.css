@@ -1,112 +1,133 @@
 /* ============================================
-   App.css - Main application styling
+   App.css - Retro 1990s DOS/Windows 95 Styling
    ============================================ */
 
-/* Root App Container */
+/* Root App Container - Retro Desktop Background */
 .app {
   width: 100vw;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
+  /* Classic teal background like Windows 95 desktop */
+  background: #008080;
+  /* Retro dithered pattern overlay */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.05) 0px,
+      rgba(0, 0, 0, 0.05) 1px,
+      transparent 1px,
+      transparent 2px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.05) 0px,
+      rgba(0, 0, 0, 0.05) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  -webkit-font-smoothing: none;
   -moz-osx-font-smoothing: grayscale;
+  image-rendering: pixelated;
   overflow: hidden;
 }
 
 /* ============================================
-   Main Menu
+   Main Menu - Retro Dialog Style
    ============================================ */
 
 .main-menu {
   max-width: 600px;
   width: 90%;
-  animation: fadeIn 0.5s ease-in;
+  animation: retroFadeIn 0.3s steps(5);
 }
 
 .menu-content {
-  padding: 20px;
+  padding: 16px;
 }
 
 .menu-content h2 {
-  margin: 0 0 10px 0;
-  color: #1f2937;
-  font-size: 24px;
+  margin: 0 0 16px 0;
+  color: #000000;
+  font-size: 16px;
   text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .menu-description {
   text-align: center;
-  color: #6b7280;
-  margin-bottom: 30px;
-  font-size: 16px;
+  color: #000000;
+  margin-bottom: 24px;
+  font-size: 8px;
+  line-height: 1.6;
 }
 
 .menu-form {
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  font-weight: 600;
-  color: #374151;
-  font-size: 14px;
+  font-size: 8px;
+  color: #000000;
+  text-transform: uppercase;
 }
 
 .name-input {
   width: 100%;
-  padding: 12px 16px;
-  font-size: 16px;
-  border: 2px solid #d1d5db;
-  border-radius: 8px;
-  transition: all 0.2s;
+  padding: 8px;
+  font-size: 10px;
+  font-family: 'Press Start 2P', monospace;
+  border: 3px solid #000000;
+  background: #FFFFFF;
+  color: #000000;
   box-sizing: border-box;
+  box-shadow: inset 2px 2px 0px #808080, inset -2px -2px 0px #DFDFDF;
+  image-rendering: pixelated;
 }
 
 .name-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #FFFFCC;
 }
 
 .start-button {
   width: 100%;
-  padding: 14px;
-  font-size: 18px;
-  font-weight: 600;
+  padding: 12px;
+  font-size: 10px;
 }
 
 .menu-info {
-  background: #f3f4f6;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  background: #E0E0E0;
+  padding: 16px;
+  border: 3px solid #000000;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
 }
 
 .menu-info h3 {
   margin: 0 0 12px 0;
-  color: #1f2937;
-  font-size: 18px;
+  color: #000000;
+  font-size: 10px;
 }
 
 .menu-info ul {
   margin: 0;
-  padding-left: 20px;
-  color: #4b5563;
+  padding-left: 16px;
+  color: #000000;
+  font-size: 7px;
+  line-height: 1.8;
 }
 
 .menu-info li {
   margin-bottom: 8px;
-  line-height: 1.5;
 }
 
 /* ============================================
@@ -125,53 +146,24 @@
   flex: 1;
   position: relative;
   overflow: hidden;
-}
-
-/* Game Canvas Placeholder */
-.game-canvas-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to bottom, #1e293b, #0f172a);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
 }
 
-.placeholder-content {
-  text-align: center;
-  padding: 40px;
-  max-width: 800px;
-}
-
-.placeholder-content h2 {
-  font-size: 32px;
-  margin-bottom: 10px;
-  color: #f8fafc;
-}
-
-.placeholder-content p {
-  font-size: 16px;
-  color: #94a3b8;
-  margin-bottom: 40px;
-}
-
-.buildings-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.buildings-grid h3 {
-  grid-column: 1 / -1;
-  font-size: 18px;
-  color: #cbd5e1;
-  margin-bottom: 10px;
+/* Game Canvas - Pixel Perfect */
+.game-canvas {
+  border: 6px solid #000000 !important;
+  display: block !important;
+  background: #D4C4A8 !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  image-rendering: pixelated !important;
+  image-rendering: crisp-edges !important;
+  -ms-interpolation-mode: nearest-neighbor !important;
 }
 
 /* ============================================
-   UI Overlay
+   UI Overlay - HUD and Controls
    ============================================ */
 
 .ui-overlay {
@@ -181,7 +173,7 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  padding: 20px;
+  padding: 16px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -191,40 +183,43 @@
   pointer-events: auto;
 }
 
-/* HUD Panel */
+/* HUD Panel - Compact Corner Display */
 .hud-panel {
   position: absolute;
-  top: 20px;
-  left: 20px;
-  max-width: 320px;
+  top: 16px;
+  left: 16px;
+  max-width: 280px;
   width: 100%;
-  animation: slideInLeft 0.3s ease-out;
+  animation: slideInLeft 0.2s steps(8);
 }
 
-/* Game Controls */
+/* Game Controls - Top Right */
 .game-controls {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 16px;
+  right: 16px;
   display: flex;
-  gap: 10px;
-  animation: slideInRight 0.3s ease-out;
+  gap: 8px;
+  animation: slideInRight 0.2s steps(8);
 }
 
-/* Error Message */
+/* Error Message - Retro Alert Box */
 .error-message {
   position: absolute;
-  bottom: 20px;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background: #dc2626;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  animation: slideUp 0.3s ease-out;
+  background: #C0C0C0;
+  color: #000000;
+  padding: 12px 20px;
+  border: 4px solid #000000;
+  box-shadow: 4px 4px 0px #000000;
+  animation: blinkAlert 0.5s steps(2) infinite;
   z-index: 1000;
-  font-weight: 500;
+  font-size: 8px;
+  text-transform: uppercase;
+  max-width: 400px;
+  text-align: center;
 }
 
 /* ============================================
@@ -235,205 +230,245 @@
 .defeat-screen {
   max-width: 600px;
   width: 90%;
-  animation: fadeIn 0.5s ease-in, scaleIn 0.5s ease-out;
+  animation: retroFadeIn 0.3s steps(5), retroScale 0.3s steps(5);
 }
 
 .victory-content,
 .defeat-content {
-  padding: 40px;
+  padding: 32px;
   text-align: center;
 }
 
 .victory-icon,
 .defeat-icon {
-  font-size: 80px;
-  margin-bottom: 20px;
-  animation: bounce 1s ease-in-out;
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: retroBounce 0.5s steps(4);
+  filter: contrast(1.2);
 }
 
 .victory-content h2,
 .defeat-content h2 {
-  font-size: 32px;
-  margin: 0 0 15px 0;
-  color: #1f2937;
+  font-size: 20px;
+  margin: 0 0 16px 0;
+  color: #000000;
+  text-transform: uppercase;
 }
 
 .victory-message,
 .defeat-message {
-  font-size: 18px;
-  color: #6b7280;
-  margin-bottom: 30px;
-  line-height: 1.6;
+  font-size: 8px;
+  color: #000000;
+  margin-bottom: 24px;
+  line-height: 1.8;
 }
 
 .victory-stats,
 .defeat-stats {
-  background: #f3f4f6;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  border: 1px solid #e5e7eb;
+  background: #E0E0E0;
+  padding: 16px;
+  border: 3px solid #000000;
+  margin-bottom: 24px;
+  box-shadow: inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080;
 }
 
 .victory-stats p,
 .defeat-stats p {
   margin: 8px 0;
-  color: #4b5563;
-  font-size: 16px;
+  color: #000000;
+  font-size: 8px;
+  line-height: 1.6;
 }
 
 .victory-stats strong,
 .defeat-stats strong {
-  color: #1f2937;
+  color: #000000;
+  text-transform: uppercase;
 }
 
 .victory-content button,
 .defeat-content button {
-  min-width: 200px;
-  padding: 14px 28px;
-  font-size: 18px;
-  font-weight: 600;
+  min-width: 180px;
+  padding: 12px 24px;
+  font-size: 10px;
 }
 
 /* ============================================
-   Animations
+   Retro Animations - Stepped, Not Smooth
    ============================================ */
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+@keyframes retroFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
-@keyframes scaleIn {
-  from {
-    transform: scale(0.9);
-  }
-  to {
-    transform: scale(1);
-  }
+@keyframes retroScale {
+  0% { transform: scale(0.85); }
+  100% { transform: scale(1); }
 }
 
 @keyframes slideInLeft {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(0); }
 }
 
 @keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(0); }
 }
 
-@keyframes slideUp {
-  from {
-    transform: translateX(-50%) translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
+@keyframes retroBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
-@keyframes bounce {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
+@keyframes blinkAlert {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.7; }
 }
 
 /* ============================================
-   Responsive Design
+   Utility Classes for Retro Styling
+   ============================================ */
+
+/* Remove any Tailwind-like classes that might still exist */
+.space-y-4 > * + * {
+  margin-top: 16px;
+}
+
+.space-y-3 > * + * {
+  margin-top: 12px;
+}
+
+/* Text utilities */
+.text-sm {
+  font-size: 8px;
+}
+
+.text-xs {
+  font-size: 7px;
+}
+
+.text-base {
+  font-size: 10px;
+}
+
+.text-3xl {
+  font-size: 16px;
+}
+
+.font-semibold,
+.font-bold {
+  /* Press Start 2P has no weights, ignore */
+  font-weight: 400;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.tracking-wide {
+  letter-spacing: 0.05em;
+}
+
+/* Color utilities - Use retro palette */
+.text-gray-600,
+.text-gray-700,
+.text-gray-800,
+.text-gray-500 {
+  color: #000000;
+}
+
+.text-green-600 {
+  color: #00FF00;
+}
+
+.text-white {
+  color: #FFFFFF;
+}
+
+/* Border utilities */
+.border-t-2,
+.border-b-2 {
+  border-top: 2px solid #000000;
+  border-bottom: 2px solid #000000;
+}
+
+.border-gray-300 {
+  border-color: #808080;
+}
+
+/* Flex utilities */
+.flex {
+  display: flex;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.items-center {
+  align-items: center;
+}
+
+/* ============================================
+   Responsive Design - Maintain Pixel Perfect
    ============================================ */
 
 @media (max-width: 768px) {
   .hud-panel {
-    max-width: 280px;
+    max-width: 240px;
   }
 
   .game-controls {
     flex-direction: column;
   }
 
-  .placeholder-content h2 {
-    font-size: 24px;
-  }
-
-  .victory-content,
-  .defeat-content {
-    padding: 30px 20px;
+  .menu-content h2 {
+    font-size: 14px;
   }
 
   .victory-icon,
   .defeat-icon {
-    font-size: 60px;
+    font-size: 48px;
   }
 
   .victory-content h2,
   .defeat-content h2 {
-    font-size: 24px;
-  }
-
-  .buildings-grid {
-    grid-template-columns: 1fr;
+    font-size: 16px;
   }
 }
 
 @media (max-width: 480px) {
   .ui-overlay {
-    padding: 10px;
+    padding: 8px;
   }
 
   .hud-panel {
-    top: 10px;
-    left: 10px;
-    max-width: calc(100% - 20px);
+    top: 8px;
+    left: 8px;
+    max-width: calc(100% - 16px);
   }
 
   .game-controls {
     top: auto;
-    bottom: 10px;
-    right: 10px;
-    left: 10px;
+    bottom: 8px;
+    right: 8px;
+    left: 8px;
     flex-direction: row;
     justify-content: space-between;
+  }
+
+  .game-canvas {
+    max-width: 100%;
+    height: auto;
   }
 }
 
 /* ============================================
-   Utility Classes
+   Hidden Utility
    ============================================ */
 
 .hidden {
   display: none;
-}
-
-.fade-out {
-  animation: fadeOut 0.3s ease-out forwards;
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
 }
