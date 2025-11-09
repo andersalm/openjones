@@ -9,7 +9,7 @@ export interface VictoryProgressProps {
 }
 
 /**
- * VictoryProgress component - displays progress toward victory conditions
+ * Modern VictoryProgress - shows victory goals with style
  */
 export const VictoryProgress: React.FC<VictoryProgressProps> = ({
   victoryConditions,
@@ -20,19 +20,34 @@ export const VictoryProgress: React.FC<VictoryProgressProps> = ({
   const allAchieved = achievedCount === totalCount && totalCount > 0;
 
   return (
-    <div className={`victory-progress ${className}`} data-testid="victory-progress">
-      <div className="mb-3">
-        <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-          Victory Conditions
-        </h3>
-        <div className="text-xs text-gray-600">
-          {achievedCount} of {totalCount} completed
-          {allAchieved && (
-            <span className="ml-2 text-green-600 font-bold" data-testid="victory-achieved">
-              🎉 Victory!
-            </span>
-          )}
+    <div
+      className={`victory-progress bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl p-5 shadow-xl ${className}`}
+      data-testid="victory-progress"
+      style={{
+        boxShadow: '0 8px 24px rgba(245, 158, 11, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+      }}
+    >
+      <div className="mb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🏆</span>
+            <h3 className="text-sm font-black text-white uppercase tracking-wider" style={{textShadow: '0 1px 3px rgba(0, 0, 0, 0.3)'}}>
+              Victory Goals
+            </h3>
+          </div>
+          <div className="text-amber-100 text-xs font-bold">
+            {achievedCount}/{totalCount}
+          </div>
         </div>
+        {allAchieved && (
+          <div
+            className="mt-2 text-white font-black text-sm"
+            data-testid="victory-achieved"
+            style={{textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'}}
+          >
+            🎉 All Goals Complete!
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -46,45 +61,48 @@ export const VictoryProgress: React.FC<VictoryProgressProps> = ({
             <div
               key={condition.id}
               className={`
-                border-2 rounded p-2 transition-all
+                rounded-lg p-3 transition-all backdrop-blur-sm
                 ${
                   condition.isAchieved
-                    ? 'border-green-500 bg-green-50'
-                    : 'border-gray-300 bg-white'
+                    ? 'bg-white/30'
+                    : 'bg-white/10'
                 }
               `}
+              style={{
+                boxShadow: condition.isAchieved ? '0 0 12px rgba(255, 255, 255, 0.3)' : 'none'
+              }}
               data-testid={`victory-condition-${condition.id}`}
             >
-              <div className="flex justify-between items-start mb-1">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-gray-800">
-                      {condition.name}
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="text-xs font-bold text-white">
+                    {condition.name}
+                  </span>
+                  {condition.isAchieved && (
+                    <span
+                      className="text-white text-base"
+                      data-testid={`achieved-badge-${condition.id}`}
+                    >
+                      ✓
                     </span>
-                    {condition.isAchieved && (
-                      <span
-                        className="text-green-600 text-xs"
-                        data-testid={`achieved-badge-${condition.id}`}
-                      >
-                        ✓
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-600">{condition.description}</div>
+                  )}
                 </div>
-                <div className="text-xs text-gray-600 ml-2" data-testid={`progress-${condition.id}`}>
+                <div className="text-xs text-amber-100 font-semibold ml-2" data-testid={`progress-${condition.id}`}>
                   {condition.currentValue.toLocaleString()}/
                   {condition.targetValue.toLocaleString()}
                 </div>
               </div>
 
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-white/20 rounded-full h-1.5 overflow-hidden">
                 <div
                   className={`
-                    h-full transition-all duration-300
-                    ${condition.isAchieved ? 'bg-green-500' : 'bg-blue-500'}
+                    h-full transition-all duration-500 rounded-full
+                    ${condition.isAchieved ? 'bg-white' : 'bg-amber-200'}
                   `}
-                  style={{ width: `${progress}%` }}
+                  style={{
+                    width: `${progress}%`,
+                    boxShadow: progress > 0 ? '0 0 8px rgba(255, 255, 255, 0.5)' : 'none'
+                  }}
                   data-testid={`progress-bar-${condition.id}`}
                   role="progressbar"
                   aria-valuenow={condition.currentValue}

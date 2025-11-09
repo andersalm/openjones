@@ -1,6 +1,5 @@
 import React from 'react';
 import { IPlayerState, IVictoryCondition } from '../../../../shared/types';
-import { Panel } from '../ui/Panel';
 import { StatBar } from './StatBar';
 import { VictoryProgress } from './VictoryProgress';
 
@@ -20,14 +19,7 @@ export interface PlayerStatsHUDProps {
 }
 
 /**
- * PlayerStatsHUD component - Main HUD for displaying player stats
- *
- * Displays:
- * - Cash
- * - Health, Happiness, Education, Career stats as bars
- * - Current week number
- * - Time remaining (converted to hours and minutes)
- * - Victory condition progress
+ * Modern PlayerStatsHUD - Game-style HUD with cards and gradients
  */
 export const PlayerStatsHUD: React.FC<PlayerStatsHUDProps> = ({
   playerState,
@@ -37,112 +29,160 @@ export const PlayerStatsHUD: React.FC<PlayerStatsHUDProps> = ({
   className = '',
   showVictoryProgress = true,
 }) => {
-  // Convert time remaining to hours and minutes
-  // Assuming 1 game unit = 1 hour for simplicity
-  const hours = Math.floor(timeRemaining);
-  const minutes = Math.round((timeRemaining % 1) * 60);
+  // Convert time remaining to hours (5 units = 1 hour per Java)
+  const hours = Math.floor(timeRemaining / 5);
 
   // Format cash with proper currency formatting
   const formatCash = (amount: number): string => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
   return (
-    <Panel title="Player Stats" variant="default" className={className}>
-      <div className="space-y-4" data-testid="player-stats-hud">
-        {/* Cash Display */}
-        <div className="cash-display" data-testid="cash-display">
-          <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
-            Cash
-          </div>
-          <div className="text-3xl font-bold text-green-600" data-testid="cash-amount">
-            {formatCash(playerState.cash)}
+    <div className={`space-y-3 ${className}`} data-testid="player-stats-hud">
+      {/* Cash Card - Eye-catching green gradient */}
+      <div
+        className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl p-5 shadow-xl"
+        style={{
+          boxShadow: '0 8px 24px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+        }}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">
+              💰 Cash
+            </div>
+            <div
+              className="text-3xl font-black text-white"
+              data-testid="cash-amount"
+              style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.2)' }}
+            >
+              {formatCash(playerState.cash)}
+            </div>
           </div>
           {playerState.job && (
-            <div className="text-xs text-gray-500 mt-1" data-testid="weekly-income">
-              Weekly Income: {formatCash(playerState.job.wagePerHour * 40)}
+            <div className="text-right">
+              <div className="text-emerald-100 text-xs font-semibold">Weekly</div>
+              <div
+                className="text-lg font-bold text-white"
+                data-testid="weekly-income"
+                style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.2)' }}
+              >
+                +{formatCash(playerState.job.wagePerHour * 40)}
+              </div>
             </div>
           )}
         </div>
+      </div>
 
-        {/* Job Display */}
-        {playerState.job && (
-          <div className="job-display" data-testid="job-display">
-            <div className="text-sm font-semibold text-gray-600">Current Job</div>
-            <div className="text-base text-gray-800" data-testid="current-job">
-              {playerState.job.title}
+      {/* Job Card - if employed */}
+      {playerState.job && (
+        <div
+          className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl p-4 shadow-lg"
+          style={{
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div className="text-2xl">💼</div>
+            <div>
+              <div className="text-slate-300 text-xs font-semibold">Current Job</div>
+              <div
+                className="text-white font-bold text-base"
+                data-testid="current-job"
+                style={{ textShadow: '0 1px 3px rgba(0, 0, 0, 0.3)' }}
+              >
+                {playerState.job.title}
+              </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Divider */}
-        <div className="border-t-2 border-gray-300" />
-
-        {/* Stat Bars */}
-        <div className="stats-bars space-y-3" data-testid="stats-bars">
+      {/* Stats Card - dark background with colorful bars */}
+      <div
+        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5 shadow-xl"
+        style={{
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
+        }}
+      >
+        <div className="space-y-3" data-testid="stats-bars">
           <StatBar
             label="Health"
             value={playerState.health}
             maxValue={100}
             color="red"
+            icon="❤️"
           />
           <StatBar
             label="Happiness"
             value={playerState.happiness}
             maxValue={100}
             color="yellow"
+            icon="😊"
           />
           <StatBar
             label="Education"
             value={playerState.education}
             maxValue={100}
             color="blue"
+            icon="📚"
           />
           <StatBar
             label="Career"
             value={playerState.career}
             maxValue={100}
             color="purple"
+            icon="📈"
           />
         </div>
+      </div>
 
-        {/* Divider */}
-        <div className="border-t-2 border-gray-300" />
-
-        {/* Time Info */}
-        <div className="time-info" data-testid="time-info">
-          <div className="flex justify-between items-center text-sm">
+      {/* Time Info Card - purple gradient */}
+      <div
+        className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl p-4 shadow-lg"
+        style={{
+          boxShadow: '0 4px 16px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+        }}
+      >
+        <div className="flex justify-between items-center" data-testid="time-info">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">📅</span>
             <div>
-              <span className="font-semibold text-gray-700">Week:</span>
-              <span className="ml-2 text-gray-800" data-testid="current-week">
+              <div className="text-indigo-200 text-xs font-semibold">Week</div>
+              <div
+                className="text-white text-xl font-black"
+                data-testid="current-week"
+                style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}
+              >
                 {currentWeek}
-              </span>
-            </div>
-            <div>
-              <span className="font-semibold text-gray-700">Time:</span>
-              <span className="ml-2 text-gray-800" data-testid="time-remaining">
-                {hours}h {minutes}m
-              </span>
+              </div>
             </div>
           </div>
-          <div className="text-xs text-gray-500 mt-1">
-            {timeRemaining.toFixed(1)} units remaining
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">⏰</span>
+            <div className="text-right">
+              <div className="text-indigo-200 text-xs font-semibold">Time Left</div>
+              <div
+                className="text-white text-xl font-black"
+                data-testid="time-remaining"
+                style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}
+              >
+                {hours}h
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Victory Progress */}
-        {showVictoryProgress && victoryConditions.length > 0 && (
-          <>
-            <div className="border-t-2 border-gray-300" />
-            <VictoryProgress victoryConditions={victoryConditions} />
-          </>
-        )}
       </div>
-    </Panel>
+
+      {/* Victory Progress */}
+      {showVictoryProgress && victoryConditions.length > 0 && (
+        <VictoryProgress victoryConditions={victoryConditions} />
+      )}
+    </div>
   );
 };
