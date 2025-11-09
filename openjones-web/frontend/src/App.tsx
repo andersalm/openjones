@@ -212,9 +212,20 @@ export function App() {
         return;
       }
 
-      // Set canvas size
-      canvas.width = 800;
-      canvas.height = 600;
+      // Set canvas size to be larger and use more screen space
+      // Use a larger canvas that fills most of the viewport
+      const containerWidth = window.innerWidth;
+      const containerHeight = window.innerHeight;
+
+      // Calculate canvas size to fill most of the screen while maintaining aspect ratio
+      // Leave room for HUD on the side
+      const maxWidth = Math.min(containerWidth - 400, 1280); // Leave 400px for HUD
+      const maxHeight = containerHeight - 100; // Leave 100px for padding
+
+      // Use the smaller dimension to maintain aspect ratio
+      const size = Math.min(maxWidth, maxHeight);
+      canvas.width = size;
+      canvas.height = size;
 
       // Create RenderCoordinator
       const renderCoordinator = new RenderCoordinator({

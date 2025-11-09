@@ -212,33 +212,35 @@ export class RenderCoordinator {
    * Render background layer - Retro DOS/Windows 95 style
    */
   private renderBackground(): void {
-    // Fill with retro tan/beige background
-    this.ctx.fillStyle = '#D4C4A8'; // Tan background (retro aesthetic)
+    // Fill with solid retro tan/beige background
+    this.ctx.fillStyle = '#D4C4A8';
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-    // Add subtle texture/dither pattern for retro feel
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
-    for (let y = 0; y < this.canvas.height; y += 2) {
-      for (let x = (y % 4 === 0 ? 0 : 2); x < this.canvas.width; x += 4) {
-        this.ctx.fillRect(x, y, 1, 1);
-      }
-    }
   }
 
   /**
    * Render map layer - Retro pixel-perfect grid
    */
   private renderMap(): void {
-    // Pixel-perfect grid rendering with retro colors
-    this.ctx.strokeStyle = '#A89878'; // Darker tan for grid lines
-    this.ctx.lineWidth = 2; // Thicker lines for retro aesthetic
-
     const tileSize = 64; // Fixed tile size, no scaling
     const cols = Math.ceil(this.canvas.width / tileSize);
     const rows = Math.ceil(this.canvas.height / tileSize);
 
     // Disable anti-aliasing for crisp pixel edges
     this.ctx.imageSmoothingEnabled = false;
+
+    // Draw alternating checkerboard pattern for depth
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        // Checkerboard pattern
+        const isLight = (x + y) % 2 === 0;
+        this.ctx.fillStyle = isLight ? '#D4C4A8' : '#C8BCA0';
+        this.ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+      }
+    }
+
+    // Draw grid lines on top for clarity
+    this.ctx.strokeStyle = '#8B7355'; // Darker brown for better visibility
+    this.ctx.lineWidth = 1;
 
     // Draw vertical grid lines
     for (let x = 0; x <= cols; x++) {
@@ -268,29 +270,61 @@ export class RenderCoordinator {
       console.warn('No buildings to render!');
     }
 
+    // Get player positions for highlighting
+    const playerPositions = this.game.players.map(p => ({ x: p.state.position.x, y: p.state.position.y }));
+
     buildings.forEach((building) => {
       const pos = building.position;
       const x = pos.x * tileSize;
       const y = pos.y * tileSize;
 
-      // Draw building as a colored rectangle
+      // Check if any player is on this building
+      const isPlayerOnBuilding = playerPositions.some(p => p.x === pos.x && p.y === pos.y);
+
+      // Draw building background
       this.ctx.fillStyle = this.getBuildingColor(building.type);
       this.ctx.fillRect(x, y, tileSize, tileSize);
 
-      // Draw building border
-      this.ctx.strokeStyle = '#000000';
-      this.ctx.lineWidth = 2;
-      this.ctx.strokeRect(x, y, tileSize, tileSize);
+      // Draw building border - thicker and yellow if player is on it
+      if (isPlayerOnBuilding) {
+        // Yellow highlight border
+        this.ctx.strokeStyle = '#FFFF00';
+        this.ctx.lineWidth = 6;
+        this.ctx.strokeRect(x, y, tileSize, tileSize);
 
-      // Draw building name
+        // Add pulsing effect with double border
+        this.ctx.strokeStyle = '#FFD700';
+        this.ctx.lineWidth = 4;
+        this.ctx.strokeRect(x + 3, y + 3, tileSize - 6, tileSize - 6);
+      } else {
+        // Normal black border
+        this.ctx.strokeStyle = '#000000';
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeRect(x, y, tileSize, tileSize);
+      }
+
+      // Draw building name with better contrast
+      this.ctx.save();
+
+      // Background for text
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      this.ctx.fillRect(x + 4, y + tileSize - 20, tileSize - 8, 16);
+
+      // Building name in white
       this.ctx.fillStyle = '#FFFFFF';
-      this.ctx.font = '10px Arial';
+      this.ctx.font = 'bold 8px "Press Start 2P", monospace';
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
-      const lines = this.wrapText(building.name, tileSize - 10);
-      lines.forEach((line, index) => {
-        this.ctx.fillText(line, x + tileSize / 2, y + tileSize / 2 + (index - lines.length / 2 + 0.5) * 12);
-      });
+
+      // Truncate long names
+      let displayName = building.name;
+      if (displayName.length > 12) {
+        displayName = displayName.substring(0, 10) + '...';
+      }
+
+      this.ctx.fillText(displayName, x + tileSize / 2, y + tileSize - 12);
+
+      this.ctx.restore();
     });
   }
 
