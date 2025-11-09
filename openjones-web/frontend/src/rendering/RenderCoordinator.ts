@@ -218,29 +218,39 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render map layer - Retro pixel-perfect grid (5x5 like Java version)
+   * Render map layer - Professional retro grid (5x5 like Java version)
    */
   private renderMap(): void {
-    const tileSize = 100; // 5x5 grid = 500x500 canvas
+    const tileSize = 100;
     const cols = 5;
     const rows = 5;
 
-    // Disable anti-aliasing for crisp pixel edges
     this.ctx.imageSmoothingEnabled = false;
 
-    // Draw simple grid background (no checkerboard, simpler look)
+    // Draw tiles with subtle gradient for depth
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
-        this.ctx.fillStyle = '#A89878'; // Slightly darker tan
-        this.ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+        const tx = x * tileSize;
+        const ty = y * tileSize;
+
+        // Subtle gradient on each tile
+        const gradient = this.ctx.createLinearGradient(tx, ty, tx + tileSize, ty + tileSize);
+        gradient.addColorStop(0, '#C4B8A0');
+        gradient.addColorStop(1, '#A89878');
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(tx, ty, tileSize, tileSize);
+
+        // Add subtle inner shadow effect
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        this.ctx.fillRect(tx, ty, tileSize, 3);
+        this.ctx.fillRect(tx, ty, 3, tileSize);
       }
     }
 
-    // Draw grid lines with thicker borders
-    this.ctx.strokeStyle = '#000000'; // Black for clear definition
-    this.ctx.lineWidth = 2;
+    // Draw grid lines
+    this.ctx.strokeStyle = '#000000';
+    this.ctx.lineWidth = 3;
 
-    // Draw vertical grid lines
     for (let x = 0; x <= cols; x++) {
       this.ctx.beginPath();
       this.ctx.moveTo(x * tileSize, 0);
@@ -248,7 +258,6 @@ export class RenderCoordinator {
       this.ctx.stroke();
     }
 
-    // Draw horizontal grid lines
     for (let y = 0; y <= rows; y++) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, y * tileSize);
@@ -258,17 +267,16 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render buildings layer
+   * Render buildings layer with professional graphics
    */
   private renderBuildings(): void {
-    const tileSize = 100; // Match 5x5 grid
+    const tileSize = 100;
     const buildings = this.game.map.getAllBuildings();
 
     if (buildings.length === 0) {
       console.warn('No buildings to render!');
     }
 
-    // Get player positions for highlighting
     const playerPositions = this.game.players.map(p => ({ x: p.state.position.x, y: p.state.position.y }));
 
     buildings.forEach((building) => {
@@ -276,78 +284,204 @@ export class RenderCoordinator {
       const x = pos.x * tileSize;
       const y = pos.y * tileSize;
 
-      // Check if any player is on this building
       const isPlayerOnBuilding = playerPositions.some(p => p.x === pos.x && p.y === pos.y);
 
-      // Add some padding so buildings don't fill entire tile
-      const padding = 6;
-      const buildingX = x + padding;
-      const buildingY = y + padding;
-      const buildingSize = tileSize - (padding * 2);
+      const padding = 8;
+      const bx = x + padding;
+      const by = y + padding;
+      const bw = tileSize - (padding * 2);
+      const bh = tileSize - (padding * 2);
 
-      // Draw building background
-      this.ctx.fillStyle = this.getBuildingColor(building.type);
-      this.ctx.fillRect(buildingX, buildingY, buildingSize, buildingSize);
-
-      // Draw building border - thicker and yellow if player is on it
-      if (isPlayerOnBuilding) {
-        // Yellow highlight border
-        this.ctx.strokeStyle = '#FFFF00';
-        this.ctx.lineWidth = 5;
-        this.ctx.strokeRect(buildingX, buildingY, buildingSize, buildingSize);
-
-        // Add pulsing effect with double border
-        this.ctx.strokeStyle = '#FFD700';
-        this.ctx.lineWidth = 3;
-        this.ctx.strokeRect(buildingX + 4, buildingY + 4, buildingSize - 8, buildingSize - 8);
-      } else {
-        // Normal black border
-        this.ctx.strokeStyle = '#000000';
-        this.ctx.lineWidth = 3;
-        this.ctx.strokeRect(buildingX, buildingY, buildingSize, buildingSize);
-      }
-
-      // Draw building name with better contrast
       this.ctx.save();
 
-      // Background for text
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-      this.ctx.fillRect(buildingX + 4, buildingY + buildingSize - 24, buildingSize - 8, 20);
+      // Get building style
+      const style = this.getBuildingStyle(building.type);
 
-      // Building name in white
+      // Draw building with gradient
+      const gradient = this.ctx.createLinearGradient(bx, by, bx, by + bh);
+      gradient.addColorStop(0, style.colorTop);
+      gradient.addColorStop(1, style.colorBottom);
+      this.ctx.fillStyle = gradient;
+      this.ctx.fillRect(bx, by, bw, bh);
+
+      // Add building details (windows, doors, etc)
+      this.drawBuildingDetails(bx, by, bw, bh, building.type);
+
+      // Draw border with highlight if player is on it
+      if (isPlayerOnBuilding) {
+        this.ctx.strokeStyle = '#FFFF00';
+        this.ctx.lineWidth = 6;
+        this.ctx.strokeRect(bx, by, bw, bh);
+        this.ctx.strokeStyle = '#FFA500';
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeRect(bx + 3, by + 3, bw - 6, bh - 6);
+      } else {
+        // Outer dark border
+        this.ctx.strokeStyle = '#000000';
+        this.ctx.lineWidth = 4;
+        this.ctx.strokeRect(bx, by, bw, bh);
+        // Inner light highlight for 3D effect
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(bx + 2, by + 2, bw - 4, bh - 4);
+      }
+
+      // Draw building name on nameplate
+      const namePlateHeight = 22;
+      const namePlateY = by + bh - namePlateHeight - 4;
+
+      // Nameplate background with gradient
+      const nameGrad = this.ctx.createLinearGradient(bx, namePlateY, bx, namePlateY + namePlateHeight);
+      nameGrad.addColorStop(0, 'rgba(0, 0, 0, 0.9)');
+      nameGrad.addColorStop(1, 'rgba(0, 0, 0, 0.7)');
+      this.ctx.fillStyle = nameGrad;
+      this.ctx.fillRect(bx + 4, namePlateY, bw - 8, namePlateHeight);
+
+      // Nameplate border
+      this.ctx.strokeStyle = style.accentColor;
+      this.ctx.lineWidth = 2;
+      this.ctx.strokeRect(bx + 4, namePlateY, bw - 8, namePlateHeight);
+
+      // Building name text
       this.ctx.fillStyle = '#FFFFFF';
-      this.ctx.font = 'bold 9px "Press Start 2P", monospace';
+      this.ctx.font = 'bold 8px "Press Start 2P", monospace';
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
 
-      // Truncate long names
       let displayName = building.name;
-      if (displayName.length > 10) {
-        displayName = displayName.substring(0, 8) + '..';
+      if (displayName.length > 11) {
+        displayName = displayName.substring(0, 9) + '..';
       }
 
-      this.ctx.fillText(displayName, x + tileSize / 2, buildingY + buildingSize - 14);
+      this.ctx.fillText(displayName, x + tileSize / 2, namePlateY + namePlateHeight / 2);
 
       this.ctx.restore();
     });
   }
 
   /**
-   * Get color for building type
+   * Draw building-specific details like windows, doors, etc
    */
-  private getBuildingColor(type: string): string {
-    const colors: Record<string, string> = {
-      'EMPLOYMENT_AGENCY': '#4A90E2',
-      'FACTORY': '#8B4513',
-      'BANK': '#FFD700',
-      'COLLEGE': '#9370DB',
-      'CLOTHES_STORE': '#FF69B4',
-      'RESTAURANT': '#FF6347',
-      'RENT_AGENCY': '#32CD32',
-      'LOW_COST_APARTMENT': '#A9A9A9',
-      'SECURITY_APARTMENT': '#708090',
+  private drawBuildingDetails(x: number, y: number, w: number, h: number, type: string): void {
+    this.ctx.save();
+
+    const windowSize = 6;
+    const windowSpacing = 10;
+
+    switch (type) {
+      case 'EMPLOYMENT_AGENCY':
+      case 'FACTORY':
+      case 'BANK':
+      case 'COLLEGE':
+        // Draw windows in a grid
+        for (let row = 0; row < 3; row++) {
+          for (let col = 0; col < 3; col++) {
+            const wx = x + 15 + col * windowSpacing;
+            const wy = y + 12 + row * windowSpacing;
+            this.ctx.fillStyle = 'rgba(255, 255, 200, 0.6)';
+            this.ctx.fillRect(wx, wy, windowSize, windowSize);
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(wx, wy, windowSize, windowSize);
+          }
+        }
+        break;
+
+      case 'RESTAURANT':
+      case 'CLOTHES_STORE':
+        // Draw storefront door
+        const doorW = 18;
+        const doorH = 28;
+        const doorX = x + (w - doorW) / 2;
+        const doorY = y + h - doorH - 30;
+        this.ctx.fillStyle = 'rgba(101, 67, 33, 0.8)';
+        this.ctx.fillRect(doorX, doorY, doorW, doorH);
+        this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(doorX, doorY, doorW, doorH);
+
+        // Door handle
+        this.ctx.fillStyle = '#FFD700';
+        this.ctx.fillRect(doorX + doorW - 6, doorY + doorH / 2, 3, 5);
+        break;
+
+      case 'LOW_COST_APARTMENT':
+      case 'SECURITY_APARTMENT':
+      case 'RENT_AGENCY':
+        // Draw apartment windows
+        for (let row = 0; row < 4; row++) {
+          for (let col = 0; col < 2; col++) {
+            const wx = x + 20 + col * 20;
+            const wy = y + 8 + row * 12;
+            this.ctx.fillStyle = row % 2 === col % 2 ? 'rgba(255, 255, 150, 0.7)' : 'rgba(100, 150, 255, 0.3)';
+            this.ctx.fillRect(wx, wy, 10, 8);
+            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(wx, wy, 10, 8);
+          }
+        }
+        break;
+    }
+
+    this.ctx.restore();
+  }
+
+  /**
+   * Get visual style for building type with gradients
+   */
+  private getBuildingStyle(type: string): { colorTop: string; colorBottom: string; accentColor: string } {
+    const styles: Record<string, { colorTop: string; colorBottom: string; accentColor: string }> = {
+      'EMPLOYMENT_AGENCY': {
+        colorTop: '#5BA3E8',
+        colorBottom: '#3A7BC8',
+        accentColor: '#87CEEB',
+      },
+      'FACTORY': {
+        colorTop: '#A0522D',
+        colorBottom: '#6B3410',
+        accentColor: '#CD853F',
+      },
+      'BANK': {
+        colorTop: '#FFE44D',
+        colorBottom: '#D4AF37',
+        accentColor: '#FFD700',
+      },
+      'COLLEGE': {
+        colorTop: '#B294E8',
+        colorBottom: '#7B5DB8',
+        accentColor: '#DDA0DD',
+      },
+      'CLOTHES_STORE': {
+        colorTop: '#FF8ACC',
+        colorBottom: '#E85AA0',
+        accentColor: '#FFB6D9',
+      },
+      'RESTAURANT': {
+        colorTop: '#FF7A5C',
+        colorBottom: '#E8553A',
+        accentColor: '#FFA07A',
+      },
+      'RENT_AGENCY': {
+        colorTop: '#4AE864',
+        colorBottom: '#2AAA3F',
+        accentColor: '#90EE90',
+      },
+      'LOW_COST_APARTMENT': {
+        colorTop: '#BEBEBE',
+        colorBottom: '#888888',
+        accentColor: '#D3D3D3',
+      },
+      'SECURITY_APARTMENT': {
+        colorTop: '#8FA9B8',
+        colorBottom: '#5E7A8A',
+        accentColor: '#B0C4DE',
+      },
     };
-    return colors[type] || '#666666';
+    return styles[type] || {
+      colorTop: '#888888',
+      colorBottom: '#555555',
+      accentColor: '#AAAAAA',
+    };
   }
 
   /**
