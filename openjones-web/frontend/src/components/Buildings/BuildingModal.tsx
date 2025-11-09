@@ -79,40 +79,35 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
     >
       <div
         className={`
-          bg-gradient-to-br from-slate-50 to-slate-100
-          rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[85vh] overflow-hidden
-          transform transition-all duration-300
+          bg-[#0f0f14] border border-white/[0.12]
+          rounded-lg max-w-2xl w-full mx-4 max-h-[85vh] overflow-hidden
+          transform transition-all duration-200
           ${isAnimating ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}
           ${className}
         `}
         style={{
-          border: '3px solid rgba(51, 65, 85, 0.3)',
-          boxShadow: '0 25px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)'
         }}
         onClick={(e) => e.stopPropagation()}
         data-testid="building-modal"
       >
-        {/* Modern Header with Gradient */}
+        {/* Clean Header */}
         <div
-          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-7 py-5 flex items-center justify-between"
-          style={{
-            borderBottom: '2px solid rgba(255, 255, 255, 0.1)',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-          }}
+          className="bg-white/[0.05] text-white px-6 py-4 flex items-center justify-between border-b border-white/[0.12]"
         >
           <div>
-            <h2 className="text-3xl font-bold tracking-tight" data-testid="building-name">
+            <h2 className="text-2xl font-semibold" data-testid="building-name">
               {building.name}
             </h2>
             {building.description && (
-              <p className="text-blue-100 text-sm mt-1.5 font-medium" data-testid="building-description">
+              <p className="text-gray-400 text-sm mt-1" data-testid="building-description">
                 {building.description}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-white hover:text-blue-200 hover:bg-white/10 transition-all text-4xl font-bold leading-none w-12 h-12 flex items-center justify-center rounded-lg"
+            className="text-gray-400 hover:text-white hover:bg-white/[0.08] transition-colors text-2xl leading-none w-8 h-8 flex items-center justify-center rounded"
             aria-label="Close modal"
             data-testid="close-button"
           >
@@ -120,14 +115,14 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
           </button>
         </div>
 
-        {/* Content with Better Spacing */}
-        <div className="p-7 overflow-y-auto max-h-[65vh]">
+        {/* Content */}
+        <div className="p-6 overflow-y-auto max-h-[65vh]">
           {actionResult ? (
             <ActionResultDisplay result={actionResult} onDismiss={() => onActionSelect('')} />
           ) : (
             <div>
-              <h3 className="text-xl font-bold text-slate-800 mb-5 tracking-tight">
-                What would you like to do?
+              <h3 className="text-sm font-medium text-gray-400 mb-4 uppercase tracking-wide">
+                Available Actions
               </h3>
               <ActionMenu
                 actions={(building as any).actions || []}
@@ -138,21 +133,21 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
           )}
         </div>
 
-        {/* Modern Footer with Keyboard Hints */}
+        {/* Clean Footer */}
         <div
-          className="bg-gradient-to-br from-slate-100 to-slate-200 px-7 py-4 flex justify-between items-center text-sm text-slate-600 border-t-2 border-slate-300/50"
+          className="bg-white/[0.03] px-6 py-3 flex justify-between items-center text-xs text-gray-500 border-t border-white/[0.08]"
         >
           <div className="flex items-center gap-2">
-            <kbd className="px-3 py-1.5 bg-white border-2 border-slate-300 rounded-lg shadow-sm font-mono text-xs font-semibold text-slate-700">
+            <kbd className="px-2 py-1 bg-white/[0.08] border border-white/[0.12] rounded font-mono">
               ESC
             </kbd>
-            <span className="font-medium">to close</span>
+            <span>to close</span>
           </div>
           <div className="flex items-center gap-2">
-            <kbd className="px-3 py-1.5 bg-white border-2 border-slate-300 rounded-lg shadow-sm font-mono text-xs font-semibold text-slate-700">
+            <kbd className="px-2 py-1 bg-white/[0.08] border border-white/[0.12] rounded font-mono">
               1-9
             </kbd>
-            <span className="font-medium">quick select</span>
+            <span>quick select</span>
           </div>
         </div>
       </div>
@@ -171,18 +166,18 @@ const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDis
       {/* Result Status */}
       <div
         className={`
-          p-4 rounded-lg border-2
+          p-4 rounded-lg border
           ${result.success
-            ? 'bg-green-50 border-green-500 text-green-900'
-            : 'bg-red-50 border-red-500 text-red-900'
+            ? 'bg-green-500/10 border-green-500/30 text-green-400'
+            : 'bg-red-500/10 border-red-500/30 text-red-400'
           }
         `}
       >
         <div className="flex items-center gap-2">
-          <span className="text-2xl">
+          <span className="text-xl">
             {result.success ? '✓' : '✗'}
           </span>
-          <span className="font-semibold text-lg" data-testid="result-message">
+          <span className="font-medium" data-testid="result-message">
             {result.message}
           </span>
         </div>
@@ -190,8 +185,8 @@ const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDis
 
       {/* Effects Display */}
       {result.effects && (
-        <div className="bg-gray-50 p-4 rounded-lg" data-testid="action-effects">
-          <h4 className="font-semibold text-gray-800 mb-3">Effects:</h4>
+        <div className="bg-white/[0.05] p-4 rounded-lg border border-white/[0.08]" data-testid="action-effects">
+          <h4 className="font-medium text-gray-400 mb-3 text-sm uppercase tracking-wide">Effects</h4>
           <div className="grid grid-cols-2 gap-3">
             {result.effects.cashChange !== undefined && result.effects.cashChange !== 0 && (
               <EffectItem
@@ -231,8 +226,8 @@ const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDis
             )}
             {result.effects.timeSpent !== undefined && result.effects.timeSpent > 0 && (
               <div className="flex items-center justify-between" data-testid="time-spent">
-                <span className="text-gray-700">Time Spent:</span>
-                <span className="font-semibold text-blue-600">
+                <span className="text-gray-400 text-sm">Time Spent:</span>
+                <span className="font-medium text-white text-sm">
                   {result.effects.timeSpent} units
                 </span>
               </div>
@@ -245,7 +240,7 @@ const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDis
       <div className="flex justify-center pt-4">
         <button
           onClick={onDismiss}
-          className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-md"
+          className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors text-sm"
           data-testid="dismiss-button"
         >
           Continue
@@ -254,8 +249,8 @@ const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDis
 
       {/* New Actions (if any) */}
       {result.newActions && result.newActions.length > 0 && (
-        <div className="pt-4 border-t border-gray-200">
-          <h4 className="font-semibold text-gray-800 mb-3">Next Actions:</h4>
+        <div className="pt-4 border-t border-white/[0.08]">
+          <h4 className="font-medium text-gray-400 mb-3 text-sm uppercase tracking-wide">Next Actions</h4>
           <ActionMenu
             actions={result.newActions}
             onActionSelect={() => {}}
@@ -276,14 +271,14 @@ interface EffectItemProps {
 
 const EffectItem: React.FC<EffectItemProps> = ({ label, value, prefix = '', testId }) => {
   const isPositive = value > 0;
-  const color = isPositive ? 'text-green-600' : 'text-red-600';
+  const color = isPositive ? 'text-green-400' : 'text-red-400';
   const sign = isPositive ? '+' : '-';
   const absoluteValue = Math.abs(value);
 
   return (
     <div className="flex items-center justify-between" data-testid={testId}>
-      <span className="text-gray-700">{label}:</span>
-      <span className={`font-semibold ${color}`}>
+      <span className="text-gray-400 text-sm">{label}:</span>
+      <span className={`font-medium ${color} text-sm`}>
         {sign}{prefix}{absoluteValue}
       </span>
     </div>

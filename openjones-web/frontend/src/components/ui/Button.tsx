@@ -12,7 +12,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 /**
- * Modern Button component with polished design
+ * Clean 2025 Button component
  */
 export const Button: React.FC<ButtonProps> = ({
   children,
@@ -24,16 +24,16 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const variantClasses = {
-    primary: 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg shadow-blue-500/30',
-    secondary: 'bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white shadow-lg shadow-slate-500/30',
-    danger: 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-500/30',
-    success: 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg shadow-green-500/30',
+    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
+    secondary: 'bg-white/[0.08] hover:bg-white/[0.12] text-white border border-white/[0.12]',
+    danger: 'bg-red-600 hover:bg-red-700 text-white',
+    success: 'bg-green-600 hover:bg-green-700 text-white',
   };
 
   const sizeClasses = {
-    sm: 'px-4 py-2 text-sm',
-    md: 'px-5 py-2.5 text-base',
-    lg: 'px-7 py-3.5 text-lg',
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-4 py-2 text-sm',
+    lg: 'px-5 py-2.5 text-base',
   };
 
   const isDisabled = disabled || isLoading;
@@ -43,30 +43,21 @@ export const Button: React.FC<ButtonProps> = ({
       className={`
         ${variantClasses[variant]}
         ${sizeClasses[size]}
-        font-bold
-        rounded-lg
-        tracking-wide
-        transition-all
-        duration-200
-        transform
-        hover:scale-105
-        active:scale-95
+        font-medium
+        rounded-md
+        transition-colors
+        duration-150
         disabled:opacity-50
         disabled:cursor-not-allowed
-        disabled:hover:scale-100
-        border-0
         ${className}
       `}
-      style={{
-        textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
-      }}
       disabled={isDisabled}
       {...props}
     >
       {isLoading ? (
-        <span className="flex items-center gap-2">
+        <span className="flex items-center justify-center gap-2">
           <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-          Loading...
+          <span>Loading...</span>
         </span>
       ) : children}
     </button>

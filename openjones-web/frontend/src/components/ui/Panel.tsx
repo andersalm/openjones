@@ -12,7 +12,7 @@ export interface PanelProps {
 }
 
 /**
- * Modern Panel component with polished design
+ * Clean 2025 Panel component
  */
 export const Panel: React.FC<PanelProps> = ({
   title,
@@ -21,36 +21,23 @@ export const Panel: React.FC<PanelProps> = ({
   className = '',
 }) => {
   const variantClasses = {
-    default: 'bg-gradient-to-br from-white to-slate-50 border-slate-300',
-    accent: 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-400',
-    warning: 'bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-400',
-    success: 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-400',
-  };
-
-  const titleBgClasses = {
-    default: 'bg-gradient-to-r from-slate-700 to-slate-800 text-white',
-    accent: 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white',
-    warning: 'bg-gradient-to-r from-amber-600 to-yellow-600 text-white',
-    success: 'bg-gradient-to-r from-green-600 to-emerald-600 text-white',
+    default: 'bg-white/[0.03] border-white/[0.08]',
+    accent: 'bg-blue-500/[0.08] border-blue-500/20',
+    warning: 'bg-amber-500/[0.08] border-amber-500/20',
+    success: 'bg-green-500/[0.08] border-green-500/20',
   };
 
   return (
     <div
-      className={`border-3 rounded-2xl ${variantClasses[variant]} ${className}`}
+      className={`border rounded-lg ${variantClasses[variant]} ${className}`}
       style={{
-        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
-        borderWidth: '3px'
+        backdropFilter: 'blur(12px)',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       }}
     >
       {title && (
-        <div className={`${titleBgClasses[variant]} px-6 py-4 rounded-t-xl`}
-          style={{
-            borderBottom: '2px solid rgba(0, 0, 0, 0.1)'
-          }}
-        >
-          <h2 className="font-extrabold text-2xl tracking-tight" style={{
-            textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-          }}>
+        <div className="px-6 py-4 border-b border-white/[0.08]">
+          <h2 className="font-semibold text-lg text-white">
             {title}
           </h2>
         </div>

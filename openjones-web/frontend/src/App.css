@@ -1,248 +1,223 @@
 /* ============================================
-   OpenJones - Modern Game UI Styling
-   Clean, polished, better than the Java version!
+   OpenJones 2025 - Professional Game Interface
+   Clean, minimal, modern design
    ============================================ */
 
-/* Root App Container */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #0a0a0f;
+  color: #e5e7eb;
+}
+
 .app {
   width: 100vw;
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
+  background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
 }
 
 /* ============================================
-   Main Menu - Clean & Modern
+   Main Menu - Centered Clean Design
    ============================================ */
 
 .main-menu {
-  max-width: 520px;
+  max-width: 480px;
   width: 90%;
-  animation: fadeIn 0.6s ease-out, slideUp 0.6s ease-out;
 }
 
 .menu-content {
-  padding: 40px 35px;
+  padding: 48px 40px;
 }
 
 .menu-content h2 {
-  margin: 0 0 12px 0;
-  color: #1e293b;
-  font-size: 32px;
-  text-align: center;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  margin: 0 0 8px 0;
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .menu-description {
   text-align: center;
-  color: #64748b;
+  color: #9ca3af;
   margin-bottom: 32px;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 .menu-form {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 10px;
-  font-weight: 600;
-  color: #334155;
-  font-size: 15px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #d1d5db;
+  font-size: 14px;
 }
 
 .name-input {
   width: 100%;
-  padding: 14px 18px;
-  font-size: 16px;
-  border: 2px solid #cbd5e1;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-  background: white;
-  font-weight: 500;
+  padding: 12px 16px;
+  font-size: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  transition: all 0.2s;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.name-input::placeholder {
+  color: #6b7280;
 }
 
 .name-input:hover {
-  border-color: #94a3b8;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .name-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(59, 130, 246, 0.5);
 }
 
 .start-button {
   width: 100%;
-  padding: 16px;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .menu-info {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  padding: 24px;
-  border-radius: 10px;
-  border: 2px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .menu-info h3 {
-  margin: 0 0 16px 0;
-  color: #1e293b;
-  font-size: 18px;
-  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #f3f4f6;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .menu-info ul {
   margin: 0;
-  padding-left: 24px;
-  color: #475569;
-  font-size: 14px;
-}
-
-.menu-info li {
-  margin-bottom: 10px;
+  padding-left: 20px;
+  color: #9ca3af;
+  font-size: 13px;
   line-height: 1.6;
 }
 
+.menu-info li {
+  margin-bottom: 6px;
+}
+
 /* ============================================
-   Game Container - Optimized Layout
+   Game Container - Split Layout
    ============================================ */
 
 .game-container {
   position: relative;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #0f172a;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 0;
+  background: #0a0a0f;
 }
 
 .game-area {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0;
-  width: 100%;
-  height: 100%;
+  background: #000000;
+  padding: 20px;
 }
 
 .game-canvas {
   display: block;
-  border: 4px solid #334155;
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
   background: #000;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  border-radius: 4px;
 }
 
 /* ============================================
-   UI Overlay - HUD & Controls
+   Sidebar - HUD Area
    ============================================ */
 
 .ui-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+  background: #0f0f14;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  box-sizing: border-box;
+  overflow-y: auto;
 }
 
-.ui-overlay > * {
-  pointer-events: auto;
-}
-
-/* HUD Panel - Top Left, Semi-transparent */
 .hud-panel {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  max-width: 360px;
-  background: rgba(15, 23, 42, 0.95);
-  border: 2px solid rgba(51, 65, 85, 0.8);
-  border-radius: 12px;
   padding: 20px;
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-  backdrop-filter: blur(10px);
-  animation: slideInLeft 0.4s ease-out;
+  flex: 1;
+  overflow-y: auto;
 }
 
-/* Game Controls - Top Right */
 .game-controls {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
-  gap: 12px;
   flex-direction: column;
-  animation: slideInRight 0.4s ease-out;
+  gap: 8px;
 }
 
 .game-controls button {
-  min-width: 120px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  width: 100%;
 }
 
-/* Status Message - Bottom Center */
+/* Status Message */
 .error-message {
-  position: absolute;
-  bottom: 30px;
+  position: fixed;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  background: rgba(59, 130, 246, 0.95);
+  backdrop-filter: blur(12px);
   color: white;
-  padding: 14px 28px;
-  border-radius: 10px;
-  box-shadow:
-    0 8px 24px rgba(34, 197, 94, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
-  animation: slideUpBounce 0.5s ease-out;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: slideUpFade 0.3s ease-out;
   z-index: 1000;
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 500;
+  font-size: 14px;
   max-width: 500px;
-  text-align: center;
-  letter-spacing: 0.3px;
 }
 
 /* ============================================
-   Victory/Defeat Screens - Celebratory
+   Victory/Defeat Screens
    ============================================ */
 
 .victory-screen,
 .defeat-screen {
-  max-width: 540px;
+  max-width: 480px;
   width: 90%;
-  animation: fadeIn 0.6s ease-out, scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .victory-content,
@@ -253,215 +228,109 @@
 
 .victory-icon,
 .defeat-icon {
-  font-size: 72px;
-  margin-bottom: 24px;
-  animation: bounce 1.2s ease-in-out infinite;
+  font-size: 56px;
+  margin-bottom: 20px;
 }
 
 .victory-content h2,
 .defeat-content h2 {
-  font-size: 36px;
-  margin: 0 0 16px 0;
-  color: #1e293b;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-size: 28px;
+  margin: 0 0 12px 0;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .victory-message,
 .defeat-message {
-  font-size: 17px;
-  color: #64748b;
+  font-size: 15px;
+  color: #9ca3af;
   margin-bottom: 28px;
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
 .victory-stats,
 .defeat-stats {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  padding: 24px;
-  border-radius: 12px;
-  margin-bottom: 28px;
-  border: 2px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .victory-stats p,
 .defeat-stats p {
-  margin: 10px 0;
-  color: #475569;
-  font-size: 16px;
-  line-height: 1.6;
+  margin: 8px 0;
+  color: #d1d5db;
+  font-size: 14px;
 }
 
 .victory-stats strong,
 .defeat-stats strong {
-  color: #1e293b;
-  font-weight: 700;
+  color: #ffffff;
+  font-weight: 600;
 }
 
 .victory-content button,
 .defeat-content button {
-  min-width: 220px;
-  padding: 16px 32px;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
+  min-width: 200px;
+  padding: 14px 32px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
 /* ============================================
-   Smooth Animations
+   Animations
    ============================================ */
 
-@keyframes fadeIn {
+@keyframes slideUpFade {
   from {
     opacity: 0;
+    transform: translateX(-50%) translateY(10px);
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    transform: scale(0.92);
-  }
-  to {
-    transform: scale(1);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    transform: translateX(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideUpBounce {
-  0% {
-    transform: translateX(-50%) translateY(40px);
-    opacity: 0;
-  }
-  60% {
-    transform: translateX(-50%) translateY(-5px);
-    opacity: 1;
-  }
-  100% {
     transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: scale(1) translateY(0);
-  }
-  50% {
-    transform: scale(1.08) translateY(-8px);
   }
 }
 
 /* ============================================
-   Responsive Design - Mobile Friendly
+   Responsive Design
    ============================================ */
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
+  .game-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+
+  .ui-overlay {
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    max-height: 300px;
+  }
+
   .hud-panel {
-    max-width: 300px;
-    font-size: 13px;
     padding: 16px;
-  }
-
-  .game-controls {
-    top: auto;
-    bottom: 20px;
-    flex-direction: row;
-  }
-
-  .game-controls button {
-    min-width: 90px;
   }
 }
 
 @media (max-width: 768px) {
-  .menu-content {
-    padding: 32px 28px;
-  }
-
-  .menu-content h2 {
-    font-size: 28px;
-  }
-
-  .victory-content,
-  .defeat-content {
-    padding: 36px 28px;
-  }
-
-  .victory-icon,
-  .defeat-icon {
-    font-size: 56px;
-  }
-}
-
-@media (max-width: 480px) {
-  .ui-overlay {
+  .game-area {
     padding: 12px;
   }
 
   .hud-panel {
-    top: 12px;
-    left: 12px;
-    right: 12px;
-    max-width: none;
-    font-size: 12px;
-    padding: 14px;
+    padding: 12px;
   }
 
   .game-controls {
-    bottom: 12px;
-    right: 12px;
-    left: 12px;
-    justify-content: space-between;
+    flex-direction: row;
+    gap: 8px;
   }
 
   .game-controls button {
     flex: 1;
-    min-width: 0;
-    font-size: 14px;
-    padding: 10px 16px;
-  }
-
-  .menu-content {
-    padding: 28px 24px;
-  }
-
-  .menu-content h2 {
-    font-size: 24px;
   }
 }
 
@@ -471,17 +340,4 @@
 
 .hidden {
   display: none !important;
-}
-
-.fade-out {
-  animation: fadeOut 0.3s ease-out forwards;
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
 }

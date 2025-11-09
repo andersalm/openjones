@@ -66,12 +66,11 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
   if (actions.length === 0) {
     return (
       <div
-        className={`text-center py-10 text-slate-500 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300 ${className}`}
+        className={`text-center py-10 text-gray-400 bg-white/[0.05] rounded-lg border border-dashed border-white/[0.12] ${className}`}
         data-testid="action-menu-empty"
       >
-        <div className="text-4xl mb-2">🏢</div>
-        <div className="font-semibold">No actions available</div>
-        <div className="text-sm mt-1">Try entering the building first</div>
+        <div className="font-medium">No actions available</div>
+        <div className="text-sm mt-1 text-gray-500">Try entering the building first</div>
       </div>
     );
   }
@@ -105,11 +104,11 @@ const ActionMenuItem: React.FC<ActionMenuItemProps> = ({
   onSelect,
 }) => {
   const baseClasses =
-    'w-full text-left px-5 py-4 border-2 rounded-xl transition-all duration-200 transform';
+    'w-full text-left px-4 py-3 border rounded-lg transition-colors duration-150';
   const selectedClasses = isSelected
-    ? 'border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50 shadow-lg scale-[1.02] ring-2 ring-amber-200'
-    : 'border-slate-300 bg-white shadow-sm';
-  const interactionClasses = 'hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 cursor-pointer hover:shadow-md hover:scale-[1.01] active:scale-[0.99]';
+    ? 'border-blue-500/50 bg-blue-500/10'
+    : 'border-white/[0.12] bg-white/[0.05]';
+  const interactionClasses = 'hover:border-white/[0.20] hover:bg-white/[0.08] cursor-pointer';
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -125,35 +124,25 @@ const ActionMenuItem: React.FC<ActionMenuItemProps> = ({
     >
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <span
-              className="font-bold text-slate-500 min-w-[2rem] text-base"
-              style={{
-                textShadow: isSelected ? '0 0 8px rgba(245, 158, 11, 0.3)' : 'none'
-              }}
-            >
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-gray-500 min-w-[1.5rem] text-sm">
               {index + 1}.
             </span>
-            <span className="font-bold text-slate-900 text-lg tracking-tight">
+            <span className="font-medium text-white text-sm">
               {action.displayName}
             </span>
           </div>
           {action.description && (
-            <div className="text-sm text-slate-600 mt-2 ml-11 leading-relaxed">
+            <div className="text-xs text-gray-400 mt-1.5 ml-8">
               {action.description}
             </div>
           )}
         </div>
 
-        <div className="text-sm ml-4 flex flex-col items-end gap-1.5">
+        <div className="text-sm ml-4 flex flex-col items-end">
           {action.timeCost !== undefined && action.timeCost > 0 && (
-            <span
-              className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-3 py-1.5 rounded-lg font-bold text-xs shadow-sm"
-              style={{
-                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.3)'
-              }}
-            >
-              ⏱ {action.timeCost}
+            <span className="bg-blue-500/20 text-blue-400 px-2 py-1 rounded text-xs font-medium border border-blue-500/30">
+              {action.timeCost}u
             </span>
           )}
         </div>
