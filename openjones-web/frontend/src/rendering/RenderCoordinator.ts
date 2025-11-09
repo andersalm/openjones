@@ -218,29 +218,27 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render map layer - Retro pixel-perfect grid
+   * Render map layer - Retro pixel-perfect grid (5x5 like Java version)
    */
   private renderMap(): void {
-    const tileSize = 64; // Fixed tile size, no scaling
-    const cols = Math.ceil(this.canvas.width / tileSize);
-    const rows = Math.ceil(this.canvas.height / tileSize);
+    const tileSize = 100; // 5x5 grid = 500x500 canvas
+    const cols = 5;
+    const rows = 5;
 
     // Disable anti-aliasing for crisp pixel edges
     this.ctx.imageSmoothingEnabled = false;
 
-    // Draw alternating checkerboard pattern for depth
+    // Draw simple grid background (no checkerboard, simpler look)
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
-        // Checkerboard pattern
-        const isLight = (x + y) % 2 === 0;
-        this.ctx.fillStyle = isLight ? '#D4C4A8' : '#C8BCA0';
+        this.ctx.fillStyle = '#A89878'; // Slightly darker tan
         this.ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
       }
     }
 
-    // Draw grid lines on top for clarity
-    this.ctx.strokeStyle = '#8B7355'; // Darker brown for better visibility
-    this.ctx.lineWidth = 1;
+    // Draw grid lines with thicker borders
+    this.ctx.strokeStyle = '#000000'; // Black for clear definition
+    this.ctx.lineWidth = 2;
 
     // Draw vertical grid lines
     for (let x = 0; x <= cols; x++) {
@@ -263,7 +261,7 @@ export class RenderCoordinator {
    * Render buildings layer
    */
   private renderBuildings(): void {
-    const tileSize = 64 * this.pixelScale;
+    const tileSize = 100; // Match 5x5 grid
     const buildings = this.game.map.getAllBuildings();
 
     if (buildings.length === 0) {
@@ -281,48 +279,54 @@ export class RenderCoordinator {
       // Check if any player is on this building
       const isPlayerOnBuilding = playerPositions.some(p => p.x === pos.x && p.y === pos.y);
 
+      // Add some padding so buildings don't fill entire tile
+      const padding = 6;
+      const buildingX = x + padding;
+      const buildingY = y + padding;
+      const buildingSize = tileSize - (padding * 2);
+
       // Draw building background
       this.ctx.fillStyle = this.getBuildingColor(building.type);
-      this.ctx.fillRect(x, y, tileSize, tileSize);
+      this.ctx.fillRect(buildingX, buildingY, buildingSize, buildingSize);
 
       // Draw building border - thicker and yellow if player is on it
       if (isPlayerOnBuilding) {
         // Yellow highlight border
         this.ctx.strokeStyle = '#FFFF00';
-        this.ctx.lineWidth = 6;
-        this.ctx.strokeRect(x, y, tileSize, tileSize);
+        this.ctx.lineWidth = 5;
+        this.ctx.strokeRect(buildingX, buildingY, buildingSize, buildingSize);
 
         // Add pulsing effect with double border
         this.ctx.strokeStyle = '#FFD700';
-        this.ctx.lineWidth = 4;
-        this.ctx.strokeRect(x + 3, y + 3, tileSize - 6, tileSize - 6);
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeRect(buildingX + 4, buildingY + 4, buildingSize - 8, buildingSize - 8);
       } else {
         // Normal black border
         this.ctx.strokeStyle = '#000000';
         this.ctx.lineWidth = 3;
-        this.ctx.strokeRect(x, y, tileSize, tileSize);
+        this.ctx.strokeRect(buildingX, buildingY, buildingSize, buildingSize);
       }
 
       // Draw building name with better contrast
       this.ctx.save();
 
       // Background for text
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-      this.ctx.fillRect(x + 4, y + tileSize - 20, tileSize - 8, 16);
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+      this.ctx.fillRect(buildingX + 4, buildingY + buildingSize - 24, buildingSize - 8, 20);
 
       // Building name in white
       this.ctx.fillStyle = '#FFFFFF';
-      this.ctx.font = 'bold 8px "Press Start 2P", monospace';
+      this.ctx.font = 'bold 9px "Press Start 2P", monospace';
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
 
       // Truncate long names
       let displayName = building.name;
-      if (displayName.length > 12) {
-        displayName = displayName.substring(0, 10) + '...';
+      if (displayName.length > 10) {
+        displayName = displayName.substring(0, 8) + '..';
       }
 
-      this.ctx.fillText(displayName, x + tileSize / 2, y + tileSize - 12);
+      this.ctx.fillText(displayName, x + tileSize / 2, buildingY + buildingSize - 14);
 
       this.ctx.restore();
     });
@@ -350,7 +354,7 @@ export class RenderCoordinator {
    * Render players layer - Retro pixel sprites
    */
   private renderPlayers(): void {
-    const tileSize = 64; // Fixed tile size
+    const tileSize = 100; // Match 5x5 grid
 
     this.game.players.forEach((player) => {
       const pos = player.state.position;
@@ -363,7 +367,7 @@ export class RenderCoordinator {
       const centerY = Math.floor(pos.y * tileSize + tileSize / 2);
 
       // Draw player as pixel-perfect square (retro sprite style)
-      const spriteSize = 24;
+      const spriteSize = 36; // Bigger sprite for 100px tiles
       const halfSize = Math.floor(spriteSize / 2);
 
       // Player body (solid square)
@@ -377,7 +381,7 @@ export class RenderCoordinator {
 
       // Black pixel border for definition
       this.ctx.strokeStyle = '#000000';
-      this.ctx.lineWidth = 2;
+      this.ctx.lineWidth = 3;
       this.ctx.strokeRect(
         centerX - halfSize,
         centerY - halfSize,

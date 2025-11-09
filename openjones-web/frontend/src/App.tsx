@@ -212,20 +212,12 @@ export function App() {
         return;
       }
 
-      // Set canvas size to be larger and use more screen space
-      // Use a larger canvas that fills most of the viewport
-      const containerWidth = window.innerWidth;
-      const containerHeight = window.innerHeight;
-
-      // Calculate canvas size to fill most of the screen while maintaining aspect ratio
-      // Leave room for HUD on the side
-      const maxWidth = Math.min(containerWidth - 400, 1280); // Leave 400px for HUD
-      const maxHeight = containerHeight - 100; // Leave 100px for padding
-
-      // Use the smaller dimension to maintain aspect ratio
-      const size = Math.min(maxWidth, maxHeight);
-      canvas.width = size;
-      canvas.height = size;
+      // Set canvas size to match Java version: 5x5 grid
+      // Java uses 155x96 tiles, we'll use 100x100 for simplicity
+      const TILE_SIZE = 100;
+      const GRID_SIZE = 5;
+      canvas.width = TILE_SIZE * GRID_SIZE;  // 500px
+      canvas.height = TILE_SIZE * GRID_SIZE; // 500px
 
       // Create RenderCoordinator
       const renderCoordinator = new RenderCoordinator({
@@ -241,7 +233,7 @@ export function App() {
         canvas,
         game: gameController.getGame(),
         playerId: 'player-1',
-        tileSize: 64,
+        tileSize: 100, // Match 5x5 grid
         onBuildingSelected: handleBuildingSelect,
         onActionSelected: (actionType) => {
           console.log('Action selected:', actionType);
