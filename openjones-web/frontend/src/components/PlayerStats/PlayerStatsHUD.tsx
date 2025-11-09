@@ -19,7 +19,7 @@ export interface PlayerStatsHUDProps {
 }
 
 /**
- * Modern PlayerStatsHUD - Game-style HUD with cards and gradients
+ * Clean 2025 PlayerStatsHUD - Minimalist glassmorphism design
  */
 export const PlayerStatsHUD: React.FC<PlayerStatsHUDProps> = ({
   playerState,
@@ -42,138 +42,61 @@ export const PlayerStatsHUD: React.FC<PlayerStatsHUDProps> = ({
     }).format(amount);
   };
 
+  // Glass card style
+  const glassCard = "bg-white/5 backdrop-blur-md border border-white/10 rounded-lg";
+
   return (
-    <div className={`space-y-3 ${className}`} data-testid="player-stats-hud">
-      {/* Cash Card - Eye-catching green gradient */}
-      <div
-        className="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl p-5 shadow-xl"
-        style={{
-          boxShadow: '0 8px 24px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
-        }}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">
-              💰 Cash
-            </div>
-            <div
-              className="text-3xl font-black text-white"
-              data-testid="cash-amount"
-              style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.2)' }}
-            >
-              {formatCash(playerState.cash)}
-            </div>
-          </div>
+    <div className={`space-y-2.5 ${className}`} data-testid="player-stats-hud">
+      {/* Cash & Income */}
+      <div className={`${glassCard} p-4`}>
+        <div className="flex items-baseline justify-between mb-1">
+          <span className="text-xs text-gray-400 uppercase tracking-wide font-medium">Cash</span>
           {playerState.job && (
-            <div className="text-right">
-              <div className="text-emerald-100 text-xs font-semibold">Weekly</div>
-              <div
-                className="text-lg font-bold text-white"
-                data-testid="weekly-income"
-                style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.2)' }}
-              >
-                +{formatCash(playerState.job.wagePerHour * 40)}
-              </div>
-            </div>
+            <span className="text-xs text-gray-500">
+              +{formatCash(playerState.job.wagePerHour * 40)}/wk
+            </span>
           )}
+        </div>
+        <div className="text-2xl font-bold text-white" data-testid="cash-amount">
+          {formatCash(playerState.cash)}
         </div>
       </div>
 
-      {/* Job Card - if employed */}
+      {/* Job */}
       {playerState.job && (
-        <div
-          className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl p-4 shadow-lg"
-          style={{
-            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div className="text-2xl">💼</div>
-            <div>
-              <div className="text-slate-300 text-xs font-semibold">Current Job</div>
-              <div
-                className="text-white font-bold text-base"
-                data-testid="current-job"
-                style={{ textShadow: '0 1px 3px rgba(0, 0, 0, 0.3)' }}
-              >
-                {playerState.job.title}
-              </div>
-            </div>
+        <div className={`${glassCard} p-3.5`}>
+          <div className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">
+            Job
+          </div>
+          <div className="text-sm font-semibold text-white" data-testid="current-job">
+            {playerState.job.title}
           </div>
         </div>
       )}
 
-      {/* Stats Card - dark background with colorful bars */}
-      <div
-        className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5 shadow-xl"
-        style={{
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset'
-        }}
-      >
+      {/* Stats */}
+      <div className={`${glassCard} p-4`}>
         <div className="space-y-3" data-testid="stats-bars">
-          <StatBar
-            label="Health"
-            value={playerState.health}
-            maxValue={100}
-            color="red"
-            icon="❤️"
-          />
-          <StatBar
-            label="Happiness"
-            value={playerState.happiness}
-            maxValue={100}
-            color="yellow"
-            icon="😊"
-          />
-          <StatBar
-            label="Education"
-            value={playerState.education}
-            maxValue={100}
-            color="blue"
-            icon="📚"
-          />
-          <StatBar
-            label="Career"
-            value={playerState.career}
-            maxValue={100}
-            color="purple"
-            icon="📈"
-          />
+          <StatBar label="Health" value={playerState.health} maxValue={100} color="red" />
+          <StatBar label="Happiness" value={playerState.happiness} maxValue={100} color="yellow" />
+          <StatBar label="Education" value={playerState.education} maxValue={100} color="blue" />
+          <StatBar label="Career" value={playerState.career} maxValue={100} color="purple" />
         </div>
       </div>
 
-      {/* Time Info Card - purple gradient */}
-      <div
-        className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl p-4 shadow-lg"
-        style={{
-          boxShadow: '0 4px 16px rgba(99, 102, 241, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset'
-        }}
-      >
-        <div className="flex justify-between items-center" data-testid="time-info">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">📅</span>
-            <div>
-              <div className="text-indigo-200 text-xs font-semibold">Week</div>
-              <div
-                className="text-white text-xl font-black"
-                data-testid="current-week"
-                style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}
-              >
-                {currentWeek}
-              </div>
+      {/* Time */}
+      <div className={`${glassCard} p-3.5`}>
+        <div className="flex items-center justify-between" data-testid="time-info">
+          <div>
+            <div className="text-xs text-gray-400 uppercase tracking-wide font-medium">Week</div>
+            <div className="text-lg font-bold text-white" data-testid="current-week">
+              {currentWeek}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">⏰</span>
-            <div className="text-right">
-              <div className="text-indigo-200 text-xs font-semibold">Time Left</div>
-              <div
-                className="text-white text-xl font-black"
-                data-testid="time-remaining"
-                style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}
-              >
-                {hours}h
-              </div>
+          <div className="text-right">
+            <div className="text-xs text-gray-400 uppercase tracking-wide font-medium">Time</div>
+            <div className="text-lg font-bold text-white" data-testid="time-remaining">
+              {hours}h
             </div>
           </div>
         </div>
