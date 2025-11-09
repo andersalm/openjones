@@ -7,6 +7,8 @@ import { Button } from '../ui/Button';
 export interface BuildingModalProps {
   /** The building being interacted with */
   building: IBuilding | null;
+  /** Available actions for this building */
+  actions: IAction[];
   /** Callback when modal should close */
   onClose: () => void;
   /** Callback when action is selected */
@@ -39,6 +41,7 @@ export interface ActionResult {
 
 export const BuildingModal: React.FC<BuildingModalProps> = ({
   building,
+  actions,
   onClose,
   onActionSelect,
   actionResult,
@@ -218,7 +221,7 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
                 WHAT WOULD YOU LIKE TO DO?
               </div>
               <ActionMenu
-                actions={(building as any).actions || []}
+                actions={actions}
                 onActionSelect={onActionSelect}
                 keyboardEnabled={isOpen}
               />

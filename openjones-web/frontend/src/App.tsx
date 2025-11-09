@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { GameController } from './engine/GameController';
 import { RenderCoordinator } from './rendering/RenderCoordinator';
 import { InputHandler } from './input/InputHandler';
-import { IBuilding, IPlayerState, IGame } from '@shared/types/contracts';
+import { IBuilding, IPlayerState, IGame, IAction } from '@shared/types/contracts';
 import { PlayerStatsHUD } from './components/PlayerStats/PlayerStatsHUD';
 import { BuildingModal } from './components/Buildings/BuildingModal';
 import { Button } from './components/ui/Button';
@@ -27,6 +27,7 @@ interface AppState {
   currentWeek: number;
   timeRemaining: number;
   selectedBuilding: IBuilding | null;
+  buildingActions: IAction[];
   showBuildingModal: boolean;
   victoryConditions: VictoryCondition[];
   errorMessage: string | null;
@@ -57,6 +58,7 @@ export function App() {
     currentWeek: 1,
     timeRemaining: 600,
     selectedBuilding: null,
+    buildingActions: [],
     showBuildingModal: false,
     victoryConditions: [],
     errorMessage: null,
@@ -153,9 +155,14 @@ export function App() {
     const building = game.map.getBuildingById(buildingId);
 
     if (building) {
+      // Get available actions from the building
+      const player = game.getCurrentPlayer();
+      const actions = building.getAvailableActions(player.state, game);
+
       setAppState(prev => ({
         ...prev,
         selectedBuilding: building,
+        buildingActions: actions,
         showBuildingModal: true,
       }));
     }
@@ -287,22 +294,35 @@ export function App() {
   /**
    * Handle action selection from building modal
    */
-  const handleActionSelect = useCallback((_actionId: string) => {
+  const handleActionSelect = useCallback((actionId: string) => {
     if (!gameControllerRef.current || !appState.selectedBuilding) return;
 
-    // Close modal
+    // Find the action by ID
+    const action = appState.buildingActions.find(a => a.id === actionId);
+    if (!action) {
+      console.warn('Action not found:', actionId);
+      return;
+    }
+
+    // Execute the action through the game
+    const game = gameControllerRef.current.getGame();
+    const player = game.getCurrentPlayer();
+    const response = game.processTurn(player.id, action);
+
+    // Close modal and show result
     setAppState(prev => ({
       ...prev,
       showBuildingModal: false,
       selectedBuilding: null,
-      errorMessage: 'Action executed!',
+      buildingActions: [],
+      errorMessage: response.message,
     }));
 
-    // Clear error after 2 seconds
+    // Clear message after 3 seconds
     setTimeout(() => {
       setAppState(prev => ({ ...prev, errorMessage: null }));
-    }, 2000);
-  }, [appState.selectedBuilding]);
+    }, 3000);
+  }, [appState.selectedBuilding, appState.buildingActions]);
 
   /**
    * Handle pause
@@ -362,6 +382,7 @@ export function App() {
       currentWeek: 1,
       timeRemaining: 600,
       selectedBuilding: null,
+      buildingActions: [],
       showBuildingModal: false,
       victoryConditions: [],
       errorMessage: null,
@@ -439,8 +460,9 @@ export function App() {
           {appState.showBuildingModal && appState.selectedBuilding && (
             <BuildingModal
               building={appState.selectedBuilding}
+              actions={appState.buildingActions}
               isOpen={appState.showBuildingModal}
-              onClose={() => setAppState(prev => ({ ...prev, showBuildingModal: false }))}
+              onClose={() => setAppState(prev => ({ ...prev, showBuildingModal: false, buildingActions: [] }))}
               onActionSelect={handleActionSelect}
             />
           )}
