@@ -135,7 +135,9 @@ export function App() {
     if (victoryResults[0]?.isVictory) {
       setAppState(prev => ({ ...prev, phase: 'victory' }));
       stopGame();
-    } else if (player.state.health <= 0 || (player.state.cash <= 0 && game.currentWeek > 10)) {
+    } else if (player.state.health < 0 || (player.state.cash < 0 && game.currentWeek > 1)) {
+      // Health < 0 (not <= 0) since Java starts at 0
+      // Cash < 0 after week 1 (give player a chance to earn money)
       setAppState(prev => ({ ...prev, phase: 'defeat' }));
       stopGame();
     }
