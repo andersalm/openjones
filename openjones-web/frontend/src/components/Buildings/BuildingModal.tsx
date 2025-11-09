@@ -79,35 +79,35 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
     >
       <div
         className={`
-          bg-[#0f0f14] border border-white/[0.12]
-          rounded-lg max-w-2xl w-full mx-4 max-h-[85vh] overflow-hidden
+          bg-zinc-900 border border-zinc-800
+          rounded-xl max-w-2xl w-full mx-4 max-h-[85vh] overflow-hidden
           transform transition-all duration-200
           ${isAnimating ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}
           ${className}
         `}
         style={{
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)'
+          boxShadow: '0 25px 50px rgba(0, 0, 0, 0.9)'
         }}
         onClick={(e) => e.stopPropagation()}
         data-testid="building-modal"
       >
-        {/* Clean Header */}
+        {/* Header */}
         <div
-          className="bg-white/[0.05] text-white px-6 py-4 flex items-center justify-between border-b border-white/[0.12]"
+          className="bg-zinc-800/50 text-white px-6 py-5 flex items-center justify-between border-b border-zinc-800"
         >
           <div>
-            <h2 className="text-2xl font-semibold" data-testid="building-name">
+            <h2 className="text-2xl font-bold" data-testid="building-name">
               {building.name}
             </h2>
             {building.description && (
-              <p className="text-gray-400 text-sm mt-1" data-testid="building-description">
+              <p className="text-zinc-400 text-sm mt-1.5" data-testid="building-description">
                 {building.description}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white hover:bg-white/[0.08] transition-colors text-2xl leading-none w-8 h-8 flex items-center justify-center rounded"
+            className="text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors text-3xl leading-none w-10 h-10 flex items-center justify-center rounded-lg"
             aria-label="Close modal"
             data-testid="close-button"
           >
@@ -121,8 +121,8 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
             <ActionResultDisplay result={actionResult} onDismiss={() => onActionSelect('')} />
           ) : (
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-4 uppercase tracking-wide">
-                Available Actions
+              <h3 className="text-xs font-semibold text-zinc-500 mb-4 uppercase tracking-wider">
+                Select Action
               </h3>
               <ActionMenu
                 actions={(building as any).actions || []}
@@ -133,18 +133,18 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
           )}
         </div>
 
-        {/* Clean Footer */}
+        {/* Footer */}
         <div
-          className="bg-white/[0.03] px-6 py-3 flex justify-between items-center text-xs text-gray-500 border-t border-white/[0.08]"
+          className="bg-zinc-800/30 px-6 py-3.5 flex justify-between items-center text-xs text-zinc-500 border-t border-zinc-800"
         >
           <div className="flex items-center gap-2">
-            <kbd className="px-2 py-1 bg-white/[0.08] border border-white/[0.12] rounded font-mono">
+            <kbd className="px-2 py-1 bg-zinc-800 border border-zinc-700 rounded font-mono text-zinc-400">
               ESC
             </kbd>
             <span>to close</span>
           </div>
           <div className="flex items-center gap-2">
-            <kbd className="px-2 py-1 bg-white/[0.08] border border-white/[0.12] rounded font-mono">
+            <kbd className="px-2 py-1 bg-zinc-800 border border-zinc-700 rounded font-mono text-zinc-400">
               1-9
             </kbd>
             <span>quick select</span>
@@ -162,22 +162,22 @@ interface ActionResultDisplayProps {
 
 const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDismiss }) => {
   return (
-    <div className="space-y-4" data-testid="action-result">
+    <div className="space-y-5" data-testid="action-result">
       {/* Result Status */}
       <div
         className={`
-          p-4 rounded-lg border
+          p-5 rounded-lg border-2
           ${result.success
-            ? 'bg-green-500/10 border-green-500/30 text-green-400'
-            : 'bg-red-500/10 border-red-500/30 text-red-400'
+            ? 'bg-emerald-950/50 border-emerald-800 text-emerald-300'
+            : 'bg-red-950/50 border-red-800 text-red-300'
           }
         `}
       >
-        <div className="flex items-center gap-2">
-          <span className="text-xl">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl font-bold">
             {result.success ? '✓' : '✗'}
           </span>
-          <span className="font-medium" data-testid="result-message">
+          <span className="font-semibold text-base" data-testid="result-message">
             {result.message}
           </span>
         </div>
@@ -185,9 +185,9 @@ const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDis
 
       {/* Effects Display */}
       {result.effects && (
-        <div className="bg-white/[0.05] p-4 rounded-lg border border-white/[0.08]" data-testid="action-effects">
-          <h4 className="font-medium text-gray-400 mb-3 text-sm uppercase tracking-wide">Effects</h4>
-          <div className="grid grid-cols-2 gap-3">
+        <div className="bg-zinc-800/50 p-5 rounded-lg border border-zinc-700" data-testid="action-effects">
+          <h4 className="font-semibold text-zinc-400 mb-4 text-sm uppercase tracking-wider">Effects</h4>
+          <div className="grid grid-cols-2 gap-4">
             {result.effects.cashChange !== undefined && result.effects.cashChange !== 0 && (
               <EffectItem
                 label="Cash"
@@ -226,8 +226,8 @@ const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDis
             )}
             {result.effects.timeSpent !== undefined && result.effects.timeSpent > 0 && (
               <div className="flex items-center justify-between" data-testid="time-spent">
-                <span className="text-gray-400 text-sm">Time Spent:</span>
-                <span className="font-medium text-white text-sm">
+                <span className="text-zinc-400 text-sm font-medium">Time Spent:</span>
+                <span className="font-bold text-white text-sm">
                   {result.effects.timeSpent} units
                 </span>
               </div>
@@ -237,10 +237,10 @@ const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDis
       )}
 
       {/* Continue Button */}
-      <div className="flex justify-center pt-4">
+      <div className="flex justify-center pt-2">
         <button
           onClick={onDismiss}
-          className="px-6 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors text-sm"
+          className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-500 transition-colors shadow-sm hover:shadow"
           data-testid="dismiss-button"
         >
           Continue
@@ -249,8 +249,8 @@ const ActionResultDisplay: React.FC<ActionResultDisplayProps> = ({ result, onDis
 
       {/* New Actions (if any) */}
       {result.newActions && result.newActions.length > 0 && (
-        <div className="pt-4 border-t border-white/[0.08]">
-          <h4 className="font-medium text-gray-400 mb-3 text-sm uppercase tracking-wide">Next Actions</h4>
+        <div className="pt-4 border-t border-zinc-800">
+          <h4 className="font-semibold text-zinc-400 mb-3 text-sm uppercase tracking-wider">Next Actions</h4>
           <ActionMenu
             actions={result.newActions}
             onActionSelect={() => {}}
@@ -271,14 +271,14 @@ interface EffectItemProps {
 
 const EffectItem: React.FC<EffectItemProps> = ({ label, value, prefix = '', testId }) => {
   const isPositive = value > 0;
-  const color = isPositive ? 'text-green-400' : 'text-red-400';
+  const color = isPositive ? 'text-emerald-400' : 'text-red-400';
   const sign = isPositive ? '+' : '-';
   const absoluteValue = Math.abs(value);
 
   return (
     <div className="flex items-center justify-between" data-testid={testId}>
-      <span className="text-gray-400 text-sm">{label}:</span>
-      <span className={`font-medium ${color} text-sm`}>
+      <span className="text-zinc-400 text-sm font-medium">{label}:</span>
+      <span className={`font-bold ${color} text-sm`}>
         {sign}{prefix}{absoluteValue}
       </span>
     </div>

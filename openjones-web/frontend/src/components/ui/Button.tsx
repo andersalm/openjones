@@ -24,16 +24,16 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const variantClasses = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-    secondary: 'bg-white/[0.08] hover:bg-white/[0.12] text-white border border-white/[0.12]',
-    danger: 'bg-red-600 hover:bg-red-700 text-white',
-    success: 'bg-green-600 hover:bg-green-700 text-white',
+    primary: 'bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-sm hover:shadow',
+    secondary: 'bg-zinc-800 hover:bg-zinc-700 text-white border border-zinc-700 font-medium',
+    danger: 'bg-red-600 hover:bg-red-500 text-white font-semibold shadow-sm hover:shadow',
+    success: 'bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-sm hover:shadow',
   };
 
   const sizeClasses = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-sm',
-    lg: 'px-5 py-2.5 text-base',
+    sm: 'px-3.5 py-2 text-sm',
+    md: 'px-4 py-2.5 text-sm',
+    lg: 'px-5 py-3 text-base',
   };
 
   const isDisabled = disabled || isLoading;
@@ -43,10 +43,9 @@ export const Button: React.FC<ButtonProps> = ({
       className={`
         ${variantClasses[variant]}
         ${sizeClasses[size]}
-        font-medium
-        rounded-md
-        transition-colors
-        duration-150
+        rounded-lg
+        transition-all
+        duration-200
         disabled:opacity-50
         disabled:cursor-not-allowed
         ${className}

@@ -21,22 +21,18 @@ export const Panel: React.FC<PanelProps> = ({
   className = '',
 }) => {
   const variantClasses = {
-    default: 'bg-white/[0.03] border-white/[0.08]',
-    accent: 'bg-blue-500/[0.08] border-blue-500/20',
-    warning: 'bg-amber-500/[0.08] border-amber-500/20',
-    success: 'bg-green-500/[0.08] border-green-500/20',
+    default: 'bg-zinc-900 border-zinc-800',
+    accent: 'bg-blue-950 border-blue-900',
+    warning: 'bg-amber-950 border-amber-900',
+    success: 'bg-emerald-950 border-emerald-900',
   };
 
   return (
     <div
       className={`border rounded-lg ${variantClasses[variant]} ${className}`}
-      style={{
-        backdropFilter: 'blur(12px)',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-      }}
     >
       {title && (
-        <div className="px-6 py-4 border-b border-white/[0.08]">
+        <div className="px-6 py-4 border-b border-zinc-800">
           <h2 className="font-semibold text-lg text-white">
             {title}
           </h2>

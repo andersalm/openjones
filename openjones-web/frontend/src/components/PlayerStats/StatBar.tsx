@@ -46,17 +46,17 @@ export const StatBar: React.FC<StatBarProps> = ({
 
   return (
     <div className={`stat-bar ${className}`} data-testid={`stat-bar-${label.toLowerCase()}`}>
-      <div className="flex justify-between items-baseline mb-1.5">
-        <span className="text-xs text-gray-300 font-medium">{label}</span>
+      <div className="flex justify-between items-baseline mb-2">
+        <span className="text-sm text-zinc-300 font-medium">{label}</span>
         {showValue && (
-          <span className="text-xs text-gray-400 font-mono" data-testid={`stat-value-${label.toLowerCase()}`}>
+          <span className="text-sm text-zinc-400 font-semibold tabular-nums" data-testid={`stat-value-${label.toLowerCase()}`}>
             {Math.round(clampedValue)}
           </span>
         )}
       </div>
-      <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
+      <div className="w-full bg-zinc-800 rounded-full h-2 overflow-hidden">
         <div
-          className={`${barColor} h-full transition-all duration-300 ease-out`}
+          className={`${barColor} h-full transition-all duration-500 ease-out`}
           style={{ width: `${percentage}%` }}
           data-testid={`stat-bar-fill-${label.toLowerCase()}`}
           role="progressbar"
