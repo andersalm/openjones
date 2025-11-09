@@ -3,6 +3,7 @@ import { IPlayerState, IVictoryCondition } from '../../../../shared/types';
 import { Panel } from '../ui/Panel';
 import { StatBar } from './StatBar';
 import { VictoryProgress } from './VictoryProgress';
+import { theme } from '../../theme';
 
 export interface PlayerStatsHUDProps {
   /** Current player state */
@@ -52,19 +53,103 @@ export const PlayerStatsHUD: React.FC<PlayerStatsHUDProps> = ({
     }).format(amount);
   };
 
+  const containerStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing.md,
+  };
+
+  const cashDisplayStyle: React.CSSProperties = {
+    marginBottom: theme.spacing.sm,
+  };
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: theme.typography.fontSize.xs,
+    fontFamily: theme.typography.fontFamily.primary,
+    color: theme.colors.neutral.black,
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    marginBottom: '4px',
+  };
+
+  const cashAmountStyle: React.CSSProperties = {
+    fontSize: theme.typography.fontSize.lg,
+    fontFamily: theme.typography.fontFamily.primary,
+    color: theme.colors.status.wealth,
+    fontWeight: 'bold',
+  };
+
+  const weeklyIncomeStyle: React.CSSProperties = {
+    fontSize: theme.typography.fontSize.tiny,
+    fontFamily: theme.typography.fontFamily.primary,
+    color: theme.colors.neutral.darkGray,
+    marginTop: '4px',
+  };
+
+  const jobDisplayStyle: React.CSSProperties = {
+    marginBottom: theme.spacing.sm,
+  };
+
+  const jobTitleStyle: React.CSSProperties = {
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.primary,
+    color: theme.colors.neutral.black,
+  };
+
+  const dividerStyle: React.CSSProperties = {
+    borderTop: `2px solid ${theme.colors.neutral.black}`,
+    margin: `${theme.spacing.sm} 0`,
+  };
+
+  const statsBarContainerStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing.xs,
+  };
+
+  const timeInfoStyle: React.CSSProperties = {
+    fontFamily: theme.typography.fontFamily.primary,
+    fontSize: theme.typography.fontSize.xs,
+  };
+
+  const timeRowStyle: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '4px',
+  };
+
+  const timeItemStyle: React.CSSProperties = {
+    color: theme.colors.neutral.black,
+  };
+
+  const timeLabelStyle: React.CSSProperties = {
+    fontWeight: 'bold',
+  };
+
+  const timeValueStyle: React.CSSProperties = {
+    marginLeft: theme.spacing.xs,
+  };
+
+  const timeUnitsStyle: React.CSSProperties = {
+    fontSize: theme.typography.fontSize.tiny,
+    color: theme.colors.neutral.darkGray,
+    marginTop: '2px',
+  };
+
   return (
     <Panel title="Player Stats" variant="default" className={className}>
-      <div className="space-y-4" data-testid="player-stats-hud">
+      <div style={containerStyle} data-testid="player-stats-hud">
         {/* Cash Display */}
-        <div className="cash-display" data-testid="cash-display">
-          <div className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-1">
+        <div style={cashDisplayStyle} data-testid="cash-display">
+          <div style={labelStyle}>
             Cash
           </div>
-          <div className="text-3xl font-bold text-green-600" data-testid="cash-amount">
+          <div style={cashAmountStyle} data-testid="cash-amount">
             {formatCash(playerState.cash)}
           </div>
           {playerState.job && (
-            <div className="text-xs text-gray-500 mt-1" data-testid="weekly-income">
+            <div style={weeklyIncomeStyle} data-testid="weekly-income">
               Weekly Income: {formatCash(playerState.job.wagePerHour * 40)}
             </div>
           )}
@@ -72,19 +157,19 @@ export const PlayerStatsHUD: React.FC<PlayerStatsHUDProps> = ({
 
         {/* Job Display */}
         {playerState.job && (
-          <div className="job-display" data-testid="job-display">
-            <div className="text-sm font-semibold text-gray-600">Current Job</div>
-            <div className="text-base text-gray-800" data-testid="current-job">
+          <div style={jobDisplayStyle} data-testid="job-display">
+            <div style={labelStyle}>Current Job</div>
+            <div style={jobTitleStyle} data-testid="current-job">
               {playerState.job.title}
             </div>
           </div>
         )}
 
         {/* Divider */}
-        <div className="border-t-2 border-gray-300" />
+        <div style={dividerStyle} />
 
         {/* Stat Bars */}
-        <div className="stats-bars space-y-3" data-testid="stats-bars">
+        <div style={statsBarContainerStyle} data-testid="stats-bars">
           <StatBar
             label="Health"
             value={playerState.health}
@@ -112,25 +197,25 @@ export const PlayerStatsHUD: React.FC<PlayerStatsHUDProps> = ({
         </div>
 
         {/* Divider */}
-        <div className="border-t-2 border-gray-300" />
+        <div style={dividerStyle} />
 
         {/* Time Info */}
-        <div className="time-info" data-testid="time-info">
-          <div className="flex justify-between items-center text-sm">
-            <div>
-              <span className="font-semibold text-gray-700">Week:</span>
-              <span className="ml-2 text-gray-800" data-testid="current-week">
+        <div style={timeInfoStyle} data-testid="time-info">
+          <div style={timeRowStyle}>
+            <div style={timeItemStyle}>
+              <span style={timeLabelStyle}>Week:</span>
+              <span style={timeValueStyle} data-testid="current-week">
                 {currentWeek}
               </span>
             </div>
-            <div>
-              <span className="font-semibold text-gray-700">Time:</span>
-              <span className="ml-2 text-gray-800" data-testid="time-remaining">
+            <div style={timeItemStyle}>
+              <span style={timeLabelStyle}>Time:</span>
+              <span style={timeValueStyle} data-testid="time-remaining">
                 {hours}h {minutes}m
               </span>
             </div>
           </div>
-          <div className="text-xs text-gray-500 mt-1">
+          <div style={timeUnitsStyle}>
             {timeRemaining.toFixed(1)} units remaining
           </div>
         </div>
@@ -138,7 +223,7 @@ export const PlayerStatsHUD: React.FC<PlayerStatsHUDProps> = ({
         {/* Victory Progress */}
         {showVictoryProgress && victoryConditions.length > 0 && (
           <>
-            <div className="border-t-2 border-gray-300" />
+            <div style={dividerStyle} />
             <VictoryProgress victoryConditions={victoryConditions} />
           </>
         )}

@@ -221,7 +221,7 @@ export function App() {
         canvas,
         game: gameController.getGame(),
         pixelScale: 1,
-        showFPS: true,
+        showFPS: false,
       });
       renderCoordinatorRef.current = renderCoordinator;
 
