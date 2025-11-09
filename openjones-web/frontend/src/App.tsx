@@ -238,7 +238,7 @@ export function App() {
       // Create InputHandler
       const inputHandler = new InputHandler({
         canvas,
-        game: gameController.getGame(),
+        gameController,
         playerId: 'player-1',
         tileSize: 100, // Match 5x5 grid
         onBuildingSelected: handleBuildingSelect,
@@ -304,24 +304,26 @@ export function App() {
       return;
     }
 
-    // Execute the action through the game
+    // Execute the action through the gameController (this will notify observers)
     const game = gameControllerRef.current.getGame();
     const player = game.getCurrentPlayer();
-    const response = game.processTurn(player.id, action);
 
-    // Close modal and show result
-    setAppState(prev => ({
-      ...prev,
-      showBuildingModal: false,
-      selectedBuilding: null,
-      buildingActions: [],
-      errorMessage: response.message,
-    }));
+    // Use gameController.executeAction() to ensure observers are notified
+    gameControllerRef.current.executeAction(player.id, action).then((result) => {
+      // Close modal and show result
+      setAppState(prev => ({
+        ...prev,
+        showBuildingModal: false,
+        selectedBuilding: null,
+        buildingActions: [],
+        errorMessage: result.message,
+      }));
 
-    // Clear message after 3 seconds
-    setTimeout(() => {
-      setAppState(prev => ({ ...prev, errorMessage: null }));
-    }, 3000);
+      // Clear message after 3 seconds
+      setTimeout(() => {
+        setAppState(prev => ({ ...prev, errorMessage: null }));
+      }, 3000);
+    });
   }, [appState.selectedBuilding, appState.buildingActions]);
 
   /**

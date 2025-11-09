@@ -11,14 +11,15 @@
  * - Managing building interaction flow
  */
 
-import { IGame, IPosition } from '@shared/types/contracts';
+import { IPosition } from '@shared/types/contracts';
 import { Position } from '../engine/types/Position';
 import { MovementAction } from '../engine/actions/MovementAction';
 import { EnterBuildingAction } from '../engine/actions/EnterBuildingAction';
+import { GameController } from '../engine/GameController';
 
 export interface InputHandlerConfig {
   canvas: HTMLCanvasElement;
-  game: IGame;
+  gameController: GameController;
   playerId: string;
   tileSize?: number;
   onActionSelected?: (actionType: string) => void;
@@ -33,7 +34,7 @@ export interface InputState {
 
 export class InputHandler {
   private canvas: HTMLCanvasElement;
-  private game: IGame;
+  private gameController: GameController;
   private playerId: string;
   private tileSize: number;
 
@@ -53,7 +54,7 @@ export class InputHandler {
 
   constructor(config: InputHandlerConfig) {
     this.canvas = config.canvas;
-    this.game = config.game;
+    this.gameController = config.gameController;
     this.playerId = config.playerId;
     this.tileSize = config.tileSize || 32;
     this.onActionSelected = config.onActionSelected;
@@ -148,14 +149,15 @@ export class InputHandler {
    * Process click on map position
    */
   private processClick(position: Position): void {
-    const player = this.game.getPlayerById(this.playerId);
+    const game = this.gameController.getGame();
+    const player = game.getPlayerById(this.playerId);
     if (!player) {
       console.warn('Player not found');
       return;
     }
 
     // Check if clicked on a building
-    const building = this.game.map.getBuilding(position);
+    const building = game.map.getBuilding(position);
 
     if (building) {
       this.handleBuildingClick(building.id, position);
@@ -169,7 +171,8 @@ export class InputHandler {
    * Handle click on building
    */
   private handleBuildingClick(buildingId: string, position: Position): void {
-    const player = this.game.getPlayerById(this.playerId);
+    const game = this.gameController.getGame();
+    const player = game.getPlayerById(this.playerId);
     if (!player) {
       return;
     }
@@ -180,7 +183,7 @@ export class InputHandler {
     if (isAtBuilding) {
       // Enter building (EnterBuildingAction takes position, not buildingId)
       const action = new EnterBuildingAction(position);
-      this.game.processTurn(this.playerId, action);
+      this.gameController.executeAction(this.playerId, action);
 
       // Notify UI to show building modal
       if (this.onBuildingSelected) {
@@ -199,7 +202,8 @@ export class InputHandler {
    * Handle click on empty tile (movement)
    */
   private handleMovementClick(position: Position): void {
-    const player = this.game.getPlayerById(this.playerId);
+    const game = this.gameController.getGame();
+    const player = game.getPlayerById(this.playerId);
     if (!player) {
       return;
     }
@@ -214,15 +218,16 @@ export class InputHandler {
 
     // Create movement action (takes fromPosition and toPosition)
     const action = new MovementAction(currentPos, position);
-    this.game.processTurn(this.playerId, action);
+    this.gameController.executeAction(this.playerId, action);
   }
 
   /**
    * Check if move is valid
    */
   private isValidMove(_from: IPosition, to: IPosition): boolean {
+    const game = this.gameController.getGame();
     // Check map bounds
-    if (!this.game.map.isValidPosition(to)) {
+    if (!game.map.isValidPosition(to)) {
       return false;
     }
 
@@ -241,7 +246,8 @@ export class InputHandler {
    * Handle keyboard input
    */
   private handleKeyPress(event: KeyboardEvent): void {
-    const player = this.game.getPlayerById(this.playerId);
+    const game = this.gameController.getGame();
+    const player = game.getPlayerById(this.playerId);
     if (!player) {
       return;
     }
@@ -342,15 +348,16 @@ export class InputHandler {
    * Toggle debug mode
    */
   private toggleDebug(): void {
-    const player = this.game.getPlayerById(this.playerId);
+    const game = this.gameController.getGame();
+    const player = game.getPlayerById(this.playerId);
     if (!player) {
       return;
     }
 
     console.log('Debug:', {
       playerPos: player.state.position,
-      gameWeek: this.game.currentWeek,
-      timeRemaining: this.game.timeUnitsRemaining,
+      gameWeek: game.currentWeek,
+      timeRemaining: game.timeUnitsRemaining,
       cash: player.state.cash,
       health: player.state.health,
       happiness: player.state.happiness,
