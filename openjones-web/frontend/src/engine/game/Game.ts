@@ -33,7 +33,7 @@ import { Player } from './Player';
 import { PlayerState } from './PlayerState';
 import { Position } from '../types/Position';
 import { EconomyModel } from '../economy/EconomyModel';
-import { MockMap } from '@shared/mocks';
+import { MapFactory } from '../map/MapFactory';
 
 export class Game implements IGame {
   id: string;
@@ -53,7 +53,7 @@ export class Game implements IGame {
     this.timeUnitsRemaining = GAME_CONSTANTS.TIME_UNITS_PER_WEEK;
     this.currentPlayerIndex = 0;
     this.players = [];
-    this.map = new MockMap(); // TODO: Replace with real Map when Task B2 is complete
+    this.map = MapFactory.createDefaultMap();
     this.economyModel = new EconomyModel();
     this.victoryConditions = {
       targetWealth: 10000,
@@ -86,6 +86,7 @@ export class Game implements IGame {
     // Create players from config
     this.players = config.players.map((playerConfig) => {
       // Create player state with starting values
+      // Players start at Low-Cost Apartment (2,0) with it rented
       const state = new PlayerState({
         playerId: playerConfig.id,
         cash: config.startingCash,
@@ -93,13 +94,14 @@ export class Game implements IGame {
         happiness: config.startingStats.happiness,
         education: config.startingStats.education,
         career: 0,
-        position: new Position(0, 0), // All players start at (0,0)
+        position: new Position(2, 0), // Start at Low-Cost Apartment
         currentBuilding: null,
         job: null,
         experience: [],
         possessions: [],
-        rentedHome: null,
+        rentedHome: 'lowcost-apartment', // Start with Low-Cost Apartment rented
         rentDebt: 0,
+        weeksOfRentRemaining: GAME_CONSTANTS.STARTING_WEEKS_OF_RENT, // Start with 4 prepaid weeks
       });
 
       // Create player
@@ -115,8 +117,8 @@ export class Game implements IGame {
     // Set victory conditions
     this.victoryConditions = { ...config.victoryConditions };
 
-    // Initialize map (using MockMap for now)
-    this.map = new MockMap();
+    // Initialize map with all buildings
+    this.map = MapFactory.createDefaultMap();
 
     // Initialize economy model
     this.economyModel = new EconomyModel();
@@ -215,7 +217,12 @@ export class Game implements IGame {
   }
 
   /**
-   * Process end-of-week events (rent payment, etc.)
+   * Process end-of-week events (rent consumption, etc.)
+   *
+   * Java behavior:
+   * - Before consuming rent, check if player has 0 weeks remaining
+   * - If 0 weeks, add weekly rent cost to rent debt
+   * - Then consume 1 week of rent (if available)
    */
   private processEndOfWeek(): void {
     // Process rent for all players
@@ -223,20 +230,17 @@ export class Game implements IGame {
       if (player.state.rentedHome) {
         const building = this.map.getBuildingById(player.state.rentedHome);
         if (building && building.isHome()) {
-          const rent = this.economyModel.getRent(building.type);
+          const weeklyRent = this.economyModel.getRent(building.type);
 
-          if (player.state.canAfford(rent)) {
-            // Player can pay rent
-            player.state.cash -= rent;
-          } else {
-            // Player cannot afford rent - add to debt
-            const shortage = rent - player.state.cash;
-            player.state.cash = 0;
-            player.state.rentDebt += shortage;
+          // Check if rent is depleted (before consuming)
+          if (player.state.weeksOfRentRemaining <= 0) {
+            // Accumulate rent debt (Java: PossessionManager.consume())
+            player.state.rentDebt += weeklyRent;
+          }
 
-            // Apply penalties for debt (health and happiness reduction)
-            player.state.updateMeasure(MeasureType.HEALTH, -5);
-            player.state.updateMeasure(MeasureType.HAPPINESS, -10);
+          // Consume 1 week of rent if available
+          if (player.state.weeksOfRentRemaining > 0) {
+            player.state.weeksOfRentRemaining -= 1;
           }
         }
       }
@@ -317,6 +321,7 @@ export class Game implements IGame {
           possessions: player.state.possessions,
           rentedHome: player.state.rentedHome,
           rentDebt: player.state.rentDebt,
+          weeksOfRentRemaining: player.state.weeksOfRentRemaining,
         },
       })),
       victoryConditions: this.victoryConditions,
@@ -360,6 +365,7 @@ export class Game implements IGame {
           possessions: playerData.state.possessions,
           rentedHome: playerData.state.rentedHome,
           rentDebt: playerData.state.rentDebt,
+          weeksOfRentRemaining: playerData.state.weeksOfRentRemaining || 0,
         });
 
         return new Player({
@@ -373,7 +379,7 @@ export class Game implements IGame {
 
       // Reinitialize map and economy model
       // (These are stateless in the current implementation)
-      this.map = new MockMap();
+      this.map = MapFactory.createDefaultMap();
       this.economyModel = new EconomyModel();
     } catch (error) {
       throw new Error(`Failed to deserialize game state: ${error}`);
@@ -428,6 +434,34 @@ export class Game implements IGame {
 
         case 'position':
           player.state.position = change.value as IPosition;
+          break;
+
+        case 'location':
+          // Handle entering/exiting buildings
+          player.state.currentBuilding = (change.value as string) || null;
+          break;
+
+        case 'time':
+          // Advance game time
+          this.advanceTime(change.value as number);
+          break;
+
+        case 'rent_weeks':
+        case 'weeksOfRent':
+          // Modify weeks of rent remaining
+          player.state.weeksOfRentRemaining = change.value as number;
+          break;
+
+        case 'rent_debt':
+        case 'rentDebt':
+          // Modify rent debt
+          player.state.rentDebt = change.value as number;
+          break;
+
+        case 'rented_home':
+        case 'rentedHome':
+          // Change rented home
+          player.state.rentedHome = (change.value as string) || null;
           break;
 
         default:

@@ -1,10 +1,10 @@
 /**
- * Bank - Financial institution offering banking jobs and stock trading
+ * Bank - Financial institution offering stock trading
  *
  * Part of Task B7: Core Buildings (Factory, College, Bank)
  * Worker 2 - Track B (Domain Logic)
  *
- * The Bank allows players to work as tellers and interact with the stock market.
+ * The Bank allows players to trade stocks. No jobs are offered at the Bank (Java: addJobs() is empty).
  * Future enhancements will include savings accounts and loan management.
  */
 
@@ -31,14 +31,9 @@ interface StockInfo {
 
 /**
  * Bank building - financial services and stock trading
- * Offers bank teller jobs and stock market access
+ * Java Bank.java: No jobs offered (stock trading only)
  */
 export class Bank extends Building {
-  // Job wage rates
-  private static readonly TELLER_BASE_WAGE = 10;
-  private static readonly LOAN_OFFICER_BASE_WAGE = 16;
-  private static readonly BRANCH_MANAGER_BASE_WAGE = 22;
-
   // Stock base values (from Java Bank.java)
   private static readonly T_BILLS_BASE_VALUE = 100;
   private static readonly GOLD_BASE_VALUE = 450;
@@ -50,65 +45,15 @@ export class Bank extends Building {
   // Available stocks
   private stocks: StockInfo[];
 
-  // Job offerings for this building
-  private jobs: IJob[];
-
   constructor(id: string, name: string, position: IPosition) {
     super(
       id,
       BuildingType.BANK,
       name,
-      'Financial institution offering banking jobs and stock market access',
+      'Financial institution for stock trading (Java: no jobs at Bank)',
       position
     );
-    this.jobs = this.createBankJobs();
     this.stocks = this.createStockList();
-  }
-
-  /**
-   * Create all job offerings for the Bank
-   */
-  private createBankJobs(): IJob[] {
-    return [
-      // Rank 2 - Bank Teller
-      {
-        id: `${this.id}-job-teller`,
-        title: 'Bank Teller',
-        rank: 2,
-        requiredEducation: 10, // rank * 5
-        requiredExperience: 20, // rank * 10
-        requiredClothesLevel: 2,
-        wagePerHour: Bank.TELLER_BASE_WAGE,
-        experienceGainPerHour: 5,
-        buildingType: BuildingType.BANK,
-      },
-
-      // Rank 5 - Loan Officer
-      {
-        id: `${this.id}-job-loan-officer`,
-        title: 'Loan Officer',
-        rank: 5,
-        requiredEducation: 25, // rank * 5
-        requiredExperience: 50, // rank * 10
-        requiredClothesLevel: 3,
-        wagePerHour: Bank.LOAN_OFFICER_BASE_WAGE,
-        experienceGainPerHour: 5,
-        buildingType: BuildingType.BANK,
-      },
-
-      // Rank 7 - Branch Manager
-      {
-        id: `${this.id}-job-branch-manager`,
-        title: 'Branch Manager',
-        rank: 7,
-        requiredEducation: 35, // rank * 5
-        requiredExperience: 70, // rank * 10
-        requiredClothesLevel: 3,
-        wagePerHour: Bank.BRANCH_MANAGER_BASE_WAGE,
-        experienceGainPerHour: 5,
-        buildingType: BuildingType.BANK,
-      },
-    ];
   }
 
   /**
@@ -128,9 +73,10 @@ export class Bank extends Building {
 
   /**
    * Get all job offerings at this Bank
+   * Java Bank.java: addJobs() is empty - no jobs at Bank
    */
   getJobOfferings(): IJob[] {
-    return [...this.jobs];
+    return []; // No jobs at Bank (matches Java)
   }
 
   /**

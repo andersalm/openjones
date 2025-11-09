@@ -17,10 +17,9 @@ import {
   BuildingType,
   ActionType,
   IPosition,
-  MeasureType,
-  GAME_CONSTANTS,
 } from '../../../../shared/types/contracts';
 import { Building } from './Building';
+import { StudyAction } from '../actions/StudyAction';
 
 /**
  * College building - education and learning
@@ -31,11 +30,6 @@ export class College extends Building {
   private static readonly JANITOR_BASE_WAGE = 6;
   private static readonly TEACHER_BASE_WAGE = 12;
   private static readonly PROFESSOR_BASE_WAGE = 27;
-
-  // Study action constants (from Java StudyAction.java)
-  private static readonly STUDY_DURATION = 20; // time units (4 hours)
-  private static readonly STUDY_COST = 15; // dollars
-  private static readonly EDUCATION_POINTS_GAIN = 1; // education increase
 
   // Job offerings for this building
   private jobs: IJob[];
@@ -113,8 +107,9 @@ export class College extends Building {
     const actions: IAction[] = [];
 
     if (this.isPlayerInside(player)) {
-      // Study actions with different durations
-      actions.push(this.createStudyAction());
+      // Study action using the new StudyAction class
+      const studyAction = new StudyAction();
+      actions.push(studyAction);
 
       // Exit action
       actions.push(this.createExitAction());
@@ -143,109 +138,6 @@ export class College extends Building {
     );
 
     return Building.createActionTreeNode(rootAction, childNodes, 0);
-  }
-
-  /**
-   * Create the study action
-   * Based on Java StudyAction.java
-   */
-  private createStudyAction(): IAction {
-    return {
-      id: `${this.id}-study`,
-      type: ActionType.STUDY,
-      displayName: `Study ($${College.STUDY_COST})`,
-      description: `Study for ${College.STUDY_DURATION / GAME_CONSTANTS.TIME_UNITS_PER_HOUR} hours to increase your education`,
-      timeCost: College.STUDY_DURATION,
-
-      canExecute: (player: IPlayerState, game: IGame) => {
-        // Must be inside the college
-        if (!this.isPlayerInside(player)) {
-          return false;
-        }
-
-        // Must have enough cash
-        if (!player.canAfford(College.STUDY_COST)) {
-          return false;
-        }
-
-        // Must have enough time remaining
-        if (game.timeUnitsRemaining < College.STUDY_DURATION) {
-          return false;
-        }
-
-        return true;
-      },
-
-      execute: (player: IPlayerState, game: IGame) => {
-        // Check preconditions
-        if (!this.isPlayerInside(player)) {
-          return {
-            success: false,
-            message: 'You must be inside the college to study',
-            timeSpent: 0,
-            stateChanges: [],
-          };
-        }
-
-        if (!player.canAfford(College.STUDY_COST)) {
-          return {
-            success: false,
-            message: `You need $${College.STUDY_COST} to study`,
-            timeSpent: 0,
-            stateChanges: [],
-          };
-        }
-
-        if (game.timeUnitsRemaining < College.STUDY_DURATION) {
-          return {
-            success: false,
-            message: 'Not enough time remaining this week',
-            timeSpent: 0,
-            stateChanges: [],
-          };
-        }
-
-        // Execute study action
-        const newCash = player.cash - College.STUDY_COST;
-        const newEducation = Math.min(
-          GAME_CONSTANTS.MAX_EDUCATION,
-          player.education + College.EDUCATION_POINTS_GAIN
-        );
-
-        return {
-          success: true,
-          message: 'Another brick in the wall', // Easter egg from Java code!
-          timeSpent: College.STUDY_DURATION,
-          stateChanges: [
-            {
-              type: 'cash',
-              value: newCash,
-              description: `Paid $${College.STUDY_COST} for studying`,
-            },
-            {
-              type: 'measure',
-              measure: MeasureType.EDUCATION,
-              value: newEducation,
-              description: `Education increased by ${College.EDUCATION_POINTS_GAIN}`,
-            },
-          ],
-        };
-      },
-
-      getRequirements: () => [
-        {
-          type: 'building',
-          value: this.id,
-          description: 'Must be inside the college',
-        },
-        {
-          type: 'cash',
-          value: College.STUDY_COST,
-          comparison: 'gte',
-          description: `Need $${College.STUDY_COST}`,
-        },
-      ],
-    };
   }
 
   /**

@@ -7,18 +7,29 @@ import {
   IActionRequirement,
   ActionType,
   IJob,
+  GAME_CONSTANTS,
 } from '@shared/types/contracts';
 
 export class WorkAction extends Action {
-  constructor(private job: IJob, private hours: number) {
-    const timeCost = hours * 60; // Convert hours to minutes
+  private static readonly WORK_PERIOD_IN_TIME_UNITS = 60; // Max work period (12 hours)
+  private static readonly GARNISH_PERCENTAGE = 30; // 30% wage garnishment for rent debt
+
+  constructor(private job: IJob, private hours?: number) {
+    // If hours not specified, calculate max available time up to WORK_PERIOD
+    const timeCost = hours
+      ? hours * GAME_CONSTANTS.TIME_UNITS_PER_HOUR
+      : WorkAction.WORK_PERIOD_IN_TIME_UNITS;
+
     super(
-      `work-${job.id}-${hours}h`,
+      `work-${job.id}${hours ? `-${hours}h` : ''}`,
       ActionType.WORK,
       'Work',
-      `Work ${hours} hours at ${job.title}`,
+      hours ? `Work ${hours} hours at ${job.title}` : `Work at ${job.title}`,
       timeCost
     );
+
+    // Store hours for calculation (will be determined at execution time if not set)
+    this.hours = hours;
   }
 
   canExecute(player: IPlayerState, _game: IGame): boolean {
@@ -50,19 +61,59 @@ export class WorkAction extends Action {
       return ActionResponse.failure('Cannot work right now');
     }
 
-    const earnings = this.job.wagePerHour * this.hours;
-    const healthLoss = this.hours * 2; // Lose 2 health per hour worked
-    const careerGain = this.hours * 1; // Gain 1 career point per hour
+    // Calculate actual hours worked based on available time
+    const timeAvailable = Math.min(
+      game.timeUnitsRemaining,
+      this.hours
+        ? this.hours * GAME_CONSTANTS.TIME_UNITS_PER_HOUR
+        : WorkAction.WORK_PERIOD_IN_TIME_UNITS
+    );
+    const actualHours = timeAvailable / GAME_CONSTANTS.TIME_UNITS_PER_HOUR;
 
+    // Calculate base wage
+    const wagePerTimeUnit = this.job.wagePerHour / GAME_CONSTANTS.TIME_UNITS_PER_HOUR;
+    const baseEarnings = Math.floor(timeAvailable * wagePerTimeUnit);
+
+    // Apply wage garnishment if player has rent debt
+    let netEarnings = baseEarnings;
+    let garnishedAmount = 0;
+    let messagePrefix = '';
+
+    if (player.rentDebt > 0) {
+      // Garnish 30% or enough to cover debt, whichever is less
+      const maxGarnish = Math.floor(baseEarnings * (WorkAction.GARNISH_PERCENTAGE / 100));
+      garnishedAmount = Math.min(maxGarnish, player.rentDebt);
+      netEarnings = baseEarnings - garnishedAmount;
+      messagePrefix = `I had to garnish $${garnishedAmount}. `;
+    }
+
+    const experienceGain = timeAvailable; // 1 experience unit per time unit worked
+
+    // Add experience gain to player's experience at job rank
+    const existingExp = player.experience.find((e) => e.rank === this.job.rank);
+    if (existingExp) {
+      existingExp.points += experienceGain;
+    } else {
+      player.experience.push({ rank: this.job.rank, points: experienceGain });
+    }
+    // Update career score
+    const totalExperience = player.experience.reduce((sum, exp) => sum + exp.points, 0);
+
+    // Java: job.healthEffect() and job.happinessEffect() both return 0
+    // Work does NOT affect health or happiness in the base implementation
     const changes = StateChangeBuilder.create()
-      .cash(player.cash + earnings, `Earned $${earnings}`)
-      .health(player.health - healthLoss, `Lost ${healthLoss} health from work`)
-      .career(player.career + careerGain, `Gained ${careerGain} career experience`)
+      .cash(player.cash + netEarnings, `Earned $${netEarnings} (base: $${baseEarnings})`)
+      .career(totalExperience, `Gained ${experienceGain} experience`)
       .build();
 
+    // Reduce rent debt by garnished amount
+    if (garnishedAmount > 0) {
+      player.rentDebt = Math.max(0, player.rentDebt - garnishedAmount);
+    }
+
     return ActionResponse.success(
-      `Worked ${this.hours} hours and earned $${earnings}`,
-      this.timeCost,
+      `${messagePrefix}Worked ${actualHours.toFixed(1)} hours and earned $${netEarnings}`,
+      timeAvailable,
       changes
     );
   }

@@ -63,93 +63,15 @@ export function App() {
   });
 
   /**
-   * Initialize a new game with full integration
+   * Stop all game systems
    */
-  const initializeGame = useCallback((playerName: string) => {
-    // Create game configuration
-    const gameConfig = {
-      players: [
-        {
-          id: 'player-1',
-          name: playerName,
-          color: '#3B82F6',
-          isAI: false,
-        },
-      ],
-      startingCash: 500,
-      startingStats: {
-        health: 100,
-        happiness: 100,
-        education: 0,
-      },
-      victoryConditions: {
-        targetWealth: 10000,
-        targetHealth: 100,
-        targetHappiness: 100,
-        targetCareer: 850,
-        targetEducation: 100,
-      },
-    };
-
-    // Create GameController with initialized game
-    const gameController = GameController.createWithGame(gameConfig);
-    gameControllerRef.current = gameController;
-
-    // Get canvas element
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      console.error('Canvas element not found');
-      return;
+  const stopGame = useCallback(() => {
+    if (gameControllerRef.current) {
+      gameControllerRef.current.stop();
     }
-
-    // Set canvas size
-    canvas.width = 800;
-    canvas.height = 600;
-
-    // Create RenderCoordinator
-    const renderCoordinator = new RenderCoordinator({
-      canvas,
-      game: gameController.getGame(),
-      pixelScale: 1,
-      showFPS: true,
-    });
-    renderCoordinatorRef.current = renderCoordinator;
-
-    // Create InputHandler
-    const inputHandler = new InputHandler({
-      canvas,
-      game: gameController.getGame(),
-      playerId: 'player-1',
-      tileSize: 64,
-      onBuildingSelected: handleBuildingSelect,
-      onActionSelected: (actionType) => {
-        console.log('Action selected:', actionType);
-      },
-    });
-    inputHandlerRef.current = inputHandler;
-
-    // Wire observer pattern: GameController -> RenderCoordinator
-    const unsubscribe = gameController.subscribe((game: IGame) => {
-      // Update render coordinator with new game state
-      renderCoordinator.onGameStateChange(game);
-
-      // Update React UI state
-      updateAppState(game);
-    });
-    unsubscribeRef.current = unsubscribe;
-
-    // Start all systems
-    gameController.start();
-    renderCoordinator.start();
-    inputHandler.initialize();
-
-    // Initial state update
-    updateAppState(gameController.getGame());
-
-    setAppState(prev => ({
-      ...prev,
-      phase: 'playing',
-    }));
+    if (renderCoordinatorRef.current) {
+      renderCoordinatorRef.current.stop();
+    }
   }, []);
 
   /**
@@ -161,21 +83,42 @@ export function App() {
     const player = game.getCurrentPlayer();
     const playerState = player.state;
 
-    // Create victory conditions for UI
+    // Create victory conditions for UI - ALL 5 goals must be met!
     const victoryConditions: VictoryCondition[] = [
       {
         id: 'wealth',
         type: 'cash',
-        description: 'Accumulate wealth',
+        description: 'Wealth',
         targetValue: game.victoryConditions.targetWealth,
         currentValue: player.state.cash,
       },
       {
+        id: 'health',
+        type: 'measure',
+        description: 'Health',
+        targetValue: game.victoryConditions.targetHealth,
+        currentValue: player.state.health,
+      },
+      {
+        id: 'happiness',
+        type: 'happiness',
+        description: 'Happiness',
+        targetValue: game.victoryConditions.targetHappiness,
+        currentValue: player.state.happiness,
+      },
+      {
         id: 'career',
         type: 'career',
-        description: 'Build your career',
+        description: 'Career',
         targetValue: game.victoryConditions.targetCareer,
         currentValue: player.state.career,
+      },
+      {
+        id: 'education',
+        type: 'education',
+        description: 'Education',
+        targetValue: game.victoryConditions.targetEducation,
+        currentValue: player.state.education,
       },
     ];
 
@@ -196,19 +139,122 @@ export function App() {
       setAppState(prev => ({ ...prev, phase: 'defeat' }));
       stopGame();
     }
+  }, [stopGame]);
+
+  /**
+   * Handle building selection
+   */
+  const handleBuildingSelect = useCallback((buildingId: string) => {
+    if (!gameControllerRef.current) return;
+
+    const game = gameControllerRef.current.getGame();
+    const building = game.map.getBuildingById(buildingId);
+
+    if (building) {
+      setAppState(prev => ({
+        ...prev,
+        selectedBuilding: building,
+        showBuildingModal: true,
+      }));
+    }
   }, []);
 
   /**
-   * Stop all game systems
+   * Initialize a new game with full integration
    */
-  const stopGame = useCallback(() => {
-    if (gameControllerRef.current) {
-      gameControllerRef.current.stop();
-    }
-    if (renderCoordinatorRef.current) {
-      renderCoordinatorRef.current.stop();
-    }
-  }, []);
+  const initializeGame = useCallback((playerName: string) => {
+    // Store player name and switch to playing phase
+    // The actual initialization will happen in useEffect once canvas is rendered
+    setAppState(prev => ({
+      ...prev,
+      phase: 'playing',
+      errorMessage: null,
+    }));
+
+    // Defer initialization to next tick after React renders the canvas
+    setTimeout(() => {
+      // Create game configuration
+      const gameConfig = {
+        players: [
+          {
+            id: 'player-1',
+            name: playerName,
+            color: '#3B82F6',
+            isAI: false,
+          },
+        ],
+        startingCash: 200, // Match Java version
+        startingStats: {
+          health: 0,      // Java starts at 0, not 100!
+          happiness: 0,   // Java starts at 0, not 100!
+          education: 0,
+        },
+        victoryConditions: {
+          targetWealth: 10000,
+          targetHealth: 100,
+          targetHappiness: 100,
+          targetCareer: 850,
+          targetEducation: 100,
+        },
+      };
+
+      // Create GameController with initialized game
+      const gameController = GameController.createWithGame(gameConfig);
+      gameControllerRef.current = gameController;
+
+      // Get canvas element
+      const canvas = canvasRef.current;
+      if (!canvas) {
+        console.error('Canvas element not found');
+        setAppState(prev => ({ ...prev, errorMessage: 'Failed to initialize canvas', phase: 'menu' }));
+        return;
+      }
+
+      // Set canvas size
+      canvas.width = 800;
+      canvas.height = 600;
+
+      // Create RenderCoordinator
+      const renderCoordinator = new RenderCoordinator({
+        canvas,
+        game: gameController.getGame(),
+        pixelScale: 1,
+        showFPS: true,
+      });
+      renderCoordinatorRef.current = renderCoordinator;
+
+      // Create InputHandler
+      const inputHandler = new InputHandler({
+        canvas,
+        game: gameController.getGame(),
+        playerId: 'player-1',
+        tileSize: 64,
+        onBuildingSelected: handleBuildingSelect,
+        onActionSelected: (actionType) => {
+          console.log('Action selected:', actionType);
+        },
+      });
+      inputHandlerRef.current = inputHandler;
+
+      // Wire observer pattern: GameController -> RenderCoordinator
+      const unsubscribe = gameController.subscribe((game: IGame) => {
+        // Update render coordinator with new game state
+        renderCoordinator.onGameStateChange(game);
+
+        // Update React UI state
+        updateAppState(game);
+      });
+      unsubscribeRef.current = unsubscribe;
+
+      // Start all systems
+      gameController.start();
+      renderCoordinator.start();
+      inputHandler.initialize();
+
+      // Initial state update
+      updateAppState(gameController.getGame());
+    }, 0);
+  }, [updateAppState, handleBuildingSelect]);
 
   /**
    * Clean up on unmount
@@ -231,24 +277,6 @@ export function App() {
         gameControllerRef.current.stop();
       }
     };
-  }, []);
-
-  /**
-   * Handle building selection
-   */
-  const handleBuildingSelect = useCallback((buildingId: string) => {
-    if (!gameControllerRef.current) return;
-
-    const game = gameControllerRef.current.getGame();
-    const building = game.map.getBuildingById(buildingId);
-
-    if (building) {
-      setAppState(prev => ({
-        ...prev,
-        selectedBuilding: building,
-        showBuildingModal: true,
-      }));
-    }
   }, []);
 
   /**

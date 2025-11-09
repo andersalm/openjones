@@ -39,6 +39,7 @@ export class PlayerState implements IPlayerState {
   possessions: IPossession[];
   rentedHome: string | null;
   rentDebt: number;
+  weeksOfRentRemaining: number; // Prepaid rent weeks remaining
 
   constructor(params: {
     playerId: string;
@@ -54,6 +55,7 @@ export class PlayerState implements IPlayerState {
     possessions?: IPossession[];
     rentedHome?: string | null;
     rentDebt?: number;
+    weeksOfRentRemaining?: number;
   }) {
     this.playerId = params.playerId;
     this.cash = params.cash ?? 0;
@@ -68,6 +70,7 @@ export class PlayerState implements IPlayerState {
     this.possessions = params.possessions ?? [];
     this.rentedHome = params.rentedHome ?? null;
     this.rentDebt = params.rentDebt ?? 0;
+    this.weeksOfRentRemaining = params.weeksOfRentRemaining ?? 0;
   }
 
   /**
@@ -95,6 +98,7 @@ export class PlayerState implements IPlayerState {
       possessions: this.possessions.map(p => ({ ...p })),
       rentedHome: this.rentedHome,
       rentDebt: this.rentDebt,
+      weeksOfRentRemaining: this.weeksOfRentRemaining,
     });
   }
 
@@ -232,6 +236,7 @@ export class PlayerState implements IPlayerState {
       possessions: state.possessions,
       rentedHome: state.rentedHome,
       rentDebt: state.rentDebt,
+      weeksOfRentRemaining: state.weeksOfRentRemaining,
     });
   }
 }
