@@ -152,11 +152,13 @@ export abstract class Action implements IAction {
 
   /**
    * Helper method to check if player has enough time for this action
-   * Note: timeRemaining property not currently in IPlayerState interface
+   * This is a simplified check - the real time validation happens in execute()
+   * For actions that support partial time (like Work), override in execute()
    */
   protected hasEnoughTime(_player: IPlayerState): boolean {
-    // return Remaining >= this.timeCost;
-    return true; // Temporarily always true until timeRemaining is added to IPlayerState
+    // Always return true - let execute() handle time validation with game.timeUnitsRemaining
+    // This allows actions like Work to use partial time
+    return true;
   }
 
   /**

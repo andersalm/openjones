@@ -159,17 +159,10 @@ export class Game implements IGame {
       };
     }
 
-    // Check if player has enough time remaining BEFORE executing
-    if (action.timeCost > this.timeUnitsRemaining) {
-      return {
-        success: false,
-        message: `Not enough time remaining. Action requires ${action.timeCost} units, but only ${this.timeUnitsRemaining} remaining`,
-        timeSpent: 0,
-        stateChanges: [],
-      };
-    }
-
-    // Execute the action (it handles its own validation and returns detailed errors)
+    // Execute the action (it handles its own validation including time checks)
+    // Note: We DON'T check timeUnitsRemaining here because some actions (like Work)
+    // can use partial time. Actions that require full time must validate themselves.
+    // Java behavior: actions call getAvailableTimeUpto() to cap time usage.
     const response = action.execute(player.state, this);
 
     // If action was successful, apply state changes and advance time

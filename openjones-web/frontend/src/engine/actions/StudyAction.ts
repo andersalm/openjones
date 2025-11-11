@@ -46,8 +46,20 @@ export class StudyAction extends Action {
   }
 
   execute(player: IPlayerState, game: IGame): IActionResponse {
-    if (!this.canExecute(player, game)) {
-      return ActionResponse.failure('Cannot study right now');
+    // Check time first (Study requires full time, no partial)
+    if (game.timeUnitsRemaining < this.timeCost) {
+      return ActionResponse.failure(
+        `Not enough time. Need ${this.timeCost} units, have ${game.timeUnitsRemaining}`
+      );
+    }
+
+    // Check other requirements
+    if (!player.canAfford(StudyAction.STUDY_COST)) {
+      return ActionResponse.failure(`Need $${StudyAction.STUDY_COST} for tuition`);
+    }
+
+    if (!this.requiresBuilding(player, this.collegeId)) {
+      return ActionResponse.failure('Must be at College');
     }
 
     const changes = StateChangeBuilder.create()
