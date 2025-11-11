@@ -16,6 +16,7 @@ import {
   IPosition,
 } from '../../../../shared/types/contracts';
 import { Building } from './Building';
+import { ExitBuildingAction } from '../actions/ExitBuildingAction';
 
 export class RentAgency extends Building {
   // Job wages from Java reference
@@ -102,7 +103,7 @@ export class RentAgency extends Building {
       }
 
       // Exit action
-      actions.push(this.createExitAction());
+      actions.push(new ExitBuildingAction());
     }
 
     return actions;
@@ -115,7 +116,7 @@ export class RentAgency extends Building {
     const actions = this.getAvailableActions(player, game);
 
     if (actions.length === 0) {
-      const exitAction = this.createExitAction();
+      const exitAction = new ExitBuildingAction();
       return Building.createActionTreeNode(exitAction, [], 0);
     }
 
@@ -289,47 +290,6 @@ export class RentAgency extends Building {
           description: `Need $${rent} for first week`,
         },
       ],
-    };
-  }
-
-  /**
-   * Create exit action
-   */
-  private createExitAction(): IAction {
-    return {
-      id: `${this.id}-exit`,
-      type: ActionType.EXIT_BUILDING,
-      displayName: 'Exit Agency',
-      description: 'Leave the rent agency',
-      timeCost: 0,
-
-      canExecute: (player: IPlayerState) => this.isPlayerInside(player),
-
-      execute: (player: IPlayerState) => {
-        if (!this.isPlayerInside(player)) {
-          return {
-            success: false,
-            message: 'You are not inside the rent agency',
-            timeSpent: 0,
-            stateChanges: [],
-          };
-        }
-
-        return {
-          success: true,
-          message: 'You exit the rent agency',
-          timeSpent: 0,
-          stateChanges: [
-            {
-              type: 'position',
-              value: this.position,
-              description: 'Moved to agency position',
-            },
-          ],
-        };
-      },
-
-      getRequirements: () => [],
     };
   }
 }

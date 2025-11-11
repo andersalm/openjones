@@ -15,10 +15,10 @@ import {
   IGame,
   IActionTreeNode,
   BuildingType,
-  ActionType,
   IPosition,
 } from '../../../../shared/types/contracts';
 import { Building } from './Building';
+import { ExitBuildingAction } from '../actions/ExitBuildingAction';
 
 /**
  * Stock information for the bank
@@ -91,7 +91,7 @@ export class Bank extends Building {
       actions.push(this.createStockTradingSubmenu());
 
       // Exit action
-      actions.push(this.createExitAction());
+      actions.push(new ExitBuildingAction());
     }
 
     return actions;
@@ -106,7 +106,7 @@ export class Bank extends Building {
 
     if (actions.length === 0) {
       // Fallback to exit action
-      const exitAction = this.createExitAction();
+      const exitAction = new ExitBuildingAction();
       return Building.createActionTreeNode(exitAction, [], 0);
     }
 
@@ -151,52 +151,5 @@ export class Bank extends Building {
    */
   getAvailableStocks(): StockInfo[] {
     return [...this.stocks];
-  }
-
-  /**
-   * Create the exit building action
-   */
-  private createExitAction(): IAction {
-    return {
-      id: `${this.id}-exit`,
-      type: ActionType.EXIT_BUILDING,
-      displayName: 'Exit Bank',
-      description: 'Leave the bank and return to the street',
-      timeCost: 0,
-
-      canExecute: (player: IPlayerState) => this.isPlayerInside(player),
-
-      execute: (player: IPlayerState, _game: IGame) => {
-        if (!this.isPlayerInside(player)) {
-          return {
-            success: false,
-            message: 'You are not inside the bank',
-            timeSpent: 0,
-            stateChanges: [],
-          };
-        }
-
-        return {
-          success: true,
-          message: 'You exit the bank',
-          timeSpent: 0,
-          stateChanges: [
-            {
-              type: 'position',
-              value: this.position,
-              description: 'Moved to bank position',
-            },
-          ],
-        };
-      },
-
-      getRequirements: () => [
-        {
-          type: 'building',
-          value: this.id,
-          description: 'Must be inside the bank',
-        },
-      ],
-    };
   }
 }

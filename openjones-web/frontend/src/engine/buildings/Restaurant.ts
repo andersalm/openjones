@@ -11,10 +11,10 @@ import {
   IGame,
   IActionTreeNode,
   BuildingType,
-  ActionType,
   IPosition,
 } from '../../../../shared/types/contracts';
 import { Building } from './Building';
+import { ExitBuildingAction } from '../actions/ExitBuildingAction';
 
 export class Restaurant extends Building {
   // Job wages from Java reference
@@ -107,7 +107,7 @@ export class Restaurant extends Building {
 
     if (this.isPlayerInside(player)) {
       // Exit action
-      actions.push(this.createExitAction());
+      actions.push(new ExitBuildingAction());
     }
 
     return actions;
@@ -120,52 +120,11 @@ export class Restaurant extends Building {
     const actions = this.getAvailableActions(player, game);
 
     if (actions.length === 0) {
-      const exitAction = this.createExitAction();
+      const exitAction = new ExitBuildingAction();
       return Building.createActionTreeNode(exitAction, [], 0);
     }
 
     const rootAction = actions[0];
     return Building.createActionTreeNode(rootAction, [], 0);
-  }
-
-  /**
-   * Create exit action
-   */
-  private createExitAction(): IAction {
-    return {
-      id: `${this.id}-exit`,
-      type: ActionType.EXIT_BUILDING,
-      displayName: 'Exit Restaurant',
-      description: 'Leave the restaurant',
-      timeCost: 0,
-
-      canExecute: (player: IPlayerState) => this.isPlayerInside(player),
-
-      execute: (player: IPlayerState) => {
-        if (!this.isPlayerInside(player)) {
-          return {
-            success: false,
-            message: 'You are not inside the restaurant',
-            timeSpent: 0,
-            stateChanges: [],
-          };
-        }
-
-        return {
-          success: true,
-          message: 'You exit the restaurant',
-          timeSpent: 0,
-          stateChanges: [
-            {
-              type: 'position',
-              value: this.position,
-              description: 'Moved to restaurant position',
-            },
-          ],
-        };
-      },
-
-      getRequirements: () => [],
-    };
   }
 }

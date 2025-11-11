@@ -18,6 +18,7 @@ import {
   GAME_CONSTANTS,
 } from '../../../../shared/types/contracts';
 import { Building } from './Building';
+import { ExitBuildingAction } from '../actions/ExitBuildingAction';
 
 export class SecurityApartment extends Building {
   // From Java MapManager.java
@@ -63,7 +64,7 @@ export class SecurityApartment extends Building {
       }
 
       // Exit action
-      actions.push(this.createExitAction());
+      actions.push(new ExitBuildingAction());
     }
 
     return actions;
@@ -76,7 +77,7 @@ export class SecurityApartment extends Building {
     const actions = this.getAvailableActions(player, game);
 
     if (actions.length === 0) {
-      const exitAction = this.createExitAction();
+      const exitAction = new ExitBuildingAction();
       return Building.createActionTreeNode(exitAction, [], 0);
     }
 
@@ -163,47 +164,6 @@ export class SecurityApartment extends Building {
           description: 'Must be in your rented home',
         },
       ],
-    };
-  }
-
-  /**
-   * Create exit action
-   */
-  private createExitAction(): IAction {
-    return {
-      id: `${this.id}-exit`,
-      type: ActionType.EXIT_BUILDING,
-      displayName: 'Exit Apartment',
-      description: 'Leave your apartment',
-      timeCost: 0,
-
-      canExecute: (player: IPlayerState) => this.isPlayerInside(player),
-
-      execute: (player: IPlayerState) => {
-        if (!this.isPlayerInside(player)) {
-          return {
-            success: false,
-            message: 'You are not inside the apartment',
-            timeSpent: 0,
-            stateChanges: [],
-          };
-        }
-
-        return {
-          success: true,
-          message: 'You exit the apartment',
-          timeSpent: 0,
-          stateChanges: [
-            {
-              type: 'position',
-              value: this.position,
-              description: 'Moved to apartment position',
-            },
-          ],
-        };
-      },
-
-      getRequirements: () => [],
     };
   }
 }

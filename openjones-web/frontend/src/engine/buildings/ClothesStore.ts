@@ -17,6 +17,7 @@ import {
   PossessionType,
 } from '../../../../shared/types/contracts';
 import { Building } from './Building';
+import { ExitBuildingAction } from '../actions/ExitBuildingAction';
 
 export class ClothesStore extends Building {
   // Job wages (from Java reference)
@@ -105,7 +106,7 @@ export class ClothesStore extends Building {
       actions.push(this.createPurchaseClothesAction('business', 3));
 
       // Exit action
-      actions.push(this.createExitAction());
+      actions.push(new ExitBuildingAction());
     }
 
     return actions;
@@ -118,7 +119,7 @@ export class ClothesStore extends Building {
     const actions = this.getAvailableActions(player, game);
 
     if (actions.length === 0) {
-      const exitAction = this.createExitAction();
+      const exitAction = new ExitBuildingAction();
       return Building.createActionTreeNode(exitAction, [], 0);
     }
 
@@ -242,47 +243,6 @@ export class ClothesStore extends Building {
           description: `Need $${price}`,
         },
       ],
-    };
-  }
-
-  /**
-   * Create exit action
-   */
-  private createExitAction(): IAction {
-    return {
-      id: `${this.id}-exit`,
-      type: ActionType.EXIT_BUILDING,
-      displayName: 'Exit Store',
-      description: 'Leave the clothes store',
-      timeCost: 0,
-
-      canExecute: (player: IPlayerState, _game: IGame) => this.isPlayerInside(player),
-
-      execute: (player: IPlayerState, _game: IGame) => {
-        if (!this.isPlayerInside(player)) {
-          return {
-            success: false,
-            message: 'You are not inside the store',
-            timeSpent: 0,
-            stateChanges: [],
-          };
-        }
-
-        return {
-          success: true,
-          message: 'You exit the clothes store',
-          timeSpent: 0,
-          stateChanges: [
-            {
-              type: 'position',
-              value: this.position,
-              description: 'Moved to store position',
-            },
-          ],
-        };
-      },
-
-      getRequirements: () => [],
     };
   }
 }
