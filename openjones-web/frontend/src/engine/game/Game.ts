@@ -159,17 +159,7 @@ export class Game implements IGame {
       };
     }
 
-    // Check if action can be executed
-    if (!action.canExecute(player.state, this)) {
-      return {
-        success: false,
-        message: `Cannot execute action: ${action.displayName}`,
-        timeSpent: 0,
-        stateChanges: [],
-      };
-    }
-
-    // Check if player has enough time remaining
+    // Check if player has enough time remaining BEFORE executing
     if (action.timeCost > this.timeUnitsRemaining) {
       return {
         success: false,
@@ -179,7 +169,7 @@ export class Game implements IGame {
       };
     }
 
-    // Execute the action
+    // Execute the action (it handles its own validation and returns detailed errors)
     const response = action.execute(player.state, this);
 
     // If action was successful, apply state changes and advance time

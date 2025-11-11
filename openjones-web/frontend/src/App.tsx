@@ -310,19 +310,43 @@ export function App() {
 
     // Use gameController.executeAction() to ensure observers are notified
     gameControllerRef.current.executeAction(player.id, action).then((result) => {
-      // Close modal and show result
-      setAppState(prev => ({
-        ...prev,
-        showBuildingModal: false,
-        selectedBuilding: null,
-        buildingActions: [],
-        errorMessage: result.message,
-      }));
+      // Close modal only if action succeeded AND it's an EXIT action
+      const shouldCloseModal = result.success && action.type === 'EXIT_BUILDING';
 
-      // Clear message after 3 seconds
-      setTimeout(() => {
-        setAppState(prev => ({ ...prev, errorMessage: null }));
-      }, 3000);
+      if (shouldCloseModal) {
+        // Close modal - player exited building
+        setAppState(prev => ({
+          ...prev,
+          showBuildingModal: false,
+          selectedBuilding: null,
+          buildingActions: [],
+          errorMessage: result.message,
+        }));
+
+        // Clear message after 3 seconds
+        setTimeout(() => {
+          setAppState(prev => ({ ...prev, errorMessage: null }));
+        }, 3000);
+      } else {
+        // Keep modal open - refresh actions and show result message
+        const building = appState.selectedBuilding;
+        if (building) {
+          const updatedGame = gameControllerRef.current!.getGame();
+          const updatedPlayer = updatedGame.getCurrentPlayer();
+          const updatedActions = building.getAvailableActions(updatedPlayer.state, updatedGame);
+
+          setAppState(prev => ({
+            ...prev,
+            buildingActions: updatedActions,
+            errorMessage: result.message,
+          }));
+
+          // Clear message after 3 seconds
+          setTimeout(() => {
+            setAppState(prev => ({ ...prev, errorMessage: null }));
+          }, 3000);
+        }
+      }
     });
   }, [appState.selectedBuilding, appState.buildingActions]);
 
