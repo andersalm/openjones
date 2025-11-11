@@ -197,11 +197,13 @@ export class Game implements IGame {
 
     // Check if week has ended
     while (this.timeUnitsRemaining <= 0) {
-      // Process end-of-week events
+      // Process end-of-week events (rent, etc.)
       this.processEndOfWeek();
 
-      // Start new week
-      this.currentWeek++;
+      // Start new week for all players
+      this.startNewWeek();
+
+      // Add time for new week (may still be negative if action cost more than 600)
       this.timeUnitsRemaining += GAME_CONSTANTS.TIME_UNITS_PER_WEEK;
     }
   }
@@ -232,6 +234,31 @@ export class Game implements IGame {
           if (player.state.weeksOfRentRemaining > 0) {
             player.state.weeksOfRentRemaining -= 1;
           }
+        }
+      }
+    }
+  }
+
+  /**
+   * Start new week for all players
+   * Java behavior (PlayerState.startWeek):
+   * - Move player to their home position
+   * - Reset clock to 0 (we use global timeUnitsRemaining instead)
+   * - Increment week counter
+   */
+  private startNewWeek(): void {
+    this.currentWeek++;
+
+    // Move all players back to their homes (Java: PlayerState.startWeek)
+    for (const player of this.players) {
+      if (player.state.rentedHome) {
+        const home = this.map.getBuildingById(player.state.rentedHome);
+        if (home) {
+          // Move to home position (create new Position object)
+          player.state.position.x = home.position.x;
+          player.state.position.y = home.position.y;
+          // Exit any building (player wakes up at home on the street)
+          player.state.currentBuilding = null;
         }
       }
     }
