@@ -18,6 +18,7 @@ import {
 } from '../../../../shared/types/contracts';
 import { Building } from './Building';
 import { ExitBuildingAction } from '../actions/ExitBuildingAction';
+import { WorkAction } from '../actions/WorkAction';
 
 export class ClothesStore extends Building {
   // Job wages (from Java reference)
@@ -55,7 +56,7 @@ export class ClothesStore extends Building {
         rank: 2,
         requiredEducation: 10,
         requiredExperience: 20,
-        requiredClothesLevel: 2,
+        requiredClothesLevel: 1,
         wagePerHour: ClothesStore.SALESPERSON_WAGE,
         experienceGainPerHour: 5,
         buildingType: BuildingType.CLOTHES_STORE,
@@ -100,6 +101,15 @@ export class ClothesStore extends Building {
     const actions: IAction[] = [];
 
     if (this.isPlayerInside(player)) {
+      // Work actions - if player has a job at this Clothes Store
+      if (player.job && player.job.buildingType === BuildingType.CLOTHES_STORE) {
+        // Add work options for different hour durations
+        actions.push(new WorkAction(player.job, 1)); // Work 1 hour
+        actions.push(new WorkAction(player.job, 4)); // Work 4 hours
+        actions.push(new WorkAction(player.job, 8)); // Work 8 hours
+        actions.push(new WorkAction(player.job)); // Work max available time
+      }
+
       // Purchase clothes actions
       actions.push(this.createPurchaseClothesAction('casual', 1));
       actions.push(this.createPurchaseClothesAction('dress', 2));

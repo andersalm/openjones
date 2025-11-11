@@ -20,6 +20,7 @@ import {
 import { Building } from './Building';
 import { StudyAction } from '../actions/StudyAction';
 import { ExitBuildingAction } from '../actions/ExitBuildingAction';
+import { WorkAction } from '../actions/WorkAction';
 
 /**
  * College building - education and learning
@@ -107,6 +108,15 @@ export class College extends Building {
     const actions: IAction[] = [];
 
     if (this.isPlayerInside(player)) {
+      // Work actions - if player has a job at this College
+      if (player.job && player.job.buildingType === BuildingType.COLLEGE) {
+        // Add work options for different hour durations
+        actions.push(new WorkAction(player.job, 1)); // Work 1 hour
+        actions.push(new WorkAction(player.job, 4)); // Work 4 hours
+        actions.push(new WorkAction(player.job, 8)); // Work 8 hours
+        actions.push(new WorkAction(player.job)); // Work max available time
+      }
+
       // Study action using the new StudyAction class
       const studyAction = new StudyAction();
       actions.push(studyAction);

@@ -15,6 +15,7 @@ import {
 } from '../../../../shared/types/contracts';
 import { Building } from './Building';
 import { ExitBuildingAction } from '../actions/ExitBuildingAction';
+import { WorkAction } from '../actions/WorkAction';
 
 export class Restaurant extends Building {
   // Job wages from Java reference
@@ -41,13 +42,13 @@ export class Restaurant extends Building {
    */
   private createRestaurantJobs(): IJob[] {
     return [
-      // Rank 1 - Cook
+      // Rank 1 - Cook (entry-level, no experience required)
       {
         id: `${this.id}-job-cook`,
         title: 'Cook',
         rank: 1,
         requiredEducation: 5,
-        requiredExperience: 10,
+        requiredExperience: 0,
         requiredClothesLevel: 1,
         wagePerHour: Restaurant.COOK_WAGE,
         experienceGainPerHour: 5,
@@ -87,7 +88,7 @@ export class Restaurant extends Building {
         rank: 4,
         requiredEducation: 20,
         requiredExperience: 40,
-        requiredClothesLevel: 2,
+        requiredClothesLevel: 3,
         wagePerHour: Restaurant.MANAGER_WAGE,
         experienceGainPerHour: 5,
         buildingType: BuildingType.RESTAURANT,
@@ -100,12 +101,21 @@ export class Restaurant extends Building {
   }
 
   /**
-   * Get available actions - currently just exit
+   * Get available actions
    */
   getAvailableActions(player: IPlayerState, _game: IGame): IAction[] {
     const actions: IAction[] = [];
 
     if (this.isPlayerInside(player)) {
+      // Work actions - if player has a job at this restaurant
+      if (player.job && player.job.buildingType === BuildingType.RESTAURANT) {
+        // Add work options for different hour durations
+        actions.push(new WorkAction(player.job, 1)); // Work 1 hour
+        actions.push(new WorkAction(player.job, 4)); // Work 4 hours
+        actions.push(new WorkAction(player.job, 8)); // Work 8 hours
+        actions.push(new WorkAction(player.job)); // Work max available time
+      }
+
       // Exit action
       actions.push(new ExitBuildingAction());
     }

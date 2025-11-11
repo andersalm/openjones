@@ -20,6 +20,7 @@ import {
 } from '../../../../shared/types/contracts';
 import { Building } from './Building';
 import { ExitBuildingAction } from '../actions/ExitBuildingAction';
+import { WorkAction } from '../actions/WorkAction';
 
 /**
  * Factory building - offers manufacturing and industrial jobs
@@ -182,8 +183,17 @@ export class Factory extends Building {
   getAvailableActions(player: IPlayerState, _game: IGame): IAction[] {
     const actions: IAction[] = [];
 
-    // Exit action (always available when inside)
     if (this.isPlayerInside(player)) {
+      // Work actions - if player has a job at this Factory
+      if (player.job && player.job.buildingType === BuildingType.FACTORY) {
+        // Add work options for different hour durations
+        actions.push(new WorkAction(player.job, 1)); // Work 1 hour
+        actions.push(new WorkAction(player.job, 4)); // Work 4 hours
+        actions.push(new WorkAction(player.job, 8)); // Work 8 hours
+        actions.push(new WorkAction(player.job)); // Work max available time
+      }
+
+      // Exit action (always available when inside)
       actions.push(new ExitBuildingAction());
     }
 

@@ -292,6 +292,39 @@ export function App() {
   }, []);
 
   /**
+   * Handle closing building modal
+   * Executes exit action to properly update player state before closing modal
+   */
+  const handleCloseModal = useCallback(() => {
+    if (!gameControllerRef.current) return;
+
+    // Find the exit action and execute it
+    const exitAction = appState.buildingActions.find(a => a.type === 'EXIT_BUILDING');
+    if (exitAction) {
+      const game = gameControllerRef.current.getGame();
+      const player = game.getCurrentPlayer();
+
+      gameControllerRef.current.executeAction(player.id, exitAction).then(() => {
+        // Close modal after exit action completes
+        setAppState(prev => ({
+          ...prev,
+          showBuildingModal: false,
+          selectedBuilding: null,
+          buildingActions: [],
+        }));
+      });
+    } else {
+      // Fallback: just close modal if no exit action found
+      setAppState(prev => ({
+        ...prev,
+        showBuildingModal: false,
+        selectedBuilding: null,
+        buildingActions: [],
+      }));
+    }
+  }, [appState.buildingActions]);
+
+  /**
    * Handle action selection from building modal
    */
   const handleActionSelect = useCallback((actionId: string) => {
@@ -488,7 +521,7 @@ export function App() {
               building={appState.selectedBuilding}
               actions={appState.buildingActions}
               isOpen={appState.showBuildingModal}
-              onClose={() => setAppState(prev => ({ ...prev, showBuildingModal: false, buildingActions: [] }))}
+              onClose={handleCloseModal}
               onActionSelect={handleActionSelect}
             />
           )}

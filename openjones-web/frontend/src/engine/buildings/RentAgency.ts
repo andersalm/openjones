@@ -17,6 +17,7 @@ import {
 } from '../../../../shared/types/contracts';
 import { Building } from './Building';
 import { ExitBuildingAction } from '../actions/ExitBuildingAction';
+import { WorkAction } from '../actions/WorkAction';
 
 export class RentAgency extends Building {
   // Job wages from Java reference
@@ -89,6 +90,15 @@ export class RentAgency extends Building {
     const actions: IAction[] = [];
 
     if (this.isPlayerInside(player)) {
+      // Work actions - if player has a job at this Rent Agency
+      if (player.job && player.job.buildingType === BuildingType.RENT_AGENCY) {
+        // Add work options for different hour durations
+        actions.push(new WorkAction(player.job, 1)); // Work 1 hour
+        actions.push(new WorkAction(player.job, 4)); // Work 4 hours
+        actions.push(new WorkAction(player.job, 8)); // Work 8 hours
+        actions.push(new WorkAction(player.job)); // Work max available time
+      }
+
       // Pay rent action (if player has rent debt)
       if (player.rentDebt > 0) {
         actions.push(this.createPayRentAction());
