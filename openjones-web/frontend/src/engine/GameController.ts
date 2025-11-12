@@ -368,6 +368,36 @@ export class GameController {
     });
     return controller;
   }
+
+  /**
+   * Restore player state from saved data
+   * Used when loading from localStorage
+   */
+  restorePlayerState(playerState: any, currentWeek: number, timeRemaining: number): void {
+    if (this.game.players.length === 0) {
+      console.warn('No players to restore state to');
+      return;
+    }
+
+    const player = this.game.players[0];
+
+    // Restore all player state fields
+    Object.assign(player.state, playerState);
+
+    // Restore game state
+    this.game.currentWeek = currentWeek;
+    this.game.timeUnitsRemaining = timeRemaining;
+
+    // Notify observers of the restored state
+    this.notifyObservers();
+
+    console.log('Player state restored:', {
+      week: currentWeek,
+      time: timeRemaining,
+      cash: player.state.cash,
+      position: player.state.position,
+    });
+  }
 }
 
 export default GameController;

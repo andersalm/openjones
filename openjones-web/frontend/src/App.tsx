@@ -8,6 +8,7 @@ import { BuildingModal } from './components/Buildings/BuildingModal';
 import { Button } from './components/ui/Button';
 import { Container } from './components/ui/Container';
 import { Panel } from './components/ui/Panel';
+import { GameStateManager } from './utils/GameStateManager';
 import './App.css';
 
 type GamePhase = 'menu' | 'playing' | 'paused' | 'victory' | 'defeat';
@@ -140,11 +141,18 @@ export function App() {
     if (victoryResults[0]?.isVictory) {
       setAppState(prev => ({ ...prev, phase: 'victory' }));
       stopGame();
+      // Clear save on victory
+      GameStateManager.clearSave();
     } else if (player.state.health < 0 || (player.state.cash < 0 && game.currentWeek > 1)) {
       // Health < 0 (not <= 0) since Java starts at 0
       // Cash < 0 after week 1 (give player a chance to earn money)
       setAppState(prev => ({ ...prev, phase: 'defeat' }));
       stopGame();
+      // Clear save on defeat
+      GameStateManager.clearSave();
+    } else {
+      // Auto-save game state (only if game is still active)
+      GameStateManager.saveGame(game);
     }
   }, [stopGame]);
 
@@ -173,8 +181,10 @@ export function App() {
 
   /**
    * Initialize a new game with full integration
+   * @param playerName - Name for the player
+   * @param savedState - Optional saved state to restore from
    */
-  const initializeGame = useCallback((playerName: string) => {
+  const initializeGame = useCallback((playerName: string, savedState?: any) => {
     // Clean up any existing game systems first (safety check)
     if (unsubscribeRef.current) {
       unsubscribeRef.current();
@@ -231,6 +241,16 @@ export function App() {
       // Create GameController with initialized game
       const gameController = GameController.createWithGame(gameConfig);
       gameControllerRef.current = gameController;
+
+      // Restore saved state if provided
+      if (savedState) {
+        console.log('Restoring saved game state');
+        gameController.restorePlayerState(
+          savedState.playerState,
+          savedState.currentWeek,
+          savedState.timeRemaining
+        );
+      }
 
       // Get canvas element
       const canvas = canvasRef.current;
@@ -455,6 +475,9 @@ export function App() {
     try {
       console.log('Resetting to main menu...');
 
+      // Clear saved game when returning to main menu
+      GameStateManager.clearSave();
+
       // Stop all systems immediately
       if (renderCoordinatorRef.current) {
         renderCoordinatorRef.current.stop();
@@ -677,13 +700,32 @@ export function App() {
 /**
  * Main Menu Component
  */
-function MainMenu({ onNewGame }: { onNewGame: (name: string) => void }) {
+function MainMenu({ onNewGame }: { onNewGame: (name: string, savedState?: any) => void }) {
   const [playerName, setPlayerName] = useState('');
+  const [hasSavedGame, setHasSavedGame] = useState(false);
+  const [savedGameInfo, setSavedGameInfo] = useState<string | null>(null);
+
+  // Check for saved game on mount
+  useEffect(() => {
+    const hasSave = GameStateManager.hasSavedGame();
+    setHasSavedGame(hasSave);
+    if (hasSave) {
+      const info = GameStateManager.getSavedGameInfo();
+      setSavedGameInfo(info);
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (playerName.trim()) {
       onNewGame(playerName.trim());
+    }
+  };
+
+  const handleContinue = () => {
+    const savedState = GameStateManager.loadGame();
+    if (savedState) {
+      onNewGame(savedState.playerName, savedState);
     }
   };
 
@@ -696,6 +738,30 @@ function MainMenu({ onNewGame }: { onNewGame: (name: string) => void }) {
             Build your career, manage your finances, and become successful!
           </p>
 
+          {hasSavedGame && savedGameInfo && (
+            <div style={{
+              background: '#E0E0E0',
+              padding: '16px',
+              border: '3px solid #000000',
+              marginBottom: '20px',
+              boxShadow: 'inset 1px 1px 0px #FFFFFF, inset -1px -1px 0px #808080',
+            }}>
+              <p style={{ margin: '0 0 12px 0', fontSize: '11px', lineHeight: '1.8' }}>
+                Saved Game Found:
+              </p>
+              <p style={{ margin: '0 0 16px 0', fontSize: '10px', color: '#000', lineHeight: '1.8' }}>
+                {savedGameInfo}
+              </p>
+              <Button
+                onClick={handleContinue}
+                variant="primary"
+                style={{ width: '100%' }}
+              >
+                Continue Game
+              </Button>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="menu-form">
             <div className="form-group">
               <label htmlFor="player-name">Your Name:</label>
@@ -706,7 +772,7 @@ function MainMenu({ onNewGame }: { onNewGame: (name: string) => void }) {
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
                 className="name-input"
-                autoFocus
+                autoFocus={!hasSavedGame}
                 maxLength={20}
               />
             </div>
@@ -717,7 +783,7 @@ function MainMenu({ onNewGame }: { onNewGame: (name: string) => void }) {
               disabled={!playerName.trim()}
               className="start-button"
             >
-              Start Game
+              {hasSavedGame ? 'Start New Game' : 'Start Game'}
             </Button>
           </form>
 
