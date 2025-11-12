@@ -351,6 +351,19 @@ export function App() {
   }, []);
 
   /**
+   * Auto-restore saved game on mount
+   */
+  useEffect(() => {
+    if (GameStateManager.hasSavedGame()) {
+      const savedState = GameStateManager.loadGame();
+      if (savedState) {
+        console.log('Auto-restoring saved game');
+        initializeGame(savedState.playerName, savedState);
+      }
+    }
+  }, [initializeGame]);
+
+  /**
    * Handle closing building modal
    * Executes exit action to properly update player state before closing modal
    */
