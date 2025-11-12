@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { IAction } from '../../../../shared/types/contracts';
+import { IAction, GAME_CONSTANTS } from '../../../../shared/types/contracts';
 import { theme } from '../../theme';
 
 export interface ActionMenuProps {
@@ -201,7 +201,7 @@ const ActionMenuItem: React.FC<ActionMenuItemProps> = ({
 
         {action.timeCost !== undefined && action.timeCost > 0 && (
           <div style={timeBadgeStyle}>
-            {action.timeCost}H
+            {Math.round(action.timeCost / GAME_CONSTANTS.TIME_UNITS_PER_HOUR)}H
           </div>
         )}
       </div>

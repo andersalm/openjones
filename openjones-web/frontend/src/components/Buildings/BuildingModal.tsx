@@ -89,7 +89,6 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
     alignItems: 'center',
     justifyContent: 'center',
     background: 'rgba(0, 0, 0, 0.5)',
-    backdropFilter: 'blur(2px)',
   };
 
   const modalStyle: React.CSSProperties = {
