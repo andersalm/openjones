@@ -337,8 +337,8 @@ export class RenderCoordinator {
     // Clear canvas
     this.clear();
 
-    // Render all layers in order
-    this.renderAllLayers();
+    // Render all layers in order with timestamp for animations
+    this.renderAllLayers(timestamp);
 
     // Update FPS counter
     this.updateFPS();
@@ -408,7 +408,7 @@ export class RenderCoordinator {
   /**
    * Render all layers in z-index order
    */
-  private renderAllLayers(): void {
+  private renderAllLayers(timestamp: number): void {
     // Sort layers by zIndex
     const sortedLayers = Array.from(this.layers.values())
       .filter((layer) => layer.visible)
@@ -416,14 +416,14 @@ export class RenderCoordinator {
 
     // Render each layer
     for (const layer of sortedLayers) {
-      this.renderLayer(layer.name);
+      this.renderLayer(layer.name, timestamp);
     }
   }
 
   /**
    * Render a specific layer
    */
-  private renderLayer(layerName: string): void {
+  private renderLayer(layerName: string, timestamp: number): void {
     switch (layerName) {
       case 'background':
         this.renderBackground();
@@ -436,7 +436,7 @@ export class RenderCoordinator {
         this.renderBuildings();
         break;
       case 'player':
-        this.renderPlayers();
+        this.renderPlayers(timestamp);
         break;
       case 'effects':
         this.renderEffects();
@@ -514,6 +514,9 @@ export class RenderCoordinator {
   /**
    * Render clock at bottom center with rotating hand showing week progress
    * Full revolution = 1 week (600 time units)
+   *
+   * Note: jones_map_grass.png already contains the clock at (2,4).
+   * We only draw the clock image in fallback mode.
    */
   private renderClock(): void {
     this.ctx.save();
@@ -534,31 +537,34 @@ export class RenderCoordinator {
     const weekProgress = timeUsed / 600; // 0.0 to 1.0
     const rotationAngle = weekProgress * Math.PI * 2; // Convert to radians
 
-    // Draw clock background image if available
-    const clockBotImg = this.clockImages.get('bottom');
     const clockRadius = Math.min(tileWidth, tileHeight) * 0.35;
 
-    if (clockBotImg && clockBotImg.complete) {
-      // Draw clock background image
-      this.ctx.drawImage(
-        clockBotImg,
-        clockX - clockRadius,
-        clockY - clockRadius,
-        clockRadius * 2,
-        clockRadius * 2
-      );
-    } else {
-      // Fallback: draw simple clock face
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-      this.ctx.beginPath();
-      this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
-      this.ctx.fill();
+    // Only draw clock image if NOT using full map background (fallback mode)
+    if (!this.mapBackgroundLoaded) {
+      const clockBotImg = this.clockImages.get('bottom');
 
-      this.ctx.strokeStyle = '#FFD700';
-      this.ctx.lineWidth = 3;
-      this.ctx.beginPath();
-      this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
-      this.ctx.stroke();
+      if (clockBotImg && clockBotImg.complete) {
+        // Draw clock background image
+        this.ctx.drawImage(
+          clockBotImg,
+          clockX - clockRadius,
+          clockY - clockRadius,
+          clockRadius * 2,
+          clockRadius * 2
+        );
+      } else {
+        // Fallback: draw simple clock face
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.beginPath();
+        this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.strokeStyle = '#FFD700';
+        this.ctx.lineWidth = 3;
+        this.ctx.beginPath();
+        this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
+        this.ctx.stroke();
+      }
     }
 
     // Draw clock hand (starts at top, rotates clockwise)
@@ -752,7 +758,7 @@ export class RenderCoordinator {
    * Render players layer - Retro pixel sprites with smooth movement animation
    * Updated for rectangular tiles (155x96)
    */
-  private renderPlayers(): void {
+  private renderPlayers(timestamp: number): void {
     // Calculate tile dimensions based on canvas size
     const tileWidth = this.canvas.width / this.MAP_COLS;
     const tileHeight = this.canvas.height / this.MAP_ROWS;
@@ -764,7 +770,7 @@ export class RenderCoordinator {
       const animPos = this.getAnimatedPlayerPosition(
         player.id,
         pos,
-        performance.now()
+        timestamp
       );
 
       this.ctx.save();

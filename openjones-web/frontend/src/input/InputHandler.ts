@@ -262,40 +262,25 @@ export class InputHandler {
 
   /**
    * Check if a position is a valid road tile
-   * Roads are tiles that are on the edges or adjacent to buildings
+   * Roads are specific tiles on the edges and middle vertical path only
    */
-  private isRoadTile(pos: IPosition, game: any): boolean {
+  private isRoadTile(pos: IPosition, _game: any): boolean {
     // Edge rows are roads (top and bottom)
     if (pos.y === 0 || pos.y === 4) {
       return true;
     }
 
-    // Edge columns are roads (left side)
-    if (pos.x === 0) {
+    // Edge columns are roads (left and right)
+    if (pos.x === 0 || pos.x === 4) {
       return true;
     }
 
-    // Right side tiles
-    if (pos.x === 4) {
-      return true;
-    }
-
-    // Middle column (x=2) on rows 1 and 3 are roads
+    // Middle vertical path (x=2) on rows 1 and 3 are roads
     if (pos.x === 2 && (pos.y === 1 || pos.y === 3)) {
       return true;
     }
 
-    // Check if adjacent to any building (within 1 tile)
-    for (let dx = -1; dx <= 1; dx++) {
-      for (let dy = -1; dy <= 1; dy++) {
-        if (dx === 0 && dy === 0) continue;
-        const adjPos = { x: pos.x + dx, y: pos.y + dy };
-        if (game.map.getBuilding(adjPos)) {
-          return true;
-        }
-      }
-    }
-
+    // All other tiles are not roads
     return false;
   }
 
