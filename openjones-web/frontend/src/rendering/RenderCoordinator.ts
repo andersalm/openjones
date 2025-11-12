@@ -71,6 +71,10 @@ export class RenderCoordinator {
   private centerTileImages: Map<string, HTMLImageElement> = new Map();
   private centerImagesLoaded: boolean = false;
 
+  // Grass tile image for border tiles
+  private grassTileImage: HTMLImageElement | null = null;
+  private grassImageLoaded: boolean = false;
+
   // Clock images for time display (TODO: render in UI layer)
   private clockImages: Map<string, HTMLImageElement> = new Map();
 
@@ -97,6 +101,9 @@ export class RenderCoordinator {
 
     // Load center tile images
     this.loadCenterTileImages();
+
+    // Load grass tile image
+    this.loadGrassTileImage();
 
     // Load clock images
     this.loadClockImages();
@@ -196,6 +203,23 @@ export class RenderCoordinator {
       image.src = `/center/${img}`;
       this.centerTileImages.set(`${row},${col}`, image);
     });
+  }
+
+  /**
+   * Load grass tile image for border tiles
+   */
+  private loadGrassTileImage(): void {
+    const img = new Image();
+    img.onload = () => {
+      this.grassImageLoaded = true;
+      console.log('Grass tile image loaded successfully');
+    };
+    img.onerror = () => {
+      console.warn('Failed to load grass tile image');
+      this.grassImageLoaded = true; // Set to true anyway to prevent blocking
+    };
+    img.src = '/center/Grass_small_blur.png';
+    this.grassTileImage = img;
   }
 
   /**
@@ -343,7 +367,8 @@ export class RenderCoordinator {
 
   /**
    * Render map layer - Professional retro grid (5x5 like Java version)
-   * Center 3x3 tiles use Java graphics, outer ring uses gradient
+   * Center 3x3 tiles use Java graphics, outer ring uses grass texture
+   * No grid borders for cleaner look
    */
   private renderMap(): void {
     const cols = 5;
@@ -368,50 +393,32 @@ export class RenderCoordinator {
           if (centerImg && centerImg.complete) {
             this.ctx.drawImage(centerImg, tx, ty, tileSize, tileSize);
           } else {
-            // Fallback to gradient if image not loaded
-            this.drawGradientTile(tx, ty, tileSize);
+            // Fallback to grass tile if center image not loaded
+            this.drawGrassTile(tx, ty, tileSize);
           }
         } else {
-          // Draw gradient tile for border
-          this.drawGradientTile(tx, ty, tileSize);
+          // Draw grass tile for border
+          this.drawGrassTile(tx, ty, tileSize);
         }
       }
-    }
-
-    // Draw grid lines
-    this.ctx.strokeStyle = '#000000';
-    this.ctx.lineWidth = 3;
-
-    for (let x = 0; x <= cols; x++) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x * tileSize, 0);
-      this.ctx.lineTo(x * tileSize, this.canvas.height);
-      this.ctx.stroke();
-    }
-
-    for (let y = 0; y <= rows; y++) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, y * tileSize);
-      this.ctx.lineTo(this.canvas.width, y * tileSize);
-      this.ctx.stroke();
     }
   }
 
   /**
-   * Draw a gradient tile (for border tiles)
+   * Draw a grass tile (for border tiles)
    */
-  private drawGradientTile(x: number, y: number, size: number): void {
-    // Subtle gradient on each tile
-    const gradient = this.ctx.createLinearGradient(x, y, x + size, y + size);
-    gradient.addColorStop(0, '#C4B8A0');
-    gradient.addColorStop(1, '#A89878');
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(x, y, size, size);
-
-    // Add subtle inner shadow effect
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-    this.ctx.fillRect(x, y, size, 3);
-    this.ctx.fillRect(x, y, 3, size);
+  private drawGrassTile(x: number, y: number, size: number): void {
+    if (this.grassImageLoaded && this.grassTileImage && this.grassTileImage.complete) {
+      // Draw grass tile image
+      this.ctx.drawImage(this.grassTileImage, x, y, size, size);
+    } else {
+      // Fallback to subtle gradient if image not loaded
+      const gradient = this.ctx.createLinearGradient(x, y, x + size, y + size);
+      gradient.addColorStop(0, '#8BA870');
+      gradient.addColorStop(1, '#6B8850');
+      this.ctx.fillStyle = gradient;
+      this.ctx.fillRect(x, y, size, size);
+    }
   }
 
   /**
