@@ -137,11 +137,22 @@ export class PlayerState implements IPlayerState {
 
   /**
    * Check if the player meets the requirements for a job
+   * Java: Checks experience from (rank - 1) to rank
    */
   meetsJobRequirements(job: IJob): boolean {
     const hasEducation = this.education >= job.requiredEducation;
-    const hasExperience = this.getExperienceAtRank(job.rank) >= job.requiredExperience;
     const hasClothes = this.getClothesLevel() >= job.requiredClothesLevel;
+
+    // Check experience at current rank or previous rank (Java behavior)
+    const lowestRank = Math.max(job.rank - 1, 1);
+    let hasExperience = false;
+    for (let rank = lowestRank; rank <= job.rank; rank++) {
+      if (this.getExperienceAtRank(rank) >= job.requiredExperience) {
+        hasExperience = true;
+        break;
+      }
+    }
+
     return hasEducation && hasExperience && hasClothes;
   }
 

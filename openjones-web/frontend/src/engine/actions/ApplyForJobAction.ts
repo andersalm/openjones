@@ -22,7 +22,8 @@ export class ApplyForJobAction extends Action {
     }
 
     // Check experience requirement
-    if (player.getExperienceAtRank(this.job.rank) < this.job.requiredExperience) {
+    // Java: Check experience from (rank - 1) to rank (LOWER_EXPERIENCE_RANKS_ACCEPTABLE = 1)
+    if (!this.hasEnoughExperience(player)) {
       return false;
     }
 
@@ -42,6 +43,24 @@ export class ApplyForJobAction extends Action {
     }
 
     return true;
+  }
+
+  /**
+   * Check if player has enough experience for this job
+   * Java: Checks experience from (rank - 1) to rank
+   */
+  private hasEnoughExperience(player: IPlayerState): boolean {
+    // Calculate lowest acceptable rank (minimum is 1)
+    const lowestRank = Math.max(this.job.rank - 1, 1);
+
+    // Check if player has required experience at ANY rank from lowestRank to job.rank
+    for (let rank = lowestRank; rank <= this.job.rank; rank++) {
+      if (player.getExperienceAtRank(rank) >= this.job.requiredExperience) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   execute(player: IPlayerState, game: IGame): IActionResponse {
@@ -94,9 +113,17 @@ export class ApplyForJobAction extends Action {
     if (player.education < this.job.requiredEducation) {
       return `Not enough education. Need ${this.job.requiredEducation}, have ${player.education}`;
     }
-    const playerExp = player.getExperienceAtRank(this.job.rank);
-    if (playerExp < this.job.requiredExperience) {
-      return `Not enough experience. Need ${this.job.requiredExperience}, have ${playerExp}`;
+    if (!this.hasEnoughExperience(player)) {
+      // Show experience from relevant ranks
+      const lowestRank = Math.max(this.job.rank - 1, 1);
+      const expAtCurrentRank = player.getExperienceAtRank(this.job.rank);
+      const expAtLowerRank = lowestRank < this.job.rank ? player.getExperienceAtRank(lowestRank) : 0;
+
+      if (lowestRank < this.job.rank) {
+        return `Not enough experience. Need ${this.job.requiredExperience} at rank ${lowestRank} or ${this.job.rank}. You have: Rank ${lowestRank}=${expAtLowerRank}, Rank ${this.job.rank}=${expAtCurrentRank}`;
+      } else {
+        return `Not enough experience. Need ${this.job.requiredExperience} at rank ${this.job.rank}, have ${expAtCurrentRank}`;
+      }
     }
     if (player.getClothesLevel() < this.job.requiredClothesLevel) {
       return `Not dressed properly. Need clothes level ${this.job.requiredClothesLevel}, have ${player.getClothesLevel()}`;
