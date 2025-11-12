@@ -51,11 +51,13 @@ export function App() {
   const inputHandlerRef = useRef<InputHandler | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const hasRestoredRef = useRef<boolean>(false);
 
   // Game key to force React remount on reset
   const [gameKey, setGameKey] = useState(0);
 
   // React state for UI updates
+  // Start in 'loading' phase to check for saved game before showing menu
   const [appState, setAppState] = useState<AppState>({
     phase: 'menu',
     playerState: null,
@@ -354,14 +356,25 @@ export function App() {
    * Auto-restore saved game on mount
    */
   useEffect(() => {
+    // Only restore once on initial mount
+    if (hasRestoredRef.current) {
+      return;
+    }
+
+    hasRestoredRef.current = true;
+
     if (GameStateManager.hasSavedGame()) {
       const savedState = GameStateManager.loadGame();
       if (savedState) {
-        console.log('Auto-restoring saved game');
-        initializeGame(savedState.playerName, savedState);
+        console.log('Auto-restoring saved game on mount');
+        // Use setTimeout to ensure the component is fully mounted
+        setTimeout(() => {
+          initializeGame(savedState.playerName, savedState);
+        }, 0);
       }
     }
-  }, [initializeGame]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - only run once on mount
 
   /**
    * Handle closing building modal
@@ -490,6 +503,9 @@ export function App() {
 
       // Clear saved game when returning to main menu
       GameStateManager.clearSave();
+
+      // Reset the restore flag so next refresh won't try to restore
+      hasRestoredRef.current = false;
 
       // Stop all systems immediately
       if (renderCoordinatorRef.current) {
