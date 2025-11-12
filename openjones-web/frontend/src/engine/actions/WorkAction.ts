@@ -32,14 +32,15 @@ export class WorkAction extends Action {
     this.hours = hours;
   }
 
-  canExecute(player: IPlayerState, _game: IGame): boolean {
+  canExecute(player: IPlayerState, game: IGame): boolean {
     // Must have a job
     if (!player.job) {
       return false;
     }
 
-    // Must have enough time
-    if (!this.hasEnoughTime(player)) {
+    // Must have at least 1 hour (5 time units) available
+    // Note: We don't check for full work duration because WorkAction supports partial time
+    if (game.timeUnitsRemaining < GAME_CONSTANTS.TIME_UNITS_PER_HOUR) {
       return false;
     }
 
@@ -58,7 +59,25 @@ export class WorkAction extends Action {
 
   execute(player: IPlayerState, game: IGame): IActionResponse {
     if (!this.canExecute(player, game)) {
-      return ActionResponse.failure('Cannot work right now');
+      const errors: string[] = [];
+
+      if (!player.job) {
+        errors.push('You don\'t have a job');
+      }
+
+      if (game.timeUnitsRemaining < GAME_CONSTANTS.TIME_UNITS_PER_HOUR) {
+        errors.push('Not enough time (need at least 1 hour)');
+      }
+
+      if (!this.requiresBuilding(player)) {
+        errors.push('You must be at your workplace');
+      }
+
+      if (player.job && player.job.id !== this.job.id) {
+        errors.push('This is not your current job');
+      }
+
+      return ActionResponse.failure(errors.length > 0 ? errors.join('; ') : 'Cannot work right now');
     }
 
     // Calculate actual hours worked based on available time
