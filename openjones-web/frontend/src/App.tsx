@@ -51,6 +51,9 @@ export function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
+  // Game key to force React remount on reset
+  const [gameKey, setGameKey] = useState(0);
+
   // React state for UI updates
   const [appState, setAppState] = useState<AppState>({
     phase: 'menu',
@@ -431,39 +434,102 @@ export function App() {
    * Handle reset to main menu
    */
   const handleReset = useCallback(() => {
-    // First, close any open modals and clear state
-    setAppState(prev => ({
-      ...prev,
-      showBuildingModal: false,
-      selectedBuilding: null,
-      buildingActions: [],
-      errorMessage: null,
-    }));
+    try {
+      console.log('Resetting to main menu...');
 
-    // Give React a moment to close modals and clean up UI
-    setTimeout(() => {
-      // Clean up existing game systems
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-      }
-
-      if (inputHandlerRef.current) {
-        inputHandlerRef.current.destroy();
-        inputHandlerRef.current = null;
-      }
-
+      // Stop all systems immediately
       if (renderCoordinatorRef.current) {
-        renderCoordinatorRef.current.destroy();
-        renderCoordinatorRef.current = null;
+        renderCoordinatorRef.current.stop();
       }
-
       if (gameControllerRef.current) {
         gameControllerRef.current.stop();
-        gameControllerRef.current = null;
       }
 
-      // Reset state to main menu
+      // First, close any open modals and clear state
+      setAppState(prev => ({
+        ...prev,
+        showBuildingModal: false,
+        selectedBuilding: null,
+        buildingActions: [],
+        errorMessage: null,
+      }));
+
+      // Give React a moment to close modals and clean up UI
+      setTimeout(() => {
+        try {
+          // Clean up existing game systems with error handling
+          if (unsubscribeRef.current) {
+            try {
+              unsubscribeRef.current();
+            } catch (e) {
+              console.warn('Error unsubscribing:', e);
+            }
+            unsubscribeRef.current = null;
+          }
+
+          if (inputHandlerRef.current) {
+            try {
+              inputHandlerRef.current.destroy();
+            } catch (e) {
+              console.warn('Error destroying input handler:', e);
+            }
+            inputHandlerRef.current = null;
+          }
+
+          if (renderCoordinatorRef.current) {
+            try {
+              renderCoordinatorRef.current.destroy();
+            } catch (e) {
+              console.warn('Error destroying render coordinator:', e);
+            }
+            renderCoordinatorRef.current = null;
+          }
+
+          if (gameControllerRef.current) {
+            try {
+              gameControllerRef.current.stop();
+            } catch (e) {
+              console.warn('Error stopping game controller:', e);
+            }
+            gameControllerRef.current = null;
+          }
+
+          // Reset state to main menu and increment game key to force remount
+          setGameKey(prev => prev + 1);
+          setAppState({
+            phase: 'menu',
+            playerState: null,
+            currentWeek: 1,
+            timeRemaining: 600,
+            selectedBuilding: null,
+            buildingActions: [],
+            showBuildingModal: false,
+            victoryConditions: [],
+            errorMessage: null,
+          });
+
+          console.log('Reset to main menu complete');
+        } catch (error) {
+          console.error('Error during cleanup:', error);
+          // Force reset even if cleanup fails
+          setGameKey(prev => prev + 1);
+          setAppState({
+            phase: 'menu',
+            playerState: null,
+            currentWeek: 1,
+            timeRemaining: 600,
+            selectedBuilding: null,
+            buildingActions: [],
+            showBuildingModal: false,
+            victoryConditions: [],
+            errorMessage: null,
+          });
+        }
+      }, 50);
+    } catch (error) {
+      console.error('Error resetting to main menu:', error);
+      // Force reset on error
+      setGameKey(prev => prev + 1);
       setAppState({
         phase: 'menu',
         playerState: null,
@@ -475,7 +541,7 @@ export function App() {
         victoryConditions: [],
         errorMessage: null,
       });
-    }, 50);
+    }
   }, []);
 
   /**
@@ -490,7 +556,7 @@ export function App() {
 
       {/* Playing/Paused */}
       {(appState.phase === 'playing' || appState.phase === 'paused') && (
-        <div className="game-container">
+        <div key={gameKey} className="game-container">
           {/* Game Canvas */}
           <div className="game-area">
             <canvas
