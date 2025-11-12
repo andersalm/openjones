@@ -279,7 +279,7 @@ export function App() {
         canvas,
         gameController,
         playerId: 'player-1',
-        tileSize: 100, // Match 5x5 grid
+        tileSize: canvasSize / 5, // Calculate dynamically based on canvas size
         onBuildingSelected: handleBuildingSelect,
         onActionSelected: (actionType) => {
           console.log('Action selected:', actionType);

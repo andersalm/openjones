@@ -346,9 +346,10 @@ export class RenderCoordinator {
    * Center 3x3 tiles use Java graphics, outer ring uses gradient
    */
   private renderMap(): void {
-    const tileSize = 100;
     const cols = 5;
     const rows = 5;
+    // Calculate tile size dynamically based on canvas size
+    const tileSize = this.canvas.width / cols;
 
     this.ctx.imageSmoothingEnabled = false;
 
@@ -417,7 +418,8 @@ export class RenderCoordinator {
    * Render buildings layer with Java graphics
    */
   private renderBuildings(): void {
-    const tileSize = 100;
+    // Calculate tile size dynamically based on canvas size
+    const tileSize = this.canvas.width / 5;
     const buildings = this.game.map.getAllBuildings();
 
     if (buildings.length === 0) {
@@ -568,7 +570,8 @@ export class RenderCoordinator {
    * Render players layer - Retro pixel sprites
    */
   private renderPlayers(): void {
-    const tileSize = 100; // Match 5x5 grid
+    // Calculate tile size dynamically based on canvas size
+    const tileSize = this.canvas.width / 5;
 
     this.game.players.forEach((player) => {
       const pos = player.state.position;
@@ -581,7 +584,8 @@ export class RenderCoordinator {
       const centerY = Math.floor(pos.y * tileSize + tileSize / 2);
 
       // Draw player as pixel-perfect square (retro sprite style)
-      const spriteSize = 36; // Bigger sprite for 100px tiles
+      // Scale sprite proportionally to tile size (36px for 100px tiles = 36% of tile)
+      const spriteSize = Math.floor(tileSize * 0.36);
       const halfSize = Math.floor(spriteSize / 2);
 
       // Player body (solid square)
