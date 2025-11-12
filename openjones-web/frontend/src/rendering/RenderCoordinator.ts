@@ -63,6 +63,10 @@ export class RenderCoordinator {
   // Animation frame ID for cleanup
   private animationFrameId: number | null = null;
 
+  // Building images from Java graphics
+  private buildingImages: Map<string, HTMLImageElement> = new Map();
+  private imagesLoaded: boolean = false;
+
   constructor(config: RenderCoordinatorConfig) {
     this.canvas = config.canvas;
     const ctx = this.canvas.getContext('2d');
@@ -80,6 +84,9 @@ export class RenderCoordinator {
 
     // Set up render layers
     this.initializeLayers();
+
+    // Load building images
+    this.loadBuildingImages();
   }
 
   /**
@@ -92,6 +99,46 @@ export class RenderCoordinator {
     this.layers.set('player', { name: 'player', zIndex: 3, visible: true });
     this.layers.set('effects', { name: 'effects', zIndex: 4, visible: true });
     this.layers.set('ui', { name: 'ui', zIndex: 5, visible: true });
+  }
+
+  /**
+   * Load building images from Java graphics
+   */
+  private loadBuildingImages(): void {
+    const imageMap: Record<string, string> = {
+      'EMPLOYMENT_AGENCY': 'employment.png',
+      'FACTORY': 'factory.png',
+      'BANK': 'bank_bot.png',
+      'COLLEGE': 'gt.png',
+      'CLOTHES_STORE': 'zmart.png',
+      'RESTAURANT': 'monolith.png',
+      'RENT_AGENCY': 'rent.png',
+      'LOW_COST_APARTMENT': 'lowcost.png',
+      'SECURITY_APARTMENT': 'security.png',
+    };
+
+    let loadedCount = 0;
+    const totalImages = Object.keys(imageMap).length;
+
+    Object.entries(imageMap).forEach(([buildingType, filename]) => {
+      const img = new Image();
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          this.imagesLoaded = true;
+          console.log('All building images loaded successfully');
+        }
+      };
+      img.onerror = () => {
+        console.warn(`Failed to load image: ${filename}`);
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          this.imagesLoaded = true;
+        }
+      };
+      img.src = `/buildings/${filename}`;
+      this.buildingImages.set(buildingType, img);
+    });
   }
 
   /**
@@ -267,7 +314,7 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render buildings layer with professional graphics
+   * Render buildings layer with Java graphics
    */
   private renderBuildings(): void {
     const tileSize = 100;
@@ -286,7 +333,7 @@ export class RenderCoordinator {
 
       const isPlayerOnBuilding = playerPositions.some(p => p.x === pos.x && p.y === pos.y);
 
-      const padding = 8;
+      const padding = 10;
       const bx = x + padding;
       const by = y + padding;
       const bw = tileSize - (padding * 2);
@@ -294,18 +341,24 @@ export class RenderCoordinator {
 
       this.ctx.save();
 
-      // Get building style
-      const style = this.getBuildingStyle(building.type);
+      // Disable image smoothing for crisp pixel art
+      this.ctx.imageSmoothingEnabled = false;
 
-      // Draw building with gradient
-      const gradient = this.ctx.createLinearGradient(bx, by, bx, by + bh);
-      gradient.addColorStop(0, style.colorTop);
-      gradient.addColorStop(1, style.colorBottom);
-      this.ctx.fillStyle = gradient;
-      this.ctx.fillRect(bx, by, bw, bh);
+      // Get building image
+      const img = this.buildingImages.get(building.type);
 
-      // Add building details (windows, doors, etc)
-      this.drawBuildingDetails(bx, by, bw, bh, building.type);
+      if (img && img.complete && this.imagesLoaded) {
+        // Draw building image
+        this.ctx.drawImage(img, bx, by, bw, bh);
+      } else {
+        // Fallback to colored rectangle if image not loaded
+        const style = this.getBuildingStyle(building.type);
+        const gradient = this.ctx.createLinearGradient(bx, by, bx, by + bh);
+        gradient.addColorStop(0, style.colorTop);
+        gradient.addColorStop(1, style.colorBottom);
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(bx, by, bw, bh);
+      }
 
       // Draw border with highlight if player is on it
       if (isPlayerOnBuilding) {
@@ -320,110 +373,37 @@ export class RenderCoordinator {
         this.ctx.strokeStyle = '#000000';
         this.ctx.lineWidth = 4;
         this.ctx.strokeRect(bx, by, bw, bh);
-        // Inner light highlight for 3D effect
-        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(bx + 2, by + 2, bw - 4, bh - 4);
       }
 
-      // Draw building name on nameplate
-      const namePlateHeight = 22;
-      const namePlateY = by + bh - namePlateHeight - 4;
+      // Draw building name label - larger and more visible
+      const namePlateHeight = 24;
+      const namePlateY = by + bh - namePlateHeight - 2;
 
-      // Nameplate background with gradient
-      const nameGrad = this.ctx.createLinearGradient(bx, namePlateY, bx, namePlateY + namePlateHeight);
-      nameGrad.addColorStop(0, 'rgba(0, 0, 0, 0.9)');
-      nameGrad.addColorStop(1, 'rgba(0, 0, 0, 0.7)');
-      this.ctx.fillStyle = nameGrad;
-      this.ctx.fillRect(bx + 4, namePlateY, bw - 8, namePlateHeight);
+      // Nameplate background - solid black for maximum readability
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
+      this.ctx.fillRect(bx, namePlateY, bw, namePlateHeight);
 
       // Nameplate border
-      this.ctx.strokeStyle = style.accentColor;
+      this.ctx.strokeStyle = isPlayerOnBuilding ? '#FFFF00' : '#FFFFFF';
       this.ctx.lineWidth = 2;
-      this.ctx.strokeRect(bx + 4, namePlateY, bw - 8, namePlateHeight);
+      this.ctx.strokeRect(bx, namePlateY, bw, namePlateHeight);
 
-      // Building name text
+      // Building name text - bright and clear
       this.ctx.fillStyle = '#FFFFFF';
-      this.ctx.font = 'bold 8px "Press Start 2P", monospace';
+      this.ctx.font = 'bold 10px monospace';
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'middle';
 
+      // Truncate long names
       let displayName = building.name;
-      if (displayName.length > 11) {
-        displayName = displayName.substring(0, 9) + '..';
+      if (displayName.length > 13) {
+        displayName = displayName.substring(0, 11) + '..';
       }
 
       this.ctx.fillText(displayName, x + tileSize / 2, namePlateY + namePlateHeight / 2);
 
       this.ctx.restore();
     });
-  }
-
-  /**
-   * Draw building-specific details like windows, doors, etc
-   */
-  private drawBuildingDetails(x: number, y: number, w: number, h: number, type: string): void {
-    this.ctx.save();
-
-    const windowSize = 6;
-    const windowSpacing = 10;
-
-    switch (type) {
-      case 'EMPLOYMENT_AGENCY':
-      case 'FACTORY':
-      case 'BANK':
-      case 'COLLEGE':
-        // Draw windows in a grid
-        for (let row = 0; row < 3; row++) {
-          for (let col = 0; col < 3; col++) {
-            const wx = x + 15 + col * windowSpacing;
-            const wy = y + 12 + row * windowSpacing;
-            this.ctx.fillStyle = 'rgba(255, 255, 200, 0.6)';
-            this.ctx.fillRect(wx, wy, windowSize, windowSize);
-            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-            this.ctx.lineWidth = 1;
-            this.ctx.strokeRect(wx, wy, windowSize, windowSize);
-          }
-        }
-        break;
-
-      case 'RESTAURANT':
-      case 'CLOTHES_STORE':
-        // Draw storefront door
-        const doorW = 18;
-        const doorH = 28;
-        const doorX = x + (w - doorW) / 2;
-        const doorY = y + h - doorH - 30;
-        this.ctx.fillStyle = 'rgba(101, 67, 33, 0.8)';
-        this.ctx.fillRect(doorX, doorY, doorW, doorH);
-        this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(doorX, doorY, doorW, doorH);
-
-        // Door handle
-        this.ctx.fillStyle = '#FFD700';
-        this.ctx.fillRect(doorX + doorW - 6, doorY + doorH / 2, 3, 5);
-        break;
-
-      case 'LOW_COST_APARTMENT':
-      case 'SECURITY_APARTMENT':
-      case 'RENT_AGENCY':
-        // Draw apartment windows
-        for (let row = 0; row < 4; row++) {
-          for (let col = 0; col < 2; col++) {
-            const wx = x + 20 + col * 20;
-            const wy = y + 8 + row * 12;
-            this.ctx.fillStyle = row % 2 === col % 2 ? 'rgba(255, 255, 150, 0.7)' : 'rgba(100, 150, 255, 0.3)';
-            this.ctx.fillRect(wx, wy, 10, 8);
-            this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
-            this.ctx.lineWidth = 1;
-            this.ctx.strokeRect(wx, wy, 10, 8);
-          }
-        }
-        break;
-    }
-
-    this.ctx.restore();
   }
 
   /**
