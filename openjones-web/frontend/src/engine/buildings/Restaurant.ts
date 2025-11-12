@@ -42,14 +42,14 @@ export class Restaurant extends Building {
    */
   private createRestaurantJobs(): IJob[] {
     return [
-      // Rank 1 - Cook (entry-level, no experience required)
+      // Rank 1 - Cook (entry-level, no requirements to start working)
       {
         id: `${this.id}-job-cook`,
         title: 'Cook',
         rank: 1,
-        requiredEducation: 5,
+        requiredEducation: 0,
         requiredExperience: 0,
-        requiredClothesLevel: 1,
+        requiredClothesLevel: 0,
         wagePerHour: Restaurant.COOK_WAGE,
         experienceGainPerHour: 5,
         buildingType: BuildingType.RESTAURANT,

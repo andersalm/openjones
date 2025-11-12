@@ -101,16 +101,20 @@ export class EmploymentAgency extends Building {
   }
 
   /**
-   * Create apply for job action
+   * Create apply for job action with building name
    */
   private createApplyForJobAction(job: IJob): IAction {
     const applyDuration = 5; // 1 hour in time units
 
+    // Get building name from job ID (format: "building-id-job-job-name")
+    const buildingId = job.id.split('-job-')[0];
+    const buildingName = buildingId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
     return {
       id: `${this.id}-apply-${job.id}`,
       type: ActionType.APPLY_JOB,
-      displayName: `Apply: ${job.title} ($${job.wagePerHour}/hr)`,
-      description: `Apply for ${job.title} position (Rank ${job.rank}, requires ${job.requiredEducation} education, ${job.requiredExperience} experience, level ${job.requiredClothesLevel} clothes)`,
+      displayName: `Apply: ${job.title} at ${buildingName} ($${job.wagePerHour}/hr)`,
+      description: `Apply for ${job.title} position at ${buildingName} (Rank ${job.rank}, requires ${job.requiredEducation} education, ${job.requiredExperience} experience, level ${job.requiredClothesLevel} clothes)`,
       timeCost: applyDuration,
 
       canExecute: (player: IPlayerState, game: IGame) => {

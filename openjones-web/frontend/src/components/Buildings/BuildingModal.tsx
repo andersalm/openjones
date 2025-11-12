@@ -19,6 +19,8 @@ export interface BuildingModalProps {
   isOpen: boolean;
   /** Optional className for customization */
   className?: string;
+  /** Error/info message to display */
+  message?: string | null;
 }
 
 export interface ActionResult {
@@ -47,6 +49,7 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
   actionResult,
   isOpen,
   className = '',
+  message,
 }) => {
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -217,6 +220,19 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
             <ActionResultDisplay result={actionResult} onDismiss={() => onActionSelect('')} />
           ) : (
             <div>
+              {message && (
+                <div style={{
+                  padding: theme.spacing.sm,
+                  marginBottom: theme.spacing.md,
+                  background: '#FFE066',
+                  border: `3px solid ${theme.colors.neutral.black}`,
+                  color: theme.colors.neutral.black,
+                  fontSize: theme.typography.fontSize.sm,
+                  textTransform: 'uppercase',
+                }}>
+                  {message}
+                </div>
+              )}
               <div style={promptStyle}>
                 WHAT WOULD YOU LIKE TO DO?
               </div>

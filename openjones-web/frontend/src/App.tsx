@@ -507,8 +507,8 @@ export function App() {
               </Button>
             </div>
 
-            {/* Error Messages */}
-            {appState.errorMessage && (
+            {/* Error Messages - only show when modal is not open */}
+            {appState.errorMessage && !appState.showBuildingModal && (
               <div className="error-message">
                 {appState.errorMessage}
               </div>
@@ -523,6 +523,7 @@ export function App() {
               isOpen={appState.showBuildingModal}
               onClose={handleCloseModal}
               onActionSelect={handleActionSelect}
+              message={appState.errorMessage}
             />
           )}
         </div>
