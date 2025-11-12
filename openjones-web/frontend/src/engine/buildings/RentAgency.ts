@@ -203,16 +203,20 @@ export class RentAgency extends Building {
 
   /**
    * Create rent house action
+   * Java behavior: Purchase 4 weeks of rent at a time (WEEKS_OF_RENT_IN_A_MONTH = 4)
    */
   private createRentHouseAction(building: any, game: IGame): IAction {
-    // Get rent from economy model
-    const rent = game.economyModel.getRent(building.type);
+    // Get weekly rent from economy model
+    const weeklyRent = game.economyModel.getRent(building.type);
+    // Java: Purchase 4 weeks of rent at a time
+    const WEEKS_OF_RENT_IN_A_MONTH = 4;
+    const totalCost = weeklyRent * WEEKS_OF_RENT_IN_A_MONTH;
 
     return {
       id: `${this.id}-rent-${building.id}`,
       type: ActionType.RENT_HOME,
-      displayName: `Rent ${building.name} ($${rent}/week)`,
-      description: `Rent ${building.name} for $${rent} per week`,
+      displayName: `Rent ${building.name} ($${totalCost} for ${WEEKS_OF_RENT_IN_A_MONTH} weeks)`,
+      description: `Rent ${building.name} for $${weeklyRent}/week (pay ${WEEKS_OF_RENT_IN_A_MONTH} weeks in advance)`,
       timeCost: 10,
 
       canExecute: (player: IPlayerState) => {
@@ -226,8 +230,8 @@ export class RentAgency extends Building {
           return false;
         }
 
-        // Must be able to afford (first week rent)
-        if (!player.canAfford(rent)) {
+        // Must be able to afford 4 weeks of rent
+        if (!player.canAfford(totalCost)) {
           return false;
         }
 
@@ -253,41 +257,43 @@ export class RentAgency extends Building {
           };
         }
 
-        if (!player.canAfford(rent)) {
+        if (!player.canAfford(totalCost)) {
           return {
             success: false,
-            message: `You need $${rent} to rent ${building.name}`,
+            message: `You need $${totalCost} to rent ${building.name} (${WEEKS_OF_RENT_IN_A_MONTH} weeks)`,
             timeSpent: 0,
             stateChanges: [],
           };
         }
 
-        // Pay first week rent
-        const newCash = player.cash - rent;
+        // Java behavior: Pay for 4 weeks of rent, clear old rent, handle debt
+        const newCash = player.cash - totalCost;
 
-        // If player had rent debt and can afford it, reduce debt
-        let debtPayment = 0;
-        if (player.rentDebt > 0 && newCash > rent) {
-          debtPayment = Math.min(newCash - rent, player.rentDebt);
+        // Calculate new rent debt (Java: calculateNewRentDebt)
+        // If player had existing rent debt, it reduces the value of the new rent
+        let newRentDebt = 0;
+        if (player.rentDebt > 0) {
+          newRentDebt = Math.max(0, player.rentDebt - totalCost);
         }
 
         // Set the rented home directly on player state
         player.rentedHome = building.id;
 
-        // Reduce rent debt
-        if (debtPayment > 0) {
-          player.rentDebt = Math.max(0, player.rentDebt - debtPayment);
-        }
+        // Set prepaid weeks (Java: RentPossession with numOfWeeks)
+        player.weeksOfRentRemaining = WEEKS_OF_RENT_IN_A_MONTH;
+
+        // Update rent debt
+        player.rentDebt = newRentDebt;
 
         return {
           success: true,
-          message: `You rented ${building.name}! Paid $${rent} for first week.${debtPayment > 0 ? ` Reduced debt by $${debtPayment}.` : ''}`,
+          message: `You rented ${building.name}! Paid $${totalCost} for ${WEEKS_OF_RENT_IN_A_MONTH} weeks.${player.rentDebt > 0 ? ` Rent debt reduced to $${newRentDebt}.` : ''}`,
           timeSpent: 10,
           stateChanges: [
             {
               type: 'cash',
-              value: newCash - debtPayment,
-              description: `Paid $${rent} rent${debtPayment > 0 ? ` and $${debtPayment} debt` : ''}`,
+              value: newCash,
+              description: `Paid $${totalCost} for ${WEEKS_OF_RENT_IN_A_MONTH} weeks rent`,
             },
           ],
         };
@@ -296,8 +302,8 @@ export class RentAgency extends Building {
       getRequirements: () => [
         {
           type: 'cash',
-          value: rent,
-          description: `Need $${rent} for first week`,
+          value: totalCost,
+          description: `Need $${totalCost} for ${WEEKS_OF_RENT_IN_A_MONTH} weeks`,
         },
       ],
     };
