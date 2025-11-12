@@ -234,17 +234,69 @@ export class InputHandler {
   }
 
   /**
-   * Check if move is valid
+   * Check if move is valid - only allow movement to buildings and roads
    */
   private isValidMove(_from: IPosition, to: IPosition): boolean {
     const game = this.gameController.getGame();
+
     // Check map bounds
     if (!game.map.isValidPosition(to)) {
       return false;
     }
 
-    // Allow any distance - pathfinding will handle it
-    return true;
+    // Allow movement to buildings
+    const building = game.map.getBuilding(to);
+    if (building) {
+      return true;
+    }
+
+    // Allow movement to road tiles (edges and adjacent to buildings)
+    // Roads are on rows 0, 1, 3, 4 (not row 2 which is center)
+    // Or any tile adjacent to a building
+    if (this.isRoadTile(to, game)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Check if a position is a valid road tile
+   * Roads are tiles that are on the edges or adjacent to buildings
+   */
+  private isRoadTile(pos: IPosition, game: any): boolean {
+    // Edge rows are roads (top and bottom)
+    if (pos.y === 0 || pos.y === 4) {
+      return true;
+    }
+
+    // Edge columns are roads (left side)
+    if (pos.x === 0) {
+      return true;
+    }
+
+    // Right side tiles
+    if (pos.x === 4) {
+      return true;
+    }
+
+    // Middle column (x=2) on rows 1 and 3 are roads
+    if (pos.x === 2 && (pos.y === 1 || pos.y === 3)) {
+      return true;
+    }
+
+    // Check if adjacent to any building (within 1 tile)
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        if (dx === 0 && dy === 0) continue;
+        const adjPos = { x: pos.x + dx, y: pos.y + dy };
+        if (game.map.getBuilding(adjPos)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   /**

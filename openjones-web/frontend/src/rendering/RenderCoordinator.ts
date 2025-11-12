@@ -86,6 +86,16 @@ export class RenderCoordinator {
   // Clock images for time display (TODO: render in UI layer)
   private clockImages: Map<string, HTMLImageElement> = new Map();
 
+  // Player animation state
+  private playerAnimations: Map<string, {
+    startPos: { x: number; y: number };
+    endPos: { x: number; y: number };
+    startTime: number;
+    duration: number; // milliseconds
+  }> = new Map();
+
+  private readonly MOVE_ANIMATION_DURATION = 500; // 500ms per move
+
   constructor(config: RenderCoordinatorConfig) {
     this.canvas = config.canvas;
     const ctx = this.canvas.getContext('2d');
@@ -321,6 +331,9 @@ export class RenderCoordinator {
     // Update effects renderer
     this.effectsRenderer.update(deltaTime);
 
+    // Update player animations
+    this.updatePlayerAnimations(timestamp);
+
     // Clear canvas
     this.clear();
 
@@ -335,6 +348,54 @@ export class RenderCoordinator {
 
     // Schedule next frame
     this.animationFrameId = requestAnimationFrame((ts) => this.renderLoop(ts));
+  }
+
+  /**
+   * Update player movement animations
+   */
+  private updatePlayerAnimations(timestamp: number): void {
+    // Detect and start new animations for position changes
+    for (const player of this.game.players) {
+      const currentAnim = this.playerAnimations.get(player.id);
+      const playerPos = player.state.position;
+
+      // If no animation or animation finished, check for position change
+      if (!currentAnim || timestamp >= currentAnim.startTime + currentAnim.duration) {
+        const lastPos = currentAnim ? currentAnim.endPos : playerPos;
+
+        // Position changed - start new animation
+        if (playerPos.x !== lastPos.x || playerPos.y !== lastPos.y) {
+          this.playerAnimations.set(player.id, {
+            startPos: { x: lastPos.x, y: lastPos.y },
+            endPos: { x: playerPos.x, y: playerPos.y },
+            startTime: timestamp,
+            duration: this.MOVE_ANIMATION_DURATION,
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * Get interpolated player position for animation
+   */
+  private getAnimatedPlayerPosition(playerId: string, currentPos: { x: number; y: number }, timestamp: number): { x: number; y: number } {
+    const anim = this.playerAnimations.get(playerId);
+
+    if (!anim) {
+      return currentPos;
+    }
+
+    const elapsed = timestamp - anim.startTime;
+    const progress = Math.min(elapsed / anim.duration, 1.0);
+
+    // Ease out cubic for smooth deceleration
+    const eased = 1 - Math.pow(1 - progress, 3);
+
+    return {
+      x: anim.startPos.x + (anim.endPos.x - anim.startPos.x) * eased,
+      y: anim.startPos.y + (anim.endPos.y - anim.startPos.y) * eased,
+    };
   }
 
   /**
@@ -451,50 +512,95 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render clock overlay on center tile showing week and time
+   * Render clock at bottom center with rotating hand showing week progress
+   * Full revolution = 1 week (600 time units)
    */
   private renderClock(): void {
     this.ctx.save();
     this.ctx.imageSmoothingEnabled = false;
 
-    // Calculate center tile position (2, 2)
+    // Position at bottom center (tile 2, 4)
     const tileWidth = this.canvas.width / this.MAP_COLS;
     const tileHeight = this.canvas.height / this.MAP_ROWS;
-    const centerX = 2 * tileWidth + tileWidth / 2;
-    const centerY = 2 * tileHeight + tileHeight / 2;
+    const clockX = 2 * tileWidth + tileWidth / 2;
+    const clockY = 4 * tileHeight + tileHeight / 2;
 
-    // Get game time info
+    // Get game time info - full revolution per week
     const currentWeek = this.game.currentWeek;
     const timeRemaining = this.game.timeUnitsRemaining;
     const timeUsed = 600 - timeRemaining; // 600 units per week
-    const hoursUsed = Math.floor(timeUsed / 5); // 5 units per hour
-    const currentHour = hoursUsed % 24;
 
-    // Draw clock background circle
-    const clockRadius = Math.min(tileWidth, tileHeight) * 0.3;
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    this.ctx.beginPath();
-    this.ctx.arc(centerX, centerY, clockRadius, 0, Math.PI * 2);
-    this.ctx.fill();
+    // Calculate rotation angle (0-360 degrees for full week)
+    const weekProgress = timeUsed / 600; // 0.0 to 1.0
+    const rotationAngle = weekProgress * Math.PI * 2; // Convert to radians
 
-    // Draw clock border
-    this.ctx.strokeStyle = '#FFD700';
-    this.ctx.lineWidth = 3;
+    // Draw clock background image if available
+    const clockBotImg = this.clockImages.get('bottom');
+    const clockRadius = Math.min(tileWidth, tileHeight) * 0.35;
+
+    if (clockBotImg && clockBotImg.complete) {
+      // Draw clock background image
+      this.ctx.drawImage(
+        clockBotImg,
+        clockX - clockRadius,
+        clockY - clockRadius,
+        clockRadius * 2,
+        clockRadius * 2
+      );
+    } else {
+      // Fallback: draw simple clock face
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      this.ctx.beginPath();
+      this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      this.ctx.strokeStyle = '#FFD700';
+      this.ctx.lineWidth = 3;
+      this.ctx.beginPath();
+      this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
+      this.ctx.stroke();
+    }
+
+    // Draw clock hand (starts at top, rotates clockwise)
+    this.ctx.save();
+    this.ctx.translate(clockX, clockY);
+    this.ctx.rotate(rotationAngle - Math.PI / 2); // Start at 12 o'clock
+
+    // Clock hand
+    const handLength = clockRadius * 0.7;
+    this.ctx.strokeStyle = '#FF0000';
+    this.ctx.lineWidth = 4;
+    this.ctx.lineCap = 'round';
     this.ctx.beginPath();
-    this.ctx.arc(centerX, centerY, clockRadius, 0, Math.PI * 2);
+    this.ctx.moveTo(0, 0);
+    this.ctx.lineTo(handLength, 0);
     this.ctx.stroke();
 
-    // Draw week text
+    // Clock hand tip (arrow)
+    this.ctx.fillStyle = '#FF0000';
+    this.ctx.beginPath();
+    this.ctx.arc(handLength, 0, 5, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    this.ctx.restore();
+
+    // Center dot
     this.ctx.fillStyle = '#FFD700';
-    this.ctx.font = 'bold 12px monospace';
+    this.ctx.beginPath();
+    this.ctx.arc(clockX, clockY, 6, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    // Week number below clock
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+    this.ctx.beginPath();
+    this.ctx.roundRect(clockX - 35, clockY + clockRadius + 5, 70, 20, 5);
+    this.ctx.fill();
+
+    this.ctx.fillStyle = '#FFD700';
+    this.ctx.font = 'bold 14px monospace';
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
-    this.ctx.fillText(`Week ${currentWeek}`, centerX, centerY - 12);
-
-    // Draw time text (hour in 24h format)
-    this.ctx.fillStyle = '#FFFFFF';
-    this.ctx.font = 'bold 16px monospace';
-    this.ctx.fillText(`${currentHour.toString().padStart(2, '0')}:00`, centerX, centerY + 8);
+    this.ctx.fillText(`Week ${currentWeek}`, clockX, clockY + clockRadius + 15);
 
     this.ctx.restore();
   }
@@ -643,7 +749,7 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render players layer - Retro pixel sprites
+   * Render players layer - Retro pixel sprites with smooth movement animation
    * Updated for rectangular tiles (155x96)
    */
   private renderPlayers(): void {
@@ -654,12 +760,19 @@ export class RenderCoordinator {
     this.game.players.forEach((player) => {
       const pos = player.state.position;
 
+      // Get animated position for smooth movement
+      const animPos = this.getAnimatedPlayerPosition(
+        player.id,
+        pos,
+        performance.now()
+      );
+
       this.ctx.save();
       this.ctx.imageSmoothingEnabled = false;
 
-      // Calculate pixel-aligned position (center of tile)
-      const centerX = Math.floor(pos.x * tileWidth + tileWidth / 2);
-      const centerY = Math.floor(pos.y * tileHeight + tileHeight / 2);
+      // Calculate pixel-aligned position (center of tile) using animated position
+      const centerX = Math.floor(animPos.x * tileWidth + tileWidth / 2);
+      const centerY = Math.floor(animPos.y * tileHeight + tileHeight / 2);
 
       // Scale sprite based on smaller dimension to fit in tile
       const minTileDim = Math.min(tileWidth, tileHeight);
