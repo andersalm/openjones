@@ -36,7 +36,12 @@ export class InputHandler {
   private canvas: HTMLCanvasElement;
   private gameController: GameController;
   private playerId: string;
-  private tileSize: number;
+  private tileSize: number; // Kept for backward compatibility
+  private tileWidth: number;
+  private tileHeight: number;
+
+  private readonly MAP_COLS = 5;
+  private readonly MAP_ROWS = 5;
 
   private state: InputState = {
     selectedBuilding: null,
@@ -57,6 +62,11 @@ export class InputHandler {
     this.gameController = config.gameController;
     this.playerId = config.playerId;
     this.tileSize = config.tileSize || 32;
+
+    // Calculate rectangular tile dimensions based on canvas size
+    this.tileWidth = this.canvas.width / this.MAP_COLS;
+    this.tileHeight = this.canvas.height / this.MAP_ROWS;
+
     this.onActionSelected = config.onActionSelected;
     this.onBuildingSelected = config.onBuildingSelected;
   }
@@ -102,20 +112,22 @@ export class InputHandler {
 
   /**
    * Convert screen coordinates to map position
+   * Updated for rectangular tiles (155x96)
    */
   private screenToMapPosition(screenX: number, screenY: number): Position {
-    const mapX = Math.floor(screenX / this.tileSize);
-    const mapY = Math.floor(screenY / this.tileSize);
+    const mapX = Math.floor(screenX / this.tileWidth);
+    const mapY = Math.floor(screenY / this.tileHeight);
     return new Position(mapX, mapY);
   }
 
   /**
    * Convert map position to screen coordinates
+   * Updated for rectangular tiles (155x96)
    */
   mapToScreenPosition(mapPos: Position): { x: number; y: number } {
     return {
-      x: mapPos.x * this.tileSize,
-      y: mapPos.y * this.tileSize,
+      x: mapPos.x * this.tileWidth,
+      y: mapPos.y * this.tileHeight,
     };
   }
 

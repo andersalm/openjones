@@ -67,11 +67,19 @@ export class RenderCoordinator {
   private buildingImages: Map<string, HTMLImageElement> = new Map();
   private imagesLoaded: boolean = false;
 
-  // Center tile images (test06-18 for the 3x3 center area)
+  // Full map background image (775x480 - 5x5 grid of 155x96 tiles)
+  private mapBackgroundImage: HTMLImageElement | null = null;
+  private mapBackgroundLoaded: boolean = false;
+
+  // Map grid dimensions (5x5 grid of 155x96 tiles in Java)
+  private readonly MAP_COLS = 5;
+  private readonly MAP_ROWS = 5;
+
+  // Center tile images (test06-18) - kept for fallback
   private centerTileImages: Map<string, HTMLImageElement> = new Map();
   private centerImagesLoaded: boolean = false;
 
-  // Grass tile image for border tiles
+  // Grass tile image - kept for fallback
   private grassTileImage: HTMLImageElement | null = null;
   private grassImageLoaded: boolean = false;
 
@@ -99,10 +107,13 @@ export class RenderCoordinator {
     // Load building images
     this.loadBuildingImages();
 
-    // Load center tile images
+    // Load full map background image
+    this.loadMapBackground();
+
+    // Load center tile images (fallback)
     this.loadCenterTileImages();
 
-    // Load grass tile image
+    // Load grass tile image (fallback)
     this.loadGrassTileImage();
 
     // Load clock images
@@ -162,7 +173,25 @@ export class RenderCoordinator {
   }
 
   /**
+   * Load full map background image (775x480 - authentic Java graphics)
+   */
+  private loadMapBackground(): void {
+    const img = new Image();
+    img.onload = () => {
+      this.mapBackgroundLoaded = true;
+      console.log('Map background loaded successfully (775x480)');
+    };
+    img.onerror = () => {
+      console.warn('Failed to load map background, will use fallback tiles');
+      this.mapBackgroundLoaded = false;
+    };
+    img.src = '/center/jones_map_grass.png';
+    this.mapBackgroundImage = img;
+  }
+
+  /**
    * Load center tile images (3x3 grid in the middle of the 5x5 board)
+   * Used as fallback if map background fails
    */
   private loadCenterTileImages(): void {
     // Map coordinates to test image numbers
@@ -366,67 +395,68 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render map layer - Professional retro grid (5x5 like Java version)
-   * Center 3x3 tiles use Java graphics, outer ring uses grass texture
-   * No grid borders for cleaner look
+   * Render map layer - Full map background from Java (775x480)
+   * Uses authentic jones_map_grass.png for proper aspect ratio
    */
   private renderMap(): void {
-    const cols = 5;
-    const rows = 5;
-    // Calculate tile size dynamically based on canvas size
-    const tileSize = this.canvas.width / cols;
-
     this.ctx.imageSmoothingEnabled = false;
 
-    // Draw tiles
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        const tx = x * tileSize;
-        const ty = y * tileSize;
+    if (this.mapBackgroundLoaded && this.mapBackgroundImage && this.mapBackgroundImage.complete) {
+      // Draw the full map background image (775x480)
+      this.ctx.drawImage(this.mapBackgroundImage, 0, 0, this.canvas.width, this.canvas.height);
+    } else {
+      // Fallback: Draw individual tiles if map background not loaded
+      const tileWidth = this.canvas.width / this.MAP_COLS;
+      const tileHeight = this.canvas.height / this.MAP_ROWS;
 
-        // Check if this is a center tile (row 1-3, col 1-3)
-        const isCenterTile = x >= 1 && x <= 3 && y >= 1 && y <= 3;
+      for (let y = 0; y < this.MAP_ROWS; y++) {
+        for (let x = 0; x < this.MAP_COLS; x++) {
+          const tx = x * tileWidth;
+          const ty = y * tileHeight;
 
-        if (isCenterTile && this.centerImagesLoaded) {
-          // Draw center tile image
-          const centerImg = this.centerTileImages.get(`${y},${x}`);
-          if (centerImg && centerImg.complete) {
-            this.ctx.drawImage(centerImg, tx, ty, tileSize, tileSize);
+          // Check if this is a center tile (row 1-3, col 1-3)
+          const isCenterTile = x >= 1 && x <= 3 && y >= 1 && y <= 3;
+
+          if (isCenterTile && this.centerImagesLoaded) {
+            const centerImg = this.centerTileImages.get(`${y},${x}`);
+            if (centerImg && centerImg.complete) {
+              this.ctx.drawImage(centerImg, tx, ty, tileWidth, tileHeight);
+            } else {
+              this.drawGrassTile(tx, ty, tileWidth, tileHeight);
+            }
           } else {
-            // Fallback to grass tile if center image not loaded
-            this.drawGrassTile(tx, ty, tileSize);
+            this.drawGrassTile(tx, ty, tileWidth, tileHeight);
           }
-        } else {
-          // Draw grass tile for border
-          this.drawGrassTile(tx, ty, tileSize);
         }
       }
     }
   }
 
   /**
-   * Draw a grass tile (for border tiles)
+   * Draw a grass tile (for border tiles) - supports rectangular tiles
    */
-  private drawGrassTile(x: number, y: number, size: number): void {
+  private drawGrassTile(x: number, y: number, width: number, height: number): void {
     if (this.grassImageLoaded && this.grassTileImage && this.grassTileImage.complete) {
       // Draw grass tile image
-      this.ctx.drawImage(this.grassTileImage, x, y, size, size);
+      this.ctx.drawImage(this.grassTileImage, x, y, width, height);
     } else {
       // Fallback to subtle gradient if image not loaded
-      const gradient = this.ctx.createLinearGradient(x, y, x + size, y + size);
+      const gradient = this.ctx.createLinearGradient(x, y, x + width, y + height);
       gradient.addColorStop(0, '#8BA870');
       gradient.addColorStop(1, '#6B8850');
       this.ctx.fillStyle = gradient;
-      this.ctx.fillRect(x, y, size, size);
+      this.ctx.fillRect(x, y, width, height);
     }
   }
 
   /**
    * Render buildings layer with Java graphics
+   * Updated for rectangular tiles (155x96)
    */
   private renderBuildings(): void {
-    // Calculate tile size dynamically based on canvas size
-    const tileSize = this.canvas.width / 5;
+    // Calculate tile dimensions based on canvas size
+    const tileWidth = this.canvas.width / this.MAP_COLS;
+    const tileHeight = this.canvas.height / this.MAP_ROWS;
     const buildings = this.game.map.getAllBuildings();
 
     if (buildings.length === 0) {
@@ -437,16 +467,16 @@ export class RenderCoordinator {
 
     buildings.forEach((building) => {
       const pos = building.position;
-      const x = pos.x * tileSize;
-      const y = pos.y * tileSize;
+      const x = pos.x * tileWidth;
+      const y = pos.y * tileHeight;
 
       const isPlayerOnBuilding = playerPositions.some(p => p.x === pos.x && p.y === pos.y);
 
       const padding = 10;
       const bx = x + padding;
       const by = y + padding;
-      const bw = tileSize - (padding * 2);
-      const bh = tileSize - (padding * 2);
+      const bw = tileWidth - (padding * 2);
+      const bh = tileHeight - (padding * 2);
 
       this.ctx.save();
 
@@ -509,7 +539,7 @@ export class RenderCoordinator {
         displayName = displayName.substring(0, 11) + '..';
       }
 
-      this.ctx.fillText(displayName, x + tileSize / 2, namePlateY + namePlateHeight / 2);
+      this.ctx.fillText(displayName, x + tileWidth / 2, namePlateY + namePlateHeight / 2);
 
       this.ctx.restore();
     });
@@ -575,10 +605,12 @@ export class RenderCoordinator {
 
   /**
    * Render players layer - Retro pixel sprites
+   * Updated for rectangular tiles (155x96)
    */
   private renderPlayers(): void {
-    // Calculate tile size dynamically based on canvas size
-    const tileSize = this.canvas.width / 5;
+    // Calculate tile dimensions based on canvas size
+    const tileWidth = this.canvas.width / this.MAP_COLS;
+    const tileHeight = this.canvas.height / this.MAP_ROWS;
 
     this.game.players.forEach((player) => {
       const pos = player.state.position;
@@ -586,13 +618,14 @@ export class RenderCoordinator {
       this.ctx.save();
       this.ctx.imageSmoothingEnabled = false;
 
-      // Calculate pixel-aligned position
-      const centerX = Math.floor(pos.x * tileSize + tileSize / 2);
-      const centerY = Math.floor(pos.y * tileSize + tileSize / 2);
+      // Calculate pixel-aligned position (center of tile)
+      const centerX = Math.floor(pos.x * tileWidth + tileWidth / 2);
+      const centerY = Math.floor(pos.y * tileHeight + tileHeight / 2);
 
       // Draw player as pixel-perfect square (retro sprite style)
-      // Scale sprite proportionally to tile size (36px for 100px tiles = 36% of tile)
-      const spriteSize = Math.floor(tileSize * 0.36);
+      // Scale sprite based on smaller dimension to fit in tile
+      const minTileDim = Math.min(tileWidth, tileHeight);
+      const spriteSize = Math.floor(minTileDim * 0.36);
       const halfSize = Math.floor(spriteSize / 2);
 
       // Player body (solid square)

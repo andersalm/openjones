@@ -263,29 +263,43 @@ export function App() {
       }
 
       // Set canvas size responsively
-      // Calculate size based on viewport to fit mobile and desktop
+      // Java map is 775×480 (5×5 grid of 155×96 tiles)
       const calculateCanvasSize = () => {
-        const GRID_SIZE = 5;
+        const ASPECT_RATIO = 775 / 480; // 1.614583...
+        const IDEAL_WIDTH = 775;
+        const IDEAL_HEIGHT = 480;
+
         // Get available viewport space (leave room for HUD and controls)
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
 
-        // Reserve space for UI (HUD on left ~300px, controls on right, margins)
-        const availableWidth = Math.min(viewportWidth - 350, 800);  // Max 800px on desktop
-        const availableHeight = Math.min(viewportHeight - 100, 800); // Max 800px
+        // Reserve space for UI (HUD on left ~300px, margins)
+        const availableWidth = Math.min(viewportWidth - 350, IDEAL_WIDTH);
+        const availableHeight = Math.min(viewportHeight - 100, IDEAL_HEIGHT);
 
-        // Use smallest dimension to keep it square and fit on screen
-        const maxSize = Math.min(availableWidth, availableHeight, 800);
+        // Calculate size based on available space, maintaining aspect ratio
+        let width = availableWidth;
+        let height = width / ASPECT_RATIO;
 
-        // Ensure minimum size for mobile
-        const size = Math.max(300, maxSize);
+        // If height is too large, scale by height instead
+        if (height > availableHeight) {
+          height = availableHeight;
+          width = height * ASPECT_RATIO;
+        }
 
-        return Math.floor(size / GRID_SIZE) * GRID_SIZE; // Keep divisible by 5
+        // Ensure minimum size for mobile (scale proportionally)
+        const minWidth = 400;
+        if (width < minWidth) {
+          width = minWidth;
+          height = width / ASPECT_RATIO;
+        }
+
+        return { width: Math.floor(width), height: Math.floor(height) };
       };
 
       const canvasSize = calculateCanvasSize();
-      canvas.width = canvasSize;
-      canvas.height = canvasSize;
+      canvas.width = canvasSize.width;
+      canvas.height = canvasSize.height;
 
       // Create RenderCoordinator
       const renderCoordinator = new RenderCoordinator({
@@ -301,7 +315,7 @@ export function App() {
         canvas,
         gameController,
         playerId: 'player-1',
-        tileSize: canvasSize / 5, // Calculate dynamically based on canvas size
+        tileSize: canvasSize.width / 5, // Use width for tile size (will be updated in InputHandler)
         onBuildingSelected: handleBuildingSelect,
         onActionSelected: (actionType) => {
           console.log('Action selected:', actionType);
