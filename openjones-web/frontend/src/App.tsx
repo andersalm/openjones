@@ -172,6 +172,24 @@ export function App() {
    * Initialize a new game with full integration
    */
   const initializeGame = useCallback((playerName: string) => {
+    // Clean up any existing game systems first (safety check)
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+      unsubscribeRef.current = null;
+    }
+    if (inputHandlerRef.current) {
+      inputHandlerRef.current.destroy();
+      inputHandlerRef.current = null;
+    }
+    if (renderCoordinatorRef.current) {
+      renderCoordinatorRef.current.destroy();
+      renderCoordinatorRef.current = null;
+    }
+    if (gameControllerRef.current) {
+      gameControllerRef.current.stop();
+      gameControllerRef.current = null;
+    }
+
     // Store player name and switch to playing phase
     // The actual initialization will happen in useEffect once canvas is rendered
     setAppState(prev => ({
@@ -413,39 +431,51 @@ export function App() {
    * Handle reset to main menu
    */
   const handleReset = useCallback(() => {
-    // Clean up existing game
-    if (unsubscribeRef.current) {
-      unsubscribeRef.current();
-      unsubscribeRef.current = null;
-    }
-
-    if (inputHandlerRef.current) {
-      inputHandlerRef.current.destroy();
-      inputHandlerRef.current = null;
-    }
-
-    if (renderCoordinatorRef.current) {
-      renderCoordinatorRef.current.destroy();
-      renderCoordinatorRef.current = null;
-    }
-
-    if (gameControllerRef.current) {
-      gameControllerRef.current.stop();
-      gameControllerRef.current = null;
-    }
-
-    // Reset state
-    setAppState({
-      phase: 'menu',
-      playerState: null,
-      currentWeek: 1,
-      timeRemaining: 600,
+    // First, close any open modals and clear state
+    setAppState(prev => ({
+      ...prev,
+      showBuildingModal: false,
       selectedBuilding: null,
       buildingActions: [],
-      showBuildingModal: false,
-      victoryConditions: [],
       errorMessage: null,
-    });
+    }));
+
+    // Give React a moment to close modals and clean up UI
+    setTimeout(() => {
+      // Clean up existing game systems
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+
+      if (inputHandlerRef.current) {
+        inputHandlerRef.current.destroy();
+        inputHandlerRef.current = null;
+      }
+
+      if (renderCoordinatorRef.current) {
+        renderCoordinatorRef.current.destroy();
+        renderCoordinatorRef.current = null;
+      }
+
+      if (gameControllerRef.current) {
+        gameControllerRef.current.stop();
+        gameControllerRef.current = null;
+      }
+
+      // Reset state to main menu
+      setAppState({
+        phase: 'menu',
+        playerState: null,
+        currentWeek: 1,
+        timeRemaining: 600,
+        selectedBuilding: null,
+        buildingActions: [],
+        showBuildingModal: false,
+        victoryConditions: [],
+        errorMessage: null,
+      });
+    }, 50);
   }, []);
 
   /**
