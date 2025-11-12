@@ -208,6 +208,17 @@ export class MockPlayerState implements IPlayerState {
     return exp ? exp.points : 0;
   }
 
+  addExperience(rank: number, points: number): void {
+    const existingExp = this.experience.find((e) => e.rank === rank);
+    if (existingExp) {
+      existingExp.points += points;
+    } else {
+      this.experience.push({ rank, points });
+    }
+    // Update career (sum of all experience)
+    this.career = this.getTotalExperience();
+  }
+
   static create(overrides?: Partial<IPlayerState>): MockPlayerState {
     const state = new MockPlayerState();
     return Object.assign(state, overrides);

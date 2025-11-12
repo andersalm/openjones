@@ -200,6 +200,7 @@ export interface IPlayerState {
   getClothesLevel(): number;
   getTotalExperience(): number;
   getExperienceAtRank(rank: number): number;
+  addExperience(rank: number, points: number): void;
 }
 
 export interface IPlayer {
@@ -223,8 +224,9 @@ export interface IActionRequirement {
 }
 
 export interface IStateChange {
-  type: 'cash' | 'measure' | 'possession_add' | 'possession_remove' | 'job' | 'position' | 'location' | 'time';
+  type: 'cash' | 'measure' | 'possession_add' | 'possession_remove' | 'job' | 'position' | 'location' | 'time' | 'experience';
   measure?: MeasureType;
+  rank?: number; // For experience state changes
   value: number | string | IPossession | IJob | IPosition;
   description: string;
 }

@@ -252,6 +252,19 @@ export class StateChangeBuilder {
   }
 
   /**
+   * Add experience at a specific rank
+   */
+  experience(rank: number, points: number, description: string): StateChangeBuilder {
+    this.changes.push({
+      type: 'experience',
+      rank,
+      value: points,
+      description,
+    });
+    return this;
+  }
+
+  /**
    * Build and return the state changes array
    */
   build(): IStateChange[] {

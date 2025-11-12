@@ -52,12 +52,12 @@ export class WorkAction extends Action {
 
     const earnings = this.job.wagePerHour * this.hours;
     const healthLoss = this.hours * 2; // Lose 2 health per hour worked
-    const careerGain = this.hours * 1; // Gain 1 career point per hour
+    const experienceGain = this.job.experienceGainPerHour * this.hours;
 
     const changes = StateChangeBuilder.create()
       .cash(player.cash + earnings, `Earned $${earnings}`)
       .health(player.health - healthLoss, `Lost ${healthLoss} health from work`)
-      .career(player.career + careerGain, `Gained ${careerGain} career experience`)
+      .experience(this.job.rank, experienceGain, `Gained ${experienceGain} experience at rank ${this.job.rank}`)
       .build();
 
     return ActionResponse.success(

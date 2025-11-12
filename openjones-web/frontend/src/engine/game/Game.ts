@@ -430,6 +430,12 @@ export class Game implements IGame {
           player.state.position = change.value as IPosition;
           break;
 
+        case 'experience':
+          if (change.rank !== undefined) {
+            player.state.addExperience(change.rank, change.value as number);
+          }
+          break;
+
         default:
           console.warn(`Unknown state change type: ${change.type}`);
       }
