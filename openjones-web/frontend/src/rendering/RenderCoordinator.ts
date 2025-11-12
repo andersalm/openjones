@@ -369,6 +369,7 @@ export class RenderCoordinator {
         break;
       case 'map':
         this.renderMap();
+        this.renderClock(); // Render clock after map
         break;
       case 'buildings':
         this.renderBuildings();
@@ -450,6 +451,55 @@ export class RenderCoordinator {
   }
 
   /**
+   * Render clock overlay on center tile showing week and time
+   */
+  private renderClock(): void {
+    this.ctx.save();
+    this.ctx.imageSmoothingEnabled = false;
+
+    // Calculate center tile position (2, 2)
+    const tileWidth = this.canvas.width / this.MAP_COLS;
+    const tileHeight = this.canvas.height / this.MAP_ROWS;
+    const centerX = 2 * tileWidth + tileWidth / 2;
+    const centerY = 2 * tileHeight + tileHeight / 2;
+
+    // Get game time info
+    const currentWeek = this.game.currentWeek;
+    const timeRemaining = this.game.timeUnitsRemaining;
+    const timeUsed = 600 - timeRemaining; // 600 units per week
+    const hoursUsed = Math.floor(timeUsed / 5); // 5 units per hour
+    const currentHour = hoursUsed % 24;
+
+    // Draw clock background circle
+    const clockRadius = Math.min(tileWidth, tileHeight) * 0.3;
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    this.ctx.beginPath();
+    this.ctx.arc(centerX, centerY, clockRadius, 0, Math.PI * 2);
+    this.ctx.fill();
+
+    // Draw clock border
+    this.ctx.strokeStyle = '#FFD700';
+    this.ctx.lineWidth = 3;
+    this.ctx.beginPath();
+    this.ctx.arc(centerX, centerY, clockRadius, 0, Math.PI * 2);
+    this.ctx.stroke();
+
+    // Draw week text
+    this.ctx.fillStyle = '#FFD700';
+    this.ctx.font = 'bold 12px monospace';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.fillText(`Week ${currentWeek}`, centerX, centerY - 12);
+
+    // Draw time text (hour in 24h format)
+    this.ctx.fillStyle = '#FFFFFF';
+    this.ctx.font = 'bold 16px monospace';
+    this.ctx.fillText(`${currentHour.toString().padStart(2, '0')}:00`, centerX, centerY + 8);
+
+    this.ctx.restore();
+  }
+
+  /**
    * Render buildings layer with Java graphics
    * Updated for rectangular tiles (155x96)
    */
@@ -499,33 +549,22 @@ export class RenderCoordinator {
         this.ctx.fillRect(bx, by, bw, bh);
       }
 
-      // Draw border with highlight if player is on it
+      // Draw subtle border only if player is on building
       if (isPlayerOnBuilding) {
         this.ctx.strokeStyle = '#FFFF00';
-        this.ctx.lineWidth = 6;
-        this.ctx.strokeRect(bx, by, bw, bh);
-        this.ctx.strokeStyle = '#FFA500';
-        this.ctx.lineWidth = 3;
-        this.ctx.strokeRect(bx + 3, by + 3, bw - 6, bh - 6);
-      } else {
-        // Outer dark border
-        this.ctx.strokeStyle = '#000000';
         this.ctx.lineWidth = 4;
-        this.ctx.strokeRect(bx, by, bw, bh);
+        this.ctx.strokeRect(bx - 2, by - 2, bw + 4, bh + 4);
       }
 
-      // Draw building name label - larger and more visible
-      const namePlateHeight = 24;
-      const namePlateY = by + bh - namePlateHeight - 2;
+      // Draw building name label with semi-transparent background
+      const namePlateHeight = 20;
+      const namePlateY = by + bh - namePlateHeight;
 
-      // Nameplate background - solid black for maximum readability
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
+      // Nameplate background - semi-transparent for better blending
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
       this.ctx.fillRect(bx, namePlateY, bw, namePlateHeight);
 
-      // Nameplate border
-      this.ctx.strokeStyle = isPlayerOnBuilding ? '#FFFF00' : '#FFFFFF';
-      this.ctx.lineWidth = 2;
-      this.ctx.strokeRect(bx, namePlateY, bw, namePlateHeight);
+      // No border on nameplate for cleaner look
 
       // Building name text - bright and clear
       this.ctx.fillStyle = '#FFFFFF';
@@ -622,50 +661,87 @@ export class RenderCoordinator {
       const centerX = Math.floor(pos.x * tileWidth + tileWidth / 2);
       const centerY = Math.floor(pos.y * tileHeight + tileHeight / 2);
 
-      // Draw player as pixel-perfect square (retro sprite style)
       // Scale sprite based on smaller dimension to fit in tile
       const minTileDim = Math.min(tileWidth, tileHeight);
-      const spriteSize = Math.floor(minTileDim * 0.36);
-      const halfSize = Math.floor(spriteSize / 2);
+      const spriteSize = Math.floor(minTileDim * 0.4);
+      const headRadius = spriteSize * 0.35;
+      const bodyHeight = spriteSize * 0.5;
 
-      // Player body (solid square)
+      // Draw player as character-like avatar
+      // Shadow
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      this.ctx.beginPath();
+      this.ctx.ellipse(centerX, centerY + spriteSize * 0.4, spriteSize * 0.4, spriteSize * 0.15, 0, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Body (rounded rectangle)
+      const bodyY = centerY - bodyHeight / 4;
+      const bodyWidth = spriteSize * 0.5;
       this.ctx.fillStyle = player.color;
-      this.ctx.fillRect(
-        centerX - halfSize,
-        centerY - halfSize,
-        spriteSize,
-        spriteSize
-      );
+      this.ctx.beginPath();
+      this.ctx.roundRect(centerX - bodyWidth / 2, bodyY, bodyWidth, bodyHeight, 8);
+      this.ctx.fill();
 
-      // Black pixel border for definition
-      this.ctx.strokeStyle = '#000000';
-      this.ctx.lineWidth = 3;
-      this.ctx.strokeRect(
-        centerX - halfSize,
-        centerY - halfSize,
-        spriteSize,
-        spriteSize
+      // Body highlight
+      const bodyGradient = this.ctx.createLinearGradient(
+        centerX - bodyWidth / 2, bodyY,
+        centerX + bodyWidth / 2, bodyY + bodyHeight
       );
+      bodyGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+      bodyGradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
+      this.ctx.fillStyle = bodyGradient;
+      this.ctx.fill();
 
-      // Player name (pixel font)
+      // Head (circle)
+      const headY = centerY - spriteSize * 0.3;
+      this.ctx.fillStyle = player.color;
+      this.ctx.beginPath();
+      this.ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Head highlight (3D effect)
+      const headGradient = this.ctx.createRadialGradient(
+        centerX - headRadius * 0.3, headY - headRadius * 0.3, 0,
+        centerX, headY, headRadius
+      );
+      headGradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
+      headGradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.1)');
+      headGradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+      this.ctx.fillStyle = headGradient;
+      this.ctx.beginPath();
+      this.ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Eyes
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.beginPath();
+      this.ctx.arc(centerX - headRadius * 0.3, headY - headRadius * 0.1, headRadius * 0.2, 0, Math.PI * 2);
+      this.ctx.arc(centerX + headRadius * 0.3, headY - headRadius * 0.1, headRadius * 0.2, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Pupils
       this.ctx.fillStyle = '#000000';
-      this.ctx.font = '8px "Press Start 2P", monospace';
+      this.ctx.beginPath();
+      this.ctx.arc(centerX - headRadius * 0.3, headY - headRadius * 0.1, headRadius * 0.1, 0, Math.PI * 2);
+      this.ctx.arc(centerX + headRadius * 0.3, headY - headRadius * 0.1, headRadius * 0.1, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // Player name with better styling
+      this.ctx.font = 'bold 10px monospace';
       this.ctx.textAlign = 'center';
       this.ctx.textBaseline = 'top';
 
-      // Background for name (for readability)
+      // Name background (rounded)
       const nameWidth = this.ctx.measureText(player.name).width;
-      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      this.ctx.fillRect(
-        centerX - nameWidth / 2 - 2,
-        centerY + halfSize + 4,
-        nameWidth + 4,
-        10
-      );
+      const nameY = centerY + spriteSize * 0.3;
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      this.ctx.beginPath();
+      this.ctx.roundRect(centerX - nameWidth / 2 - 4, nameY, nameWidth + 8, 14, 4);
+      this.ctx.fill();
 
       // Name text
-      this.ctx.fillStyle = '#000000';
-      this.ctx.fillText(player.name, centerX, centerY + halfSize + 6);
+      this.ctx.fillStyle = '#FFFFFF';
+      this.ctx.fillText(player.name, centerX, nameY + 2);
 
       this.ctx.restore();
     });
