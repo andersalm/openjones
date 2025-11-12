@@ -494,6 +494,11 @@ export function App() {
             gameControllerRef.current = null;
           }
 
+          // Reset canvas ref to ensure fresh canvas on next game
+          if (canvasRef.current) {
+            canvasRef.current = null;
+          }
+
           // Reset state to main menu and increment game key to force remount
           setGameKey(prev => prev + 1);
           setAppState({
@@ -512,6 +517,9 @@ export function App() {
         } catch (error) {
           console.error('Error during cleanup:', error);
           // Force reset even if cleanup fails
+          if (canvasRef.current) {
+            canvasRef.current = null;
+          }
           setGameKey(prev => prev + 1);
           setAppState({
             phase: 'menu',
@@ -529,6 +537,9 @@ export function App() {
     } catch (error) {
       console.error('Error resetting to main menu:', error);
       // Force reset on error
+      if (canvasRef.current) {
+        canvasRef.current = null;
+      }
       setGameKey(prev => prev + 1);
       setAppState({
         phase: 'menu',
