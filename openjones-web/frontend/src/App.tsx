@@ -240,12 +240,30 @@ export function App() {
         return;
       }
 
-      // Set canvas size to match Java version: 5x5 grid
-      // Java uses 155x96 tiles, we'll use 100x100 for simplicity
-      const TILE_SIZE = 100;
-      const GRID_SIZE = 5;
-      canvas.width = TILE_SIZE * GRID_SIZE;  // 500px
-      canvas.height = TILE_SIZE * GRID_SIZE; // 500px
+      // Set canvas size responsively
+      // Calculate size based on viewport to fit mobile and desktop
+      const calculateCanvasSize = () => {
+        const GRID_SIZE = 5;
+        // Get available viewport space (leave room for HUD and controls)
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        // Reserve space for UI (HUD on left ~300px, controls on right, margins)
+        const availableWidth = Math.min(viewportWidth - 350, 800);  // Max 800px on desktop
+        const availableHeight = Math.min(viewportHeight - 100, 800); // Max 800px
+
+        // Use smallest dimension to keep it square and fit on screen
+        const maxSize = Math.min(availableWidth, availableHeight, 800);
+
+        // Ensure minimum size for mobile
+        const size = Math.max(300, maxSize);
+
+        return Math.floor(size / GRID_SIZE) * GRID_SIZE; // Keep divisible by 5
+      };
+
+      const canvasSize = calculateCanvasSize();
+      canvas.width = canvasSize;
+      canvas.height = canvasSize;
 
       // Create RenderCoordinator
       const renderCoordinator = new RenderCoordinator({

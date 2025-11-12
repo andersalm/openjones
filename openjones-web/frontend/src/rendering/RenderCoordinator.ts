@@ -67,6 +67,13 @@ export class RenderCoordinator {
   private buildingImages: Map<string, HTMLImageElement> = new Map();
   private imagesLoaded: boolean = false;
 
+  // Center tile images (test06-18 for the 3x3 center area)
+  private centerTileImages: Map<string, HTMLImageElement> = new Map();
+  private centerImagesLoaded: boolean = false;
+
+  // Clock images for time display (TODO: render in UI layer)
+  private clockImages: Map<string, HTMLImageElement> = new Map();
+
   constructor(config: RenderCoordinatorConfig) {
     this.canvas = config.canvas;
     const ctx = this.canvas.getContext('2d');
@@ -87,6 +94,12 @@ export class RenderCoordinator {
 
     // Load building images
     this.loadBuildingImages();
+
+    // Load center tile images
+    this.loadCenterTileImages();
+
+    // Load clock images
+    this.loadClockImages();
   }
 
   /**
@@ -138,6 +151,70 @@ export class RenderCoordinator {
       };
       img.src = `/buildings/${filename}`;
       this.buildingImages.set(buildingType, img);
+    });
+  }
+
+  /**
+   * Load center tile images (3x3 grid in the middle of the 5x5 board)
+   */
+  private loadCenterTileImages(): void {
+    // Map coordinates to test image numbers
+    // Row 1, Col 1-3: test06, test07, test08
+    // Row 2, Col 1-3: test11, test12, test13
+    // Row 3, Col 1-3: test16, test17, test18
+    const centerTiles = [
+      { row: 1, col: 1, img: 'test06.png' },
+      { row: 1, col: 2, img: 'test07.png' },
+      { row: 1, col: 3, img: 'test08.png' },
+      { row: 2, col: 1, img: 'test11.png' },
+      { row: 2, col: 2, img: 'test12.png' },
+      { row: 2, col: 3, img: 'test13.png' },
+      { row: 3, col: 1, img: 'test16.png' },
+      { row: 3, col: 2, img: 'test17.png' },
+      { row: 3, col: 3, img: 'test18.png' },
+    ];
+
+    let loadedCount = 0;
+    const totalImages = centerTiles.length;
+
+    centerTiles.forEach(({ row, col, img }) => {
+      const image = new Image();
+      image.onload = () => {
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          this.centerImagesLoaded = true;
+          console.log('All center tile images loaded successfully');
+        }
+      };
+      image.onerror = () => {
+        console.warn(`Failed to load center tile: ${img}`);
+        loadedCount++;
+        if (loadedCount === totalImages) {
+          this.centerImagesLoaded = true;
+        }
+      };
+      image.src = `/center/${img}`;
+      this.centerTileImages.set(`${row},${col}`, image);
+    });
+  }
+
+  /**
+   * Load clock images for time display (for future use in UI layer)
+   */
+  private loadClockImages(): void {
+    const clockFiles = ['clock_bot.png', 'clock_top3.png'];
+
+    clockFiles.forEach((filename) => {
+      const img = new Image();
+      img.onload = () => {
+        console.log(`Clock image loaded: ${filename}`);
+      };
+      img.onerror = () => {
+        console.warn(`Failed to load clock image: ${filename}`);
+      };
+      img.src = `/center/${filename}`;
+      const key = filename.includes('bot') ? 'bottom' : 'top';
+      this.clockImages.set(key, img);
     });
   }
 
@@ -266,6 +343,7 @@ export class RenderCoordinator {
 
   /**
    * Render map layer - Professional retro grid (5x5 like Java version)
+   * Center 3x3 tiles use Java graphics, outer ring uses gradient
    */
   private renderMap(): void {
     const tileSize = 100;
@@ -274,23 +352,28 @@ export class RenderCoordinator {
 
     this.ctx.imageSmoothingEnabled = false;
 
-    // Draw tiles with subtle gradient for depth
+    // Draw tiles
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const tx = x * tileSize;
         const ty = y * tileSize;
 
-        // Subtle gradient on each tile
-        const gradient = this.ctx.createLinearGradient(tx, ty, tx + tileSize, ty + tileSize);
-        gradient.addColorStop(0, '#C4B8A0');
-        gradient.addColorStop(1, '#A89878');
-        this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(tx, ty, tileSize, tileSize);
+        // Check if this is a center tile (row 1-3, col 1-3)
+        const isCenterTile = x >= 1 && x <= 3 && y >= 1 && y <= 3;
 
-        // Add subtle inner shadow effect
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        this.ctx.fillRect(tx, ty, tileSize, 3);
-        this.ctx.fillRect(tx, ty, 3, tileSize);
+        if (isCenterTile && this.centerImagesLoaded) {
+          // Draw center tile image
+          const centerImg = this.centerTileImages.get(`${y},${x}`);
+          if (centerImg && centerImg.complete) {
+            this.ctx.drawImage(centerImg, tx, ty, tileSize, tileSize);
+          } else {
+            // Fallback to gradient if image not loaded
+            this.drawGradientTile(tx, ty, tileSize);
+          }
+        } else {
+          // Draw gradient tile for border
+          this.drawGradientTile(tx, ty, tileSize);
+        }
       }
     }
 
@@ -311,6 +394,23 @@ export class RenderCoordinator {
       this.ctx.lineTo(this.canvas.width, y * tileSize);
       this.ctx.stroke();
     }
+  }
+
+  /**
+   * Draw a gradient tile (for border tiles)
+   */
+  private drawGradientTile(x: number, y: number, size: number): void {
+    // Subtle gradient on each tile
+    const gradient = this.ctx.createLinearGradient(x, y, x + size, y + size);
+    gradient.addColorStop(0, '#C4B8A0');
+    gradient.addColorStop(1, '#A89878');
+    this.ctx.fillStyle = gradient;
+    this.ctx.fillRect(x, y, size, size);
+
+    // Add subtle inner shadow effect
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+    this.ctx.fillRect(x, y, size, 3);
+    this.ctx.fillRect(x, y, 3, size);
   }
 
   /**
