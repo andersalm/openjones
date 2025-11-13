@@ -187,6 +187,11 @@ export class RentAgency extends Building {
               value: newCash,
               description: `Paid $${payment} rent`,
             },
+            {
+              type: 'rentDebt',
+              value: newDebt,
+              description: `Reduced rent debt by $${payment}`,
+            },
           ],
         };
       },
@@ -276,15 +281,6 @@ export class RentAgency extends Building {
           newRentDebt = Math.max(0, player.rentDebt - totalCost);
         }
 
-        // Set the rented home directly on player state
-        player.rentedHome = building.id;
-
-        // Set prepaid weeks (Java: RentPossession with numOfWeeks)
-        player.weeksOfRentRemaining = WEEKS_OF_RENT_IN_A_MONTH;
-
-        // Update rent debt
-        player.rentDebt = newRentDebt;
-
         return {
           success: true,
           message: `You rented ${building.name}! Paid $${totalCost} for ${WEEKS_OF_RENT_IN_A_MONTH} weeks.${player.rentDebt > 0 ? ` Rent debt reduced to $${newRentDebt}.` : ''}`,
@@ -294,6 +290,21 @@ export class RentAgency extends Building {
               type: 'cash',
               value: newCash,
               description: `Paid $${totalCost} for ${WEEKS_OF_RENT_IN_A_MONTH} weeks rent`,
+            },
+            {
+              type: 'rentedHome',
+              value: building.id,
+              description: `Rented ${building.name}`,
+            },
+            {
+              type: 'weeksOfRent',
+              value: WEEKS_OF_RENT_IN_A_MONTH,
+              description: `Prepaid ${WEEKS_OF_RENT_IN_A_MONTH} weeks of rent`,
+            },
+            {
+              type: 'rentDebt',
+              value: newRentDebt,
+              description: player.rentDebt > 0 ? `Reduced rent debt to $${newRentDebt}` : '',
             },
           ],
         };

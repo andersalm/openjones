@@ -59,7 +59,7 @@ export class Game implements IGame {
       targetWealth: 10000,
       targetHealth: 100,
       targetHappiness: 100,
-      targetCareer: 850,
+      targetCareer: 400, // Lowered from 850 to be more achievable
       targetEducation: 100,
     };
     this.isGameOver = false;
@@ -188,8 +188,11 @@ export class Game implements IGame {
   advanceTime(units: number): void {
     this.timeUnitsRemaining -= units;
 
-    // Check if week has ended
-    while (this.timeUnitsRemaining <= 0) {
+    // Check if week has ended (with safeguard against infinite loops)
+    let weeksAdvanced = 0;
+    const MAX_WEEKS_PER_ADVANCE = 10; // Safeguard: no action should advance more than 10 weeks
+
+    while (this.timeUnitsRemaining <= 0 && weeksAdvanced < MAX_WEEKS_PER_ADVANCE) {
       // Process end-of-week events (rent, etc.)
       this.processEndOfWeek();
 
@@ -198,6 +201,13 @@ export class Game implements IGame {
 
       // Add time for new week (may still be negative if action cost more than 600)
       this.timeUnitsRemaining += GAME_CONSTANTS.TIME_UNITS_PER_WEEK;
+
+      weeksAdvanced++;
+    }
+
+    // Warn if safeguard was triggered
+    if (weeksAdvanced >= MAX_WEEKS_PER_ADVANCE) {
+      console.warn(`advanceTime safeguard triggered! Advanced ${weeksAdvanced} weeks from ${units} time units.`);
     }
   }
 
@@ -472,6 +482,19 @@ export class Game implements IGame {
         case 'rentedHome':
           // Change rented home
           player.state.rentedHome = (change.value as string) || null;
+          break;
+
+        case 'experience':
+          {
+            // Update experience at a specific rank
+            const expData = change.value as { rank: number; points: number };
+            const existingExp = player.state.experience.find((e) => e.rank === expData.rank);
+            if (existingExp) {
+              existingExp.points = expData.points;
+            } else {
+              player.state.experience.push({ rank: expData.rank, points: expData.points });
+            }
+          }
           break;
 
         default:

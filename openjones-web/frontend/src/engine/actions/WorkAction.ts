@@ -108,27 +108,24 @@ export class WorkAction extends Action {
 
     const experienceGain = timeAvailable; // 1 experience unit per time unit worked
 
-    // Add experience gain to player's experience at job rank
-    const existingExp = player.experience.find((e) => e.rank === this.job.rank);
-    if (existingExp) {
-      existingExp.points += experienceGain;
-    } else {
-      player.experience.push({ rank: this.job.rank, points: experienceGain });
-    }
-    // Update career score
-    const totalExperience = player.experience.reduce((sum, exp) => sum + exp.points, 0);
+    // Calculate new experience at rank (will be applied via state changes)
+    const currentExpAtRank = player.getExperienceAtRank(this.job.rank);
+    const newExpAtRank = currentExpAtRank + experienceGain;
+
+    // Calculate new total experience (career score)
+    const totalExperience = player.getTotalExperience() + experienceGain;
+
+    // Calculate new rent debt after garnishment
+    const newRentDebt = Math.max(0, player.rentDebt - garnishedAmount);
 
     // Java: job.healthEffect() and job.happinessEffect() both return 0
     // Work does NOT affect health or happiness in the base implementation
     const changes = StateChangeBuilder.create()
       .cash(player.cash + netEarnings, `Earned $${netEarnings} (base: $${baseEarnings})`)
       .career(totalExperience, `Gained ${experienceGain} experience`)
+      .custom('experience', { rank: this.job.rank, points: newExpAtRank }, `Gained ${experienceGain} exp at rank ${this.job.rank}`)
+      .custom('rentDebt', newRentDebt, garnishedAmount > 0 ? `Garnished $${garnishedAmount} from rent debt` : '')
       .build();
-
-    // Reduce rent debt by garnished amount
-    if (garnishedAmount > 0) {
-      player.rentDebt = Math.max(0, player.rentDebt - garnishedAmount);
-    }
 
     return ActionResponse.success(
       `${messagePrefix}Worked ${actualHours.toFixed(1)} hours and earned $${netEarnings}`,

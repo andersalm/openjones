@@ -225,9 +225,9 @@ export interface IActionRequirement {
 }
 
 export interface IStateChange {
-  type: 'cash' | 'measure' | 'possession_add' | 'possession_remove' | 'job' | 'position' | 'location' | 'time' | 'rent_weeks' | 'weeksOfRent' | 'rent_debt' | 'rentDebt' | 'rented_home' | 'rentedHome';
+  type: 'cash' | 'measure' | 'possession_add' | 'possession_remove' | 'job' | 'position' | 'location' | 'time' | 'rent_weeks' | 'weeksOfRent' | 'rent_debt' | 'rentDebt' | 'rented_home' | 'rentedHome' | 'experience';
   measure?: MeasureType;
-  value: number | string | IPossession | IJob | IPosition;
+  value: number | string | IPossession | IJob | IPosition | { rank: number; points: number };
   description: string;
 }
 
