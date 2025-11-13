@@ -50,9 +50,13 @@ export class RelaxAction extends Action {
 
     const locationNote = this.getLocationNote(player, locationMultiplier);
 
+    // Calculate new absolute values (StateChangeBuilder expects absolute values, not deltas)
+    const newHealth = Math.min(GAME_CONSTANTS.MAX_HEALTH, player.health + actualHealthGain);
+    const newHappiness = Math.min(GAME_CONSTANTS.MAX_HAPPINESS, player.happiness + actualHappinessGain);
+
     const changes = StateChangeBuilder.create()
-      .health(actualHealthGain, `Restored ${actualHealthGain} health${locationNote}`)
-      .happiness(actualHappinessGain, `Restored ${actualHappinessGain} happiness${locationNote}`)
+      .health(newHealth, `Restored ${actualHealthGain} health${locationNote}`)
+      .happiness(newHappiness, `Restored ${actualHappinessGain} happiness${locationNote}`)
       .build();
 
     return ActionResponse.success(
