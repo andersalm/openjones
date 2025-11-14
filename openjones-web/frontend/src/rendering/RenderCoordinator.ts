@@ -107,6 +107,13 @@ export class RenderCoordinator {
     this.pixelScale = config.pixelScale ?? 2;
     this.showFPS = config.showFPS ?? false;
 
+    // GLOBAL FIX: Enforce pixel-perfect rendering (no anti-aliasing)
+    // This ensures all sprites render sharp without blur
+    this.ctx.imageSmoothingEnabled = false;
+    (this.ctx as any).mozImageSmoothingEnabled = false;
+    (this.ctx as any).webkitImageSmoothingEnabled = false;
+    (this.ctx as any).msImageSmoothingEnabled = false;
+
     // Initialize rendering systems
     this.animationEngine = new AnimationEngine();
     this.effectsRenderer = new EffectsRenderer(this.canvas);
@@ -449,11 +456,15 @@ export class RenderCoordinator {
 
   /**
    * Render background layer - Retro DOS/Windows 95 style
+   * Only fills when map image hasn't loaded (avoids double layer)
    */
   private renderBackground(): void {
-    // Fill with solid retro tan/beige background
-    this.ctx.fillStyle = '#D4C4A8';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    // FIX: Only fill background if map image hasn't loaded
+    // Prevents wasteful overdraw when full map covers everything
+    if (!this.mapBackgroundLoaded) {
+      this.ctx.fillStyle = '#D4C4A8'; // Retro tan/beige fallback
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
   }
 
   /**
