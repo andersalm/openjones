@@ -654,8 +654,23 @@ export class RenderCoordinator {
   /**
    * Render buildings layer with Java graphics
    * Updated for rectangular tiles (155x96)
+   *
+   * CRITICAL: If full map is loaded, buildings are already in the map image!
+   * Only render buildings in fallback tile mode.
    */
   private renderBuildings(): void {
+    // FIX: Skip building rendering if full map is loaded
+    // The full map image already contains buildings baked in
+    if (this.mapBackgroundLoaded) {
+      if (this.frameCount === 1) {
+        console.log('🏢 Skipping building rendering - buildings already in full map image');
+      }
+      return; // Early exit - no double rendering!
+    }
+
+    // Fallback mode only: Draw buildings over tiles
+    console.log('🏗️ Rendering buildings in fallback mode');
+
     // Calculate tile dimensions based on canvas size
     const tileWidth = this.canvas.width / this.MAP_COLS;
     const tileHeight = this.canvas.height / this.MAP_ROWS;
