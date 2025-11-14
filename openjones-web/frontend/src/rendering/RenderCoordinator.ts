@@ -196,10 +196,14 @@ export class RenderCoordinator {
     const img = new Image();
     img.onload = () => {
       this.mapBackgroundLoaded = true;
-      console.log('Map background loaded successfully (775x480)');
+      console.log('✅ Map background loaded successfully (775x480)', {
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+        src: img.src
+      });
     };
     img.onerror = () => {
-      console.warn('Failed to load map background, will use fallback tiles');
+      console.error('❌ Failed to load map background, will use fallback tiles');
       this.mapBackgroundLoaded = false;
     };
     img.src = '/center/jones_map_grass.png';
@@ -344,6 +348,16 @@ export class RenderCoordinator {
     // Clear canvas
     this.clear();
 
+    // DEBUG: Log rendering state every 60 frames (once per second at 60fps)
+    if (this.frameCount % 60 === 0) {
+      console.log('🎨 Render State:', {
+        mapLoaded: this.mapBackgroundLoaded,
+        buildingsLoaded: this.imagesLoaded,
+        buildingCount: this.game.map.getAllBuildings().length,
+        playerCount: this.game.players.length
+      });
+    }
+
     // Render all layers in order with timestamp for animations
     this.renderAllLayers(timestamp);
 
@@ -475,6 +489,11 @@ export class RenderCoordinator {
     this.ctx.imageSmoothingEnabled = false;
 
     if (this.mapBackgroundLoaded && this.mapBackgroundImage && this.mapBackgroundImage.complete) {
+      // DEBUG: Log once that we're using full map mode
+      if (this.frameCount === 1) {
+        console.log('🗺️ Using FULL MAP mode - no fallback tiles will render');
+      }
+
       // ONLY draw the full map background image (775x480)
       // This already contains everything: grass, center tiles, AND the static clock
       this.ctx.drawImage(this.mapBackgroundImage, 0, 0, this.canvas.width, this.canvas.height);
@@ -484,7 +503,7 @@ export class RenderCoordinator {
     }
 
     // Fallback path only executes if full map fails to load
-    console.warn('Using fallback tile rendering - full map not loaded');
+    console.warn('⚠️ Using fallback tile rendering - full map not loaded');
     const tileWidth = this.canvas.width / this.MAP_COLS;
     const tileHeight = this.canvas.height / this.MAP_ROWS;
 
