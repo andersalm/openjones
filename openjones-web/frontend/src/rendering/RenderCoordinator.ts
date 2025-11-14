@@ -437,7 +437,7 @@ export class RenderCoordinator {
         break;
       case 'map':
         this.renderMap();
-        this.renderClock(); // Render clock after map
+        this.renderClock(); // Render clock (smart rendering based on map loaded state)
         break;
       case 'buildings':
         this.renderBuildings();
@@ -475,31 +475,36 @@ export class RenderCoordinator {
     this.ctx.imageSmoothingEnabled = false;
 
     if (this.mapBackgroundLoaded && this.mapBackgroundImage && this.mapBackgroundImage.complete) {
-      // Draw the full map background image (775x480)
+      // ONLY draw the full map background image (775x480)
+      // This already contains everything: grass, center tiles, AND the static clock
       this.ctx.drawImage(this.mapBackgroundImage, 0, 0, this.canvas.width, this.canvas.height);
-    } else {
-      // Fallback: Draw individual tiles if map background not loaded
-      const tileWidth = this.canvas.width / this.MAP_COLS;
-      const tileHeight = this.canvas.height / this.MAP_ROWS;
 
-      for (let y = 0; y < this.MAP_ROWS; y++) {
-        for (let x = 0; x < this.MAP_COLS; x++) {
-          const tx = x * tileWidth;
-          const ty = y * tileHeight;
+      // NO additional tiles should be drawn - the full map has everything
+      return; // Early return to prevent any fallback rendering
+    }
 
-          // Check if this is a center tile (row 1-3, col 1-3)
-          const isCenterTile = x >= 1 && x <= 3 && y >= 1 && y <= 3;
+    // Fallback path only executes if full map fails to load
+    console.warn('Using fallback tile rendering - full map not loaded');
+    const tileWidth = this.canvas.width / this.MAP_COLS;
+    const tileHeight = this.canvas.height / this.MAP_ROWS;
 
-          if (isCenterTile && this.centerImagesLoaded) {
-            const centerImg = this.centerTileImages.get(`${y},${x}`);
-            if (centerImg && centerImg.complete) {
-              this.ctx.drawImage(centerImg, tx, ty, tileWidth, tileHeight);
-            } else {
-              this.drawGrassTile(tx, ty, tileWidth, tileHeight);
-            }
+    for (let y = 0; y < this.MAP_ROWS; y++) {
+      for (let x = 0; x < this.MAP_COLS; x++) {
+        const tx = x * tileWidth;
+        const ty = y * tileHeight;
+
+        // Check if this is a center tile (row 1-3, col 1-3)
+        const isCenterTile = x >= 1 && x <= 3 && y >= 1 && y <= 3;
+
+        if (isCenterTile && this.centerImagesLoaded) {
+          const centerImg = this.centerTileImages.get(`${y},${x}`);
+          if (centerImg && centerImg.complete) {
+            this.ctx.drawImage(centerImg, tx, ty, tileWidth, tileHeight);
           } else {
             this.drawGrassTile(tx, ty, tileWidth, tileHeight);
           }
+        } else {
+          this.drawGrassTile(tx, ty, tileWidth, tileHeight);
         }
       }
     }
@@ -526,10 +531,18 @@ export class RenderCoordinator {
    * Render clock at bottom center with rotating hand showing week progress
    * Full revolution = 1 week (600 time units)
    *
-   * Note: jones_map_grass.png already contains the clock at (2,4).
-   * We only draw the clock image in fallback mode.
+   * Note: jones_map_grass.png already contains the complete static clock at (2,4).
+   * When using full map: Draw NOTHING (clock is already in the map image)
+   * When using fallback tiles: Draw complete animated clock
    */
   private renderClock(): void {
+    // FIX: Don't draw ANY clock elements when using full map
+    // The full map already has a complete, perfect clock baked in
+    if (this.mapBackgroundLoaded) {
+      return; // Skip all clock rendering - no double layers!
+    }
+
+    // Fallback mode only: Draw complete animated clock
     this.ctx.save();
     this.ctx.imageSmoothingEnabled = false;
 
@@ -550,32 +563,29 @@ export class RenderCoordinator {
 
     const clockRadius = Math.min(tileWidth, tileHeight) * 0.35;
 
-    // Only draw clock image if NOT using full map background (fallback mode)
-    if (!this.mapBackgroundLoaded) {
-      const clockBotImg = this.clockImages.get('bottom');
+    // Draw clock background image
+    const clockBotImg = this.clockImages.get('bottom');
 
-      if (clockBotImg && clockBotImg.complete) {
-        // Draw clock background image
-        this.ctx.drawImage(
-          clockBotImg,
-          clockX - clockRadius,
-          clockY - clockRadius,
-          clockRadius * 2,
-          clockRadius * 2
-        );
-      } else {
-        // Fallback: draw simple clock face
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.beginPath();
-        this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
-        this.ctx.fill();
+    if (clockBotImg && clockBotImg.complete) {
+      this.ctx.drawImage(
+        clockBotImg,
+        clockX - clockRadius,
+        clockY - clockRadius,
+        clockRadius * 2,
+        clockRadius * 2
+      );
+    } else {
+      // Fallback: draw simple clock face
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      this.ctx.beginPath();
+      this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
+      this.ctx.fill();
 
-        this.ctx.strokeStyle = '#FFD700';
-        this.ctx.lineWidth = 3;
-        this.ctx.beginPath();
-        this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
-        this.ctx.stroke();
-      }
+      this.ctx.strokeStyle = '#FFD700';
+      this.ctx.lineWidth = 3;
+      this.ctx.beginPath();
+      this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
+      this.ctx.stroke();
     }
 
     // Draw clock hand (starts at top, rotates clockwise)
