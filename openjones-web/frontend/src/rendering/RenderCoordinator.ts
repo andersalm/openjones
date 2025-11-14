@@ -656,10 +656,13 @@ export class RenderCoordinator {
       const isPlayerOnBuilding = playerPositions.some(p => p.x === pos.x && p.y === pos.y);
 
       const padding = 10;
+      const namePlateHeight = 20;
+
+      // FIX: Make room for nameplate BELOW building, not overlaid on it
       const bx = x + padding;
       const by = y + padding;
       const bw = tileWidth - (padding * 2);
-      const bh = tileHeight - (padding * 2);
+      const bh = tileHeight - (padding * 2) - namePlateHeight; // Reduce building height to make room
 
       this.ctx.save();
 
@@ -670,7 +673,7 @@ export class RenderCoordinator {
       const img = this.buildingImages.get(building.type);
 
       if (img && img.complete && this.imagesLoaded) {
-        // Draw building image
+        // Draw building image (reduced height to make room for nameplate below)
         this.ctx.drawImage(img, bx, by, bw, bh);
       } else {
         // Fallback to colored rectangle if image not loaded
@@ -689,9 +692,8 @@ export class RenderCoordinator {
         this.ctx.strokeRect(bx - 2, by - 2, bw + 4, bh + 4);
       }
 
-      // Draw building name label with semi-transparent background
-      const namePlateHeight = 20;
-      const namePlateY = by + bh - namePlateHeight;
+      // FIX: Draw nameplate BELOW building, not overlaid on it (eliminates double-layer effect)
+      const namePlateY = by + bh; // Position AFTER building image ends
 
       // Nameplate background - semi-transparent for better blending
       this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
