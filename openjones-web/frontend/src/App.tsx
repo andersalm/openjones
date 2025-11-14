@@ -246,7 +246,6 @@ export function App() {
 
       // Restore saved state if provided
       if (savedState) {
-        console.log('Restoring saved game state');
         gameController.restorePlayerState(
           savedState.playerState,
           savedState.currentWeek,
@@ -315,11 +314,9 @@ export function App() {
         canvas,
         gameController,
         playerId: 'player-1',
-        tileSize: canvasSize.width / 5, // Use width for tile size (will be updated in InputHandler)
+        tileSize: canvasSize.width / 5,
         onBuildingSelected: handleBuildingSelect,
-        onActionSelected: (actionType) => {
-          console.log('Action selected:', actionType);
-        },
+        onActionSelected: () => {},
       });
       inputHandlerRef.current = inputHandler;
 
@@ -380,8 +377,6 @@ export function App() {
     if (GameStateManager.hasSavedGame()) {
       const savedState = GameStateManager.loadGame();
       if (savedState) {
-        console.log('Auto-restoring saved game on mount');
-        // Use setTimeout to ensure the component is fully mounted
         setTimeout(() => {
           initializeGame(savedState.playerName, savedState);
         }, 0);

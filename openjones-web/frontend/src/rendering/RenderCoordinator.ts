@@ -461,35 +461,27 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render background layer - Retro DOS/Windows 95 style
-   * Only fills when map image hasn't loaded (avoids double layer)
+   * Render background layer
    */
   private renderBackground(): void {
-    // FIX: Only fill background if map image hasn't loaded
-    // Prevents wasteful overdraw when full map covers everything
     if (!this.mapBackgroundLoaded) {
-      this.ctx.fillStyle = '#D4C4A8'; // Retro tan/beige fallback
+      this.ctx.fillStyle = '#D4C4A8';
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
   }
 
   /**
-   * Render map layer - Full map background from Java (775x480)
-   * Uses authentic jones_map_grass.png for proper aspect ratio
+   * Render map layer
    */
   private renderMap(): void {
     this.ctx.imageSmoothingEnabled = false;
 
     if (this.mapBackgroundLoaded && this.mapBackgroundImage && this.mapBackgroundImage.complete) {
-      // ONLY draw the full map background image (775x480)
-      // This already contains everything: grass, center tiles, AND the static clock
       this.ctx.drawImage(this.mapBackgroundImage, 0, 0, this.canvas.width, this.canvas.height);
-
-      // NO additional tiles should be drawn - the full map has everything
-      return; // Early return to prevent any fallback rendering
+      return;
     }
 
-    // Fallback path only executes if full map fails to load
+    // Fallback: render tiles
     const tileWidth = this.canvas.width / this.MAP_COLS;
     const tileHeight = this.canvas.height / this.MAP_ROWS;
 
@@ -638,27 +630,19 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render buildings layer with Java graphics
-   * Updated for rectangular tiles (155x96)
-   *
-   * CRITICAL: If full map is loaded, buildings are already in the map image!
-   * Only render buildings in fallback tile mode.
+   * Render buildings layer
    */
   private renderBuildings(): void {
-    // FIX: Skip building rendering if full map is loaded
-    // The full map image already contains buildings baked in
     if (this.mapBackgroundLoaded) {
-      return; // Early exit - no double rendering!
+      return;
     }
 
-    // Fallback mode only: Draw buildings over tiles
-    // Calculate tile dimensions based on canvas size
     const tileWidth = this.canvas.width / this.MAP_COLS;
     const tileHeight = this.canvas.height / this.MAP_ROWS;
     const buildings = this.game.map.getAllBuildings();
 
     if (buildings.length === 0) {
-      return; // No buildings, skip rendering
+      return;
     }
 
     const playerPositions = this.game.players.map(p => ({ x: p.state.position.x, y: p.state.position.y }));
@@ -672,16 +656,12 @@ export class RenderCoordinator {
 
       const padding = 10;
       const namePlateHeight = 20;
-
-      // FIX: Make room for nameplate BELOW building, not overlaid on it
       const bx = x + padding;
       const by = y + padding;
       const bw = tileWidth - (padding * 2);
-      const bh = tileHeight - (padding * 2) - namePlateHeight; // Reduce building height to make room
+      const bh = tileHeight - (padding * 2) - namePlateHeight;
 
       this.ctx.save();
-
-      // Disable image smoothing for crisp pixel art
       this.ctx.imageSmoothingEnabled = false;
 
       // Get building image

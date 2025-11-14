@@ -166,7 +166,7 @@ export class EmploymentAgency extends Building {
   }
 
   /**
-   * Get action tree - hierarchical menu of jobs by building
+   * Get action tree
    */
   getActionTree(player: IPlayerState, game: IGame): IActionTreeNode {
     const actions = this.getAvailableActions(player, game);
@@ -176,8 +176,6 @@ export class EmploymentAgency extends Building {
       return Building.createActionTreeNode(exitAction, [], 0);
     }
 
-    // For now, simple flat list
-    // TODO: Create hierarchical menu by building type
     const rootAction = actions[0];
     const childNodes = actions.slice(1).map((action, index) =>
       Building.createActionTreeNode(action, [], index + 1)
