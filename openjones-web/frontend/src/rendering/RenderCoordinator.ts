@@ -481,11 +481,6 @@ export class RenderCoordinator {
     this.ctx.imageSmoothingEnabled = false;
 
     if (this.mapBackgroundLoaded && this.mapBackgroundImage && this.mapBackgroundImage.complete) {
-      // DEBUG: Log once that we're using full map mode
-      if (this.frameCount === 1) {
-        console.log('🗺️ Using FULL MAP mode - no fallback tiles will render');
-      }
-
       // ONLY draw the full map background image (775x480)
       // This already contains everything: grass, center tiles, AND the static clock
       this.ctx.drawImage(this.mapBackgroundImage, 0, 0, this.canvas.width, this.canvas.height);
@@ -495,7 +490,6 @@ export class RenderCoordinator {
     }
 
     // Fallback path only executes if full map fails to load
-    console.warn('⚠️ Using fallback tile rendering - full map not loaded');
     const tileWidth = this.canvas.width / this.MAP_COLS;
     const tileHeight = this.canvas.height / this.MAP_ROWS;
 
@@ -654,9 +648,6 @@ export class RenderCoordinator {
     // FIX: Skip building rendering if full map is loaded
     // The full map image already contains buildings baked in
     if (this.mapBackgroundLoaded) {
-      if (this.frameCount === 1) {
-        console.log('🏢 Skipping building rendering - buildings already in full map image');
-      }
       return; // Early exit - no double rendering!
     }
 
