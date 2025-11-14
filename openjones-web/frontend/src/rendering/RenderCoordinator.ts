@@ -15,6 +15,11 @@ import { AnimationEngine } from './AnimationEngine';
 import { EffectsRenderer } from './EffectsRenderer';
 import { Easing } from './easing';
 import type { IGame } from '@shared/types/contracts';
+import {
+  renderGrassTile,
+  renderModernBuilding,
+  renderModernPlayer,
+} from './ModernPixelRenderer';
 
 export interface RenderCoordinatorConfig {
   canvas: HTMLCanvasElement;
@@ -63,28 +68,22 @@ export class RenderCoordinator {
   // Animation frame ID for cleanup
   private animationFrameId: number | null = null;
 
-  // Building images from Java graphics
-  private buildingImages: Map<string, HTMLImageElement> = new Map();
-  private imagesLoaded: boolean = false;
+  // Old building images system - no longer needed with modern pixel art
+  // private buildingImages: Map<string, HTMLImageElement> = new Map();
+  // private imagesLoaded: boolean = false;
 
-  // Full map background image (775x480 - 5x5 grid of 155x96 tiles)
-  private mapBackgroundImage: HTMLImageElement | null = null;
-  private mapBackgroundLoaded: boolean = false;
-
-  // Map grid dimensions (5x5 grid of 155x96 tiles in Java)
+  // Map grid dimensions (5x5 grid of tiles)
   private readonly MAP_COLS = 5;
   private readonly MAP_ROWS = 5;
 
-  // Center tile images (test06-18) - kept for fallback
-  private centerTileImages: Map<string, HTMLImageElement> = new Map();
-  private centerImagesLoaded: boolean = false;
-
-  // Grass tile image - kept for fallback
-  private grassTileImage: HTMLImageElement | null = null;
-  private grassImageLoaded: boolean = false;
-
-  // Clock images for time display (TODO: render in UI layer)
-  private clockImages: Map<string, HTMLImageElement> = new Map();
+  // Old image loading system - no longer used with modern pixel art
+  // private mapBackgroundImage: HTMLImageElement | null = null;
+  // private mapBackgroundLoaded: boolean = false;
+  // private centerTileImages: Map<string, HTMLImageElement> = new Map();
+  // private centerImagesLoaded: boolean = false;
+  // private grassTileImage: HTMLImageElement | null = null;
+  // private grassImageLoaded: boolean = false;
+  // private clockImages: Map<string, HTMLImageElement> = new Map();
 
   // Player animation state
   private playerAnimations: Map<string, {
@@ -121,20 +120,16 @@ export class RenderCoordinator {
     // Set up render layers
     this.initializeLayers();
 
-    // Load building images
-    this.loadBuildingImages();
+    // Modern pixel art rendering - no image loading needed!
+    // All graphics are procedurally generated
+    console.log('✨ Modern pixel art renderer initialized - all graphics procedural');
 
-    // Load full map background image
-    this.loadMapBackground();
-
-    // Load center tile images (fallback)
-    this.loadCenterTileImages();
-
-    // Load grass tile image (fallback)
-    this.loadGrassTileImage();
-
-    // Load clock images
-    this.loadClockImages();
+    // Old image loading - no longer needed
+    // this.loadBuildingImages();
+    // this.loadMapBackground();
+    // this.loadCenterTileImages();
+    // this.loadGrassTileImage();
+    // this.loadClockImages();
   }
 
   /**
@@ -149,148 +144,17 @@ export class RenderCoordinator {
     this.layers.set('ui', { name: 'ui', zIndex: 5, visible: true });
   }
 
-  /**
-   * Load building images from Java graphics
-   */
-  private loadBuildingImages(): void {
-    const imageMap: Record<string, string> = {
-      'EMPLOYMENT_AGENCY': 'employment.png',
-      'FACTORY': 'factory.png',
-      'BANK': 'bank_bot.png',
-      'COLLEGE': 'gt.png',
-      'CLOTHES_STORE': 'zmart.png',
-      'RESTAURANT': 'monolith.png',
-      'RENT_AGENCY': 'rent.png',
-      'LOW_COST_APARTMENT': 'lowcost.png',
-      'SECURITY_APARTMENT': 'security.png',
-    };
+  // Old image loading methods - commented out, no longer needed
+  // private loadBuildingImages(): void { ... }
 
-    let loadedCount = 0;
-    const totalImages = Object.keys(imageMap).length;
-
-    Object.entries(imageMap).forEach(([buildingType, filename]) => {
-      const img = new Image();
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === totalImages) {
-          this.imagesLoaded = true;
-          console.log('All building images loaded successfully');
-        }
-      };
-      img.onerror = () => {
-        console.warn(`Failed to load image: ${filename}`);
-        loadedCount++;
-        if (loadedCount === totalImages) {
-          this.imagesLoaded = true;
-        }
-      };
-      img.src = `/buildings/${filename}`;
-      this.buildingImages.set(buildingType, img);
-    });
-  }
-
-  /**
-   * Load full map background image (775x480 - authentic Java graphics)
-   */
-  private loadMapBackground(): void {
-    const img = new Image();
-    img.onload = () => {
-      this.mapBackgroundLoaded = true;
-      console.log('✅ Map background loaded successfully (775x480)', {
-        width: img.naturalWidth,
-        height: img.naturalHeight,
-        src: img.src
-      });
-    };
-    img.onerror = () => {
-      console.error('❌ Failed to load map background, will use fallback tiles');
-      this.mapBackgroundLoaded = false;
-    };
-    img.src = '/center/jones_map_grass.png';
-    this.mapBackgroundImage = img;
-  }
-
-  /**
-   * Load center tile images (3x3 grid in the middle of the 5x5 board)
-   * Used as fallback if map background fails
-   */
-  private loadCenterTileImages(): void {
-    // Map coordinates to test image numbers
-    // Row 1, Col 1-3: test06, test07, test08
-    // Row 2, Col 1-3: test11, test12, test13
-    // Row 3, Col 1-3: test16, test17, test18
-    const centerTiles = [
-      { row: 1, col: 1, img: 'test06.png' },
-      { row: 1, col: 2, img: 'test07.png' },
-      { row: 1, col: 3, img: 'test08.png' },
-      { row: 2, col: 1, img: 'test11.png' },
-      { row: 2, col: 2, img: 'test12.png' },
-      { row: 2, col: 3, img: 'test13.png' },
-      { row: 3, col: 1, img: 'test16.png' },
-      { row: 3, col: 2, img: 'test17.png' },
-      { row: 3, col: 3, img: 'test18.png' },
-    ];
-
-    let loadedCount = 0;
-    const totalImages = centerTiles.length;
-
-    centerTiles.forEach(({ row, col, img }) => {
-      const image = new Image();
-      image.onload = () => {
-        loadedCount++;
-        if (loadedCount === totalImages) {
-          this.centerImagesLoaded = true;
-          console.log('All center tile images loaded successfully');
-        }
-      };
-      image.onerror = () => {
-        console.warn(`Failed to load center tile: ${img}`);
-        loadedCount++;
-        if (loadedCount === totalImages) {
-          this.centerImagesLoaded = true;
-        }
-      };
-      image.src = `/center/${img}`;
-      this.centerTileImages.set(`${row},${col}`, image);
-    });
-  }
-
-  /**
-   * Load grass tile image for border tiles
-   */
-  private loadGrassTileImage(): void {
-    const img = new Image();
-    img.onload = () => {
-      this.grassImageLoaded = true;
-      console.log('Grass tile image loaded successfully');
-    };
-    img.onerror = () => {
-      console.warn('Failed to load grass tile image');
-      this.grassImageLoaded = true; // Set to true anyway to prevent blocking
-    };
-    img.src = '/center/Grass_small_blur.png';
-    this.grassTileImage = img;
-  }
-
-  /**
-   * Load clock images for time display (for future use in UI layer)
-   */
-  private loadClockImages(): void {
-    const clockFiles = ['clock_bot.png', 'clock_top3.png'];
-
-    clockFiles.forEach((filename) => {
-      const img = new Image();
-      img.onload = () => {
-        console.log(`Clock image loaded: ${filename}`);
-      };
-      img.onerror = () => {
-        console.warn(`Failed to load clock image: ${filename}`);
-      };
-      img.src = `/center/${filename}`;
-      const key = filename.includes('bot') ? 'bottom' : 'top';
-      this.clockImages.set(key, img);
-    });
-  }
+  // Old image loading methods - no longer needed with modern pixel art
+  // Commented out to avoid unused code warnings
+  /*
+  private loadMapBackground(): void { ... }
+  private loadCenterTileImages(): void { ... }
+  private loadGrassTileImage(): void { ... }
+  private loadClockImages(): void { ... }
+  */
 
   /**
    * Start the rendering loop
@@ -350,11 +214,10 @@ export class RenderCoordinator {
 
     // DEBUG: Log rendering state every 60 frames (once per second at 60fps)
     if (this.frameCount % 60 === 0) {
-      console.log('🎨 Render State:', {
-        mapLoaded: this.mapBackgroundLoaded,
-        buildingsLoaded: this.imagesLoaded,
+      console.log('🎨 Render State (Modern Pixel Art):', {
         buildingCount: this.game.map.getAllBuildings().length,
-        playerCount: this.game.players.length
+        playerCount: this.game.players.length,
+        frameCount: this.frameCount,
       });
     }
 
@@ -469,215 +332,71 @@ export class RenderCoordinator {
   }
 
   /**
-   * Render background layer - Retro DOS/Windows 95 style
-   * Only fills when map image hasn't loaded (avoids double layer)
+   * Render background layer - Modern pixel art base
+   * Solid color base for procedural grass tiles
    */
   private renderBackground(): void {
-    // FIX: Only fill background if map image hasn't loaded
-    // Prevents wasteful overdraw when full map covers everything
-    if (!this.mapBackgroundLoaded) {
-      this.ctx.fillStyle = '#D4C4A8'; // Retro tan/beige fallback
-      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+    // Simple solid background - grass tiles render on top
+    this.ctx.fillStyle = '#5EAA5E'; // Green base matching grass palette
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   /**
-   * Render map layer - Full map background from Java (775x480)
-   * Uses authentic jones_map_grass.png for proper aspect ratio
+   * Render map layer - Modern procedural pixel art
+   * Beautiful grass tiles with cohesive aesthetic
    */
   private renderMap(): void {
     this.ctx.imageSmoothingEnabled = false;
 
-    if (this.mapBackgroundLoaded && this.mapBackgroundImage && this.mapBackgroundImage.complete) {
-      // DEBUG: Log once that we're using full map mode
-      if (this.frameCount === 1) {
-        console.log('🗺️ Using FULL MAP mode - no fallback tiles will render');
-      }
-
-      // ONLY draw the full map background image (775x480)
-      // This already contains everything: grass, center tiles, AND the static clock
-      this.ctx.drawImage(this.mapBackgroundImage, 0, 0, this.canvas.width, this.canvas.height);
-
-      // NO additional tiles should be drawn - the full map has everything
-      return; // Early return to prevent any fallback rendering
+    if (this.frameCount === 1) {
+      console.log('🎨 Using MODERN PIXEL ART rendering');
     }
 
-    // Fallback path only executes if full map fails to load
-    console.warn('⚠️ Using fallback tile rendering - full map not loaded');
     const tileWidth = this.canvas.width / this.MAP_COLS;
     const tileHeight = this.canvas.height / this.MAP_ROWS;
 
+    // Render beautiful procedural grass tiles
     for (let y = 0; y < this.MAP_ROWS; y++) {
       for (let x = 0; x < this.MAP_COLS; x++) {
         const tx = x * tileWidth;
         const ty = y * tileHeight;
 
-        // Check if this is a center tile (row 1-3, col 1-3)
-        const isCenterTile = x >= 1 && x <= 3 && y >= 1 && y <= 3;
-
-        if (isCenterTile && this.centerImagesLoaded) {
-          const centerImg = this.centerTileImages.get(`${y},${x}`);
-          if (centerImg && centerImg.complete) {
-            this.ctx.drawImage(centerImg, tx, ty, tileWidth, tileHeight);
-          } else {
-            this.drawGrassTile(tx, ty, tileWidth, tileHeight);
-          }
-        } else {
-          this.drawGrassTile(tx, ty, tileWidth, tileHeight);
-        }
+        // Use position-based seed for consistent but varied tiles
+        const seed = x * 1000 + y;
+        renderGrassTile(this.ctx, tx, ty, tileWidth, tileHeight, seed);
       }
     }
   }
 
-  /**
-   * Draw a grass tile (for border tiles) - supports rectangular tiles
-   */
-  private drawGrassTile(x: number, y: number, width: number, height: number): void {
-    if (this.grassImageLoaded && this.grassTileImage && this.grassTileImage.complete) {
-      // Draw grass tile image
-      this.ctx.drawImage(this.grassTileImage, x, y, width, height);
-    } else {
-      // Fallback to subtle gradient if image not loaded
-      const gradient = this.ctx.createLinearGradient(x, y, x + width, y + height);
-      gradient.addColorStop(0, '#8BA870');
-      gradient.addColorStop(1, '#6B8850');
-      this.ctx.fillStyle = gradient;
-      this.ctx.fillRect(x, y, width, height);
-    }
-  }
+  // Old grass tile method - replaced by procedural rendering
+  // private drawGrassTile(x: number, y: number, width: number, height: number): void { ... }
 
   /**
-   * Render clock at bottom center with rotating hand showing week progress
-   * Full revolution = 1 week (600 time units)
-   *
-   * Note: jones_map_grass.png already contains the complete static clock at (2,4).
-   * When using full map: Draw NOTHING (clock is already in the map image)
-   * When using fallback tiles: Draw complete animated clock
+   * Render modern pixel-art clock
+   * Time is now shown in UI, no need for map-based clock
    */
   private renderClock(): void {
-    // FIX: Don't draw ANY clock elements when using full map
-    // The full map already has a complete, perfect clock baked in
-    if (this.mapBackgroundLoaded) {
-      return; // Skip all clock rendering - no double layers!
-    }
-
-    // Fallback mode only: Draw complete animated clock
-    this.ctx.save();
-    this.ctx.imageSmoothingEnabled = false;
-
-    // Position at bottom center (tile 2, 4)
-    const tileWidth = this.canvas.width / this.MAP_COLS;
-    const tileHeight = this.canvas.height / this.MAP_ROWS;
-    const clockX = 2 * tileWidth + tileWidth / 2;
-    const clockY = 4 * tileHeight + tileHeight / 2;
-
-    // Get game time info - full revolution per week
-    const currentWeek = this.game.currentWeek;
-    const timeRemaining = this.game.timeUnitsRemaining;
-    const timeUsed = 600 - timeRemaining; // 600 units per week
-
-    // Calculate rotation angle (0-360 degrees for full week)
-    const weekProgress = timeUsed / 600; // 0.0 to 1.0
-    const rotationAngle = weekProgress * Math.PI * 2; // Convert to radians
-
-    const clockRadius = Math.min(tileWidth, tileHeight) * 0.35;
-
-    // Draw clock background image
-    const clockBotImg = this.clockImages.get('bottom');
-
-    if (clockBotImg && clockBotImg.complete) {
-      this.ctx.drawImage(
-        clockBotImg,
-        clockX - clockRadius,
-        clockY - clockRadius,
-        clockRadius * 2,
-        clockRadius * 2
-      );
-    } else {
-      // Fallback: draw simple clock face
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-      this.ctx.beginPath();
-      this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      this.ctx.strokeStyle = '#FFD700';
-      this.ctx.lineWidth = 3;
-      this.ctx.beginPath();
-      this.ctx.arc(clockX, clockY, clockRadius, 0, Math.PI * 2);
-      this.ctx.stroke();
-    }
-
-    // Draw clock hand (starts at top, rotates clockwise)
-    this.ctx.save();
-    this.ctx.translate(clockX, clockY);
-    this.ctx.rotate(rotationAngle - Math.PI / 2); // Start at 12 o'clock
-
-    // Clock hand
-    const handLength = clockRadius * 0.7;
-    this.ctx.strokeStyle = '#FF0000';
-    this.ctx.lineWidth = 4;
-    this.ctx.lineCap = 'round';
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, 0);
-    this.ctx.lineTo(handLength, 0);
-    this.ctx.stroke();
-
-    // Clock hand tip (arrow)
-    this.ctx.fillStyle = '#FF0000';
-    this.ctx.beginPath();
-    this.ctx.arc(handLength, 0, 5, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    this.ctx.restore();
-
-    // Center dot
-    this.ctx.fillStyle = '#FFD700';
-    this.ctx.beginPath();
-    this.ctx.arc(clockX, clockY, 6, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    // Week number below clock
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-    this.ctx.beginPath();
-    this.ctx.roundRect(clockX - 35, clockY + clockRadius + 5, 70, 20, 5);
-    this.ctx.fill();
-
-    this.ctx.fillStyle = '#FFD700';
-    this.ctx.font = 'bold 14px monospace';
-    this.ctx.textAlign = 'center';
-    this.ctx.textBaseline = 'middle';
-    this.ctx.fillText(`Week ${currentWeek}`, clockX, clockY + clockRadius + 15);
-
-    this.ctx.restore();
+    // Clock display moved to UI - cleaner separation
+    // Time/week info is in PlayerStatsHUD
+    return;
   }
 
   /**
-   * Render buildings layer with Java graphics
-   * Updated for rectangular tiles (155x96)
-   *
-   * CRITICAL: If full map is loaded, buildings are already in the map image!
-   * Only render buildings in fallback tile mode.
+   * Render buildings layer with modern pixel art
+   * Beautiful isometric buildings with cohesive aesthetic
    */
   private renderBuildings(): void {
-    // FIX: Skip building rendering if full map is loaded
-    // The full map image already contains buildings baked in
-    if (this.mapBackgroundLoaded) {
-      if (this.frameCount === 1) {
-        console.log('🏢 Skipping building rendering - buildings already in full map image');
-      }
-      return; // Early exit - no double rendering!
+    if (this.frameCount === 1) {
+      console.log('🏢 Rendering modern isometric buildings');
     }
 
-    // Fallback mode only: Draw buildings over tiles
-    console.log('🏗️ Rendering buildings in fallback mode');
-
-    // Calculate tile dimensions based on canvas size
     const tileWidth = this.canvas.width / this.MAP_COLS;
     const tileHeight = this.canvas.height / this.MAP_ROWS;
     const buildings = this.game.map.getAllBuildings();
 
     if (buildings.length === 0) {
       console.warn('No buildings to render!');
+      return;
     }
 
     const playerPositions = this.game.players.map(p => ({ x: p.state.position.x, y: p.state.position.y }));
@@ -689,134 +408,26 @@ export class RenderCoordinator {
 
       const isPlayerOnBuilding = playerPositions.some(p => p.x === pos.x && p.y === pos.y);
 
-      const padding = 10;
-      const namePlateHeight = 20;
-
-      // FIX: Make room for nameplate BELOW building, not overlaid on it
-      const bx = x + padding;
-      const by = y + padding;
-      const bw = tileWidth - (padding * 2);
-      const bh = tileHeight - (padding * 2) - namePlateHeight; // Reduce building height to make room
-
-      this.ctx.save();
-
-      // Disable image smoothing for crisp pixel art
-      this.ctx.imageSmoothingEnabled = false;
-
-      // Get building image
-      const img = this.buildingImages.get(building.type);
-
-      if (img && img.complete && this.imagesLoaded) {
-        // Draw building image (reduced height to make room for nameplate below)
-        this.ctx.drawImage(img, bx, by, bw, bh);
-      } else {
-        // Fallback to colored rectangle if image not loaded
-        const style = this.getBuildingStyle(building.type);
-        const gradient = this.ctx.createLinearGradient(bx, by, bx, by + bh);
-        gradient.addColorStop(0, style.colorTop);
-        gradient.addColorStop(1, style.colorBottom);
-        this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(bx, by, bw, bh);
-      }
-
-      // Draw subtle border only if player is on building
-      if (isPlayerOnBuilding) {
-        this.ctx.strokeStyle = '#FFFF00';
-        this.ctx.lineWidth = 4;
-        this.ctx.strokeRect(bx - 2, by - 2, bw + 4, bh + 4);
-      }
-
-      // FIX: Draw nameplate BELOW building, not overlaid on it (eliminates double-layer effect)
-      const namePlateY = by + bh; // Position AFTER building image ends
-
-      // Nameplate background - semi-transparent for better blending
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-      this.ctx.fillRect(bx, namePlateY, bw, namePlateHeight);
-
-      // No border on nameplate for cleaner look
-
-      // Building name text - bright and clear
-      this.ctx.fillStyle = '#FFFFFF';
-      this.ctx.font = 'bold 10px monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-
-      // Truncate long names
-      let displayName = building.name;
-      if (displayName.length > 13) {
-        displayName = displayName.substring(0, 11) + '..';
-      }
-
-      this.ctx.fillText(displayName, x + tileWidth / 2, namePlateY + namePlateHeight / 2);
-
-      this.ctx.restore();
+      // Render modern building with procedural graphics
+      renderModernBuilding(
+        this.ctx,
+        building,
+        x,
+        y,
+        tileWidth,
+        tileHeight,
+        isPlayerOnBuilding
+      );
     });
   }
 
-  /**
-   * Get visual style for building type with gradients
-   */
-  private getBuildingStyle(type: string): { colorTop: string; colorBottom: string; accentColor: string } {
-    const styles: Record<string, { colorTop: string; colorBottom: string; accentColor: string }> = {
-      'EMPLOYMENT_AGENCY': {
-        colorTop: '#5BA3E8',
-        colorBottom: '#3A7BC8',
-        accentColor: '#87CEEB',
-      },
-      'FACTORY': {
-        colorTop: '#A0522D',
-        colorBottom: '#6B3410',
-        accentColor: '#CD853F',
-      },
-      'BANK': {
-        colorTop: '#FFE44D',
-        colorBottom: '#D4AF37',
-        accentColor: '#FFD700',
-      },
-      'COLLEGE': {
-        colorTop: '#B294E8',
-        colorBottom: '#7B5DB8',
-        accentColor: '#DDA0DD',
-      },
-      'CLOTHES_STORE': {
-        colorTop: '#FF8ACC',
-        colorBottom: '#E85AA0',
-        accentColor: '#FFB6D9',
-      },
-      'RESTAURANT': {
-        colorTop: '#FF7A5C',
-        colorBottom: '#E8553A',
-        accentColor: '#FFA07A',
-      },
-      'RENT_AGENCY': {
-        colorTop: '#4AE864',
-        colorBottom: '#2AAA3F',
-        accentColor: '#90EE90',
-      },
-      'LOW_COST_APARTMENT': {
-        colorTop: '#BEBEBE',
-        colorBottom: '#888888',
-        accentColor: '#D3D3D3',
-      },
-      'SECURITY_APARTMENT': {
-        colorTop: '#8FA9B8',
-        colorBottom: '#5E7A8A',
-        accentColor: '#B0C4DE',
-      },
-    };
-    return styles[type] || {
-      colorTop: '#888888',
-      colorBottom: '#555555',
-      accentColor: '#AAAAAA',
-    };
-  }
+  // Old building style method - colors now in ModernPixelRenderer
+  // private getBuildingStyle(type: string): { colorTop: string; colorBottom: string; accentColor: string } { ... }
 
   /**
-   * Render players layer - Retro pixel sprites with smooth movement animation
-   * Updated for rectangular tiles (155x96)
+   * Render players layer - Modern pixel art sprites with smooth animation
    */
   private renderPlayers(timestamp: number): void {
-    // Calculate tile dimensions based on canvas size
     const tileWidth = this.canvas.width / this.MAP_COLS;
     const tileHeight = this.canvas.height / this.MAP_ROWS;
 
@@ -830,96 +441,16 @@ export class RenderCoordinator {
         timestamp
       );
 
-      this.ctx.save();
-      this.ctx.imageSmoothingEnabled = false;
-
       // Calculate pixel-aligned position (center of tile) using animated position
       const centerX = Math.floor(animPos.x * tileWidth + tileWidth / 2);
       const centerY = Math.floor(animPos.y * tileHeight + tileHeight / 2);
 
       // Scale sprite based on smaller dimension to fit in tile
       const minTileDim = Math.min(tileWidth, tileHeight);
-      const spriteSize = Math.floor(minTileDim * 0.4);
-      const headRadius = spriteSize * 0.35;
-      const bodyHeight = spriteSize * 0.5;
+      const spriteSize = Math.floor(minTileDim * 0.6);
 
-      // Draw player as character-like avatar
-      // Shadow
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-      this.ctx.beginPath();
-      this.ctx.ellipse(centerX, centerY + spriteSize * 0.4, spriteSize * 0.4, spriteSize * 0.15, 0, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Body (rounded rectangle)
-      const bodyY = centerY - bodyHeight / 4;
-      const bodyWidth = spriteSize * 0.5;
-      this.ctx.fillStyle = player.color;
-      this.ctx.beginPath();
-      this.ctx.roundRect(centerX - bodyWidth / 2, bodyY, bodyWidth, bodyHeight, 8);
-      this.ctx.fill();
-
-      // Body highlight
-      const bodyGradient = this.ctx.createLinearGradient(
-        centerX - bodyWidth / 2, bodyY,
-        centerX + bodyWidth / 2, bodyY + bodyHeight
-      );
-      bodyGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-      bodyGradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
-      this.ctx.fillStyle = bodyGradient;
-      this.ctx.fill();
-
-      // Head (circle)
-      const headY = centerY - spriteSize * 0.3;
-      this.ctx.fillStyle = player.color;
-      this.ctx.beginPath();
-      this.ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Head highlight (3D effect)
-      const headGradient = this.ctx.createRadialGradient(
-        centerX - headRadius * 0.3, headY - headRadius * 0.3, 0,
-        centerX, headY, headRadius
-      );
-      headGradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
-      headGradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.1)');
-      headGradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
-      this.ctx.fillStyle = headGradient;
-      this.ctx.beginPath();
-      this.ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Eyes
-      this.ctx.fillStyle = '#FFFFFF';
-      this.ctx.beginPath();
-      this.ctx.arc(centerX - headRadius * 0.3, headY - headRadius * 0.1, headRadius * 0.2, 0, Math.PI * 2);
-      this.ctx.arc(centerX + headRadius * 0.3, headY - headRadius * 0.1, headRadius * 0.2, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Pupils
-      this.ctx.fillStyle = '#000000';
-      this.ctx.beginPath();
-      this.ctx.arc(centerX - headRadius * 0.3, headY - headRadius * 0.1, headRadius * 0.1, 0, Math.PI * 2);
-      this.ctx.arc(centerX + headRadius * 0.3, headY - headRadius * 0.1, headRadius * 0.1, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Player name with better styling
-      this.ctx.font = 'bold 10px monospace';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'top';
-
-      // Name background (rounded)
-      const nameWidth = this.ctx.measureText(player.name).width;
-      const nameY = centerY + spriteSize * 0.3;
-      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-      this.ctx.beginPath();
-      this.ctx.roundRect(centerX - nameWidth / 2 - 4, nameY, nameWidth + 8, 14, 4);
-      this.ctx.fill();
-
-      // Name text
-      this.ctx.fillStyle = '#FFFFFF';
-      this.ctx.fillText(player.name, centerX, nameY + 2);
-
-      this.ctx.restore();
+      // Render modern pixel art player
+      renderModernPlayer(this.ctx, player, centerX, centerY, spriteSize);
     });
   }
 
