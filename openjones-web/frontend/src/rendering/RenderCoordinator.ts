@@ -348,15 +348,7 @@ export class RenderCoordinator {
     // Clear canvas
     this.clear();
 
-    // DEBUG: Log rendering state every 60 frames (once per second at 60fps)
-    if (this.frameCount % 60 === 0) {
-      console.log('🎨 Render State:', {
-        mapLoaded: this.mapBackgroundLoaded,
-        buildingsLoaded: this.imagesLoaded,
-        buildingCount: this.game.map.getAllBuildings().length,
-        playerCount: this.game.players.length
-      });
-    }
+    // Debug logging removed to prevent console spam
 
     // Render all layers in order with timestamp for animations
     this.renderAllLayers(timestamp);
@@ -669,15 +661,13 @@ export class RenderCoordinator {
     }
 
     // Fallback mode only: Draw buildings over tiles
-    console.log('🏗️ Rendering buildings in fallback mode');
-
     // Calculate tile dimensions based on canvas size
     const tileWidth = this.canvas.width / this.MAP_COLS;
     const tileHeight = this.canvas.height / this.MAP_ROWS;
     const buildings = this.game.map.getAllBuildings();
 
     if (buildings.length === 0) {
-      console.warn('No buildings to render!');
+      return; // No buildings, skip rendering
     }
 
     const playerPositions = this.game.players.map(p => ({ x: p.state.position.x, y: p.state.position.y }));
