@@ -194,6 +194,22 @@ export const PlayerStatsHUD: React.FC<PlayerStatsHUDProps> = ({
             maxValue={100}
             color="purple"
           />
+          {/* Experience at current job rank (or highest rank if no job) */}
+          {(() => {
+            const currentRank = playerState.job?.rank ?? 1;
+            const expAtRank = playerState.getExperienceAtRank(currentRank);
+            const rankLabel = playerState.job
+              ? `Experience (Rank ${currentRank})`
+              : `Experience`;
+            return (
+              <StatBar
+                label={rankLabel}
+                value={expAtRank}
+                maxValue={100}
+                color="green"
+              />
+            );
+          })()}
         </div>
 
         {/* Divider */}

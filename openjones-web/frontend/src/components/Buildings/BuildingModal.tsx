@@ -251,8 +251,10 @@ export const BuildingModal: React.FC<BuildingModalProps> = ({
             <span>TO CLOSE</span>
           </div>
           <div>
-            <span style={kbdStyle}>1-9</span>
-            <span>SELECT ACTION</span>
+            <span style={kbdStyle}>↑↓</span>
+            <span style={{marginRight: '8px'}}>NAVIGATE</span>
+            <span style={kbdStyle}>ENTER</span>
+            <span>SELECT</span>
           </div>
         </div>
       </div>

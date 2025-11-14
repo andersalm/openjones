@@ -31,16 +31,18 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
     if (!keyboardEnabled) return;
 
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Number keys 1-9
-      if (e.key >= '1' && e.key <= '9') {
+      // Number keys 0-9 (support all actions via sequential digits)
+      if (e.key >= '0' && e.key <= '9') {
         e.preventDefault();
-        const index = parseInt(e.key) - 1;
+        const digit = parseInt(e.key);
+        // For single digit: 1-9 map to index 0-8, 0 maps to index 9
+        const index = digit === 0 ? 9 : digit - 1;
         if (actions[index]) {
           onActionSelect(actions[index].id);
         }
       }
 
-      // Arrow keys
+      // Arrow keys for navigation
       if (e.key === 'ArrowDown') {
         e.preventDefault();
         setSelectedIndex((prev) => Math.min(prev + 1, actions.length - 1));
@@ -50,7 +52,17 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
         setSelectedIndex((prev) => Math.max(prev - 1, 0));
       }
 
-      // Enter key
+      // Page Up/Down for faster navigation
+      if (e.key === 'PageDown') {
+        e.preventDefault();
+        setSelectedIndex((prev) => Math.min(prev + 5, actions.length - 1));
+      }
+      if (e.key === 'PageUp') {
+        e.preventDefault();
+        setSelectedIndex((prev) => Math.max(prev - 5, 0));
+      }
+
+      // Enter key to select
       if (e.key === 'Enter') {
         e.preventDefault();
         const action = actions[selectedIndex];
