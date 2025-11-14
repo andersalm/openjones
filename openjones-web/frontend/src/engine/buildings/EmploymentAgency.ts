@@ -19,6 +19,9 @@ import { Building } from './Building';
 import { ExitBuildingAction } from '../actions/ExitBuildingAction';
 
 export class EmploymentAgency extends Building {
+  // Track which building's jobs are currently being viewed (null = show all companies)
+  private selectedBuildingId: string | null = null;
+
   constructor(id: string, name: string, position: IPosition) {
     super(
       id,
@@ -37,35 +40,22 @@ export class EmploymentAgency extends Building {
   }
 
   /**
-   * Get available actions - browse jobs by building
-   * Organized by rank for better UX
+   * Get available actions - two-step menu: companies first, then jobs
    */
   getAvailableActions(player: IPlayerState, game: IGame): IAction[] {
     const actions: IAction[] = [];
 
     if (this.isPlayerInside(player)) {
-      // Get all jobs from all buildings
-      const allJobs = this.getAllJobsFromBuildings(game);
-
-      // Sort jobs by rank (ascending), then by wage (descending)
-      const sortedJobs = allJobs.sort((a, b) => {
-        if (a.rank !== b.rank) {
-          return a.rank - b.rank; // Lower ranks first
-        }
-        return b.wagePerHour - a.wagePerHour; // Higher wages first within rank
-      });
-
-      // Create apply actions for each job
-      for (const job of sortedJobs) {
-        // Skip if player already has this job
-        if (player.job?.id === job.id) {
-          continue;
-        }
-
-        actions.push(this.createApplyForJobAction(job, player));
+      if (this.selectedBuildingId === null) {
+        // STEP 1: Show all companies that have jobs
+        actions.push(...this.getCompanyBrowseActions(game));
+      } else {
+        // STEP 2: Show jobs from selected company
+        actions.push(this.getBackAction());
+        actions.push(...this.getJobsForBuilding(this.selectedBuildingId, player, game));
       }
 
-      // Exit action at the end
+      // Exit action always at the end
       actions.push(new ExitBuildingAction());
     }
 
@@ -73,19 +63,106 @@ export class EmploymentAgency extends Building {
   }
 
   /**
-   * Get all jobs from all buildings in the game
+   * Get company browse actions - shows list of companies hiring
    */
-  private getAllJobsFromBuildings(game: IGame): IJob[] {
-    const allJobs: IJob[] = [];
-
-    // Iterate through all buildings and collect jobs
+  private getCompanyBrowseActions(game: IGame): IAction[] {
+    const actions: IAction[] = [];
     const buildings = game.map.getAllBuildings();
-    for (const building of buildings) {
-      const jobs = building.getJobOfferings();
-      allJobs.push(...jobs);
+
+    // Group buildings by those that have jobs
+    const buildingsWithJobs = buildings.filter(b => b.getJobOfferings().length > 0);
+
+    // Sort by building name
+    buildingsWithJobs.sort((a, b) => a.name.localeCompare(b.name));
+
+    for (const building of buildingsWithJobs) {
+      const jobCount = building.getJobOfferings().length;
+      actions.push({
+        id: `${this.id}-browse-${building.id}`,
+        type: ActionType.SUBMENU,
+        displayName: `${building.name} (${jobCount} job${jobCount !== 1 ? 's' : ''})`,
+        description: `Browse job openings at ${building.name}`,
+        timeCost: 0,
+
+        canExecute: () => true,
+
+        execute: () => {
+          // Set selected building to show its jobs
+          this.selectedBuildingId = building.id;
+          return {
+            success: true,
+            message: `Browsing jobs at ${building.name}`,
+            timeSpent: 0,
+            stateChanges: [],
+          };
+        },
+
+        getRequirements: () => [],
+      });
     }
 
-    return allJobs;
+    return actions;
+  }
+
+  /**
+   * Get back action to return to company list
+   */
+  private getBackAction(): IAction {
+    return {
+      id: `${this.id}-back`,
+      type: ActionType.SUBMENU,
+      displayName: '← Back to Companies',
+      description: 'Return to company list',
+      timeCost: 0,
+
+      canExecute: () => true,
+
+      execute: () => {
+        this.selectedBuildingId = null;
+        return {
+          success: true,
+          message: 'Returned to company list',
+          timeSpent: 0,
+          stateChanges: [],
+        };
+      },
+
+      getRequirements: () => [],
+    };
+  }
+
+  /**
+   * Get jobs for a specific building
+   */
+  private getJobsForBuilding(buildingId: string, player: IPlayerState, game: IGame): IAction[] {
+    const actions: IAction[] = [];
+    const buildings = game.map.getAllBuildings();
+    const building = buildings.find(b => b.id === buildingId);
+
+    if (!building) {
+      return actions;
+    }
+
+    const jobs = building.getJobOfferings();
+
+    // Sort jobs by rank (ascending), then by wage (descending)
+    const sortedJobs = jobs.sort((a, b) => {
+      if (a.rank !== b.rank) {
+        return a.rank - b.rank;
+      }
+      return b.wagePerHour - a.wagePerHour;
+    });
+
+    for (const job of sortedJobs) {
+      // Skip if player already has this job
+      if (player.job?.id === job.id) {
+        continue;
+      }
+
+      actions.push(this.createApplyForJobAction(job, player, building.name));
+    }
+
+    return actions;
   }
 
   /**
@@ -113,14 +190,11 @@ export class EmploymentAgency extends Building {
    * Create apply for job action with building name and location
    * Shows if player qualifies
    */
-  private createApplyForJobAction(job: IJob, player: IPlayerState): IAction {
+  private createApplyForJobAction(job: IJob, player: IPlayerState, buildingName: string): IAction {
     const applyDuration = 5; // 1 hour in time units
 
     // Get building ID from job ID (format: "building-id-job-job-name")
     const buildingId = job.id.split('-job-')[0];
-    const buildingName = buildingId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-
-    // Store building ID for later use in success message
     const jobBuildingId = buildingId;
 
     // Check if player meets requirements and format display
@@ -131,7 +205,7 @@ export class EmploymentAgency extends Building {
     return {
       id: `${this.id}-apply-${job.id}`,
       type: ActionType.APPLY_JOB,
-      displayName: `${statusIcon} ${rankLabel} ${job.title} at ${buildingName} - $${job.wagePerHour}/hr`,
+      displayName: `${statusIcon} ${rankLabel} ${job.title} - $${job.wagePerHour}/hr`,
       description: `Rank ${job.rank} | Needs: ${job.requiredEducation} edu, ${job.requiredExperience} exp (R${job.rank}), L${job.requiredClothesLevel} clothes`,
       timeCost: applyDuration,
 
